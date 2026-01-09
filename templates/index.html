@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode Problem Selector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .input-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .json-loaded-section {
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-bottom: 2px solid #28a745;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group h3 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .file-upload {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="file"] {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+        }
+
+        .button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .button-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .button-success {
+            background: #28a745;
+            color: white;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .button-warning {
+            background: #ffc107;
+            color: #000;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .button-info {
+            background: #17a2b8;
+            color: white;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .progress-section {
+            padding: 25px 30px;
+            background: white;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .progress-section h3 {
+            font-size: 1.2em;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .stats-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #dee2e6, transparent);
+            margin: 20px 0;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card.clickable {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .stat-card.clickable:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .unlock-status {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .unlock-status.locked {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .unlock-status.unlocked {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .controls-section {
+            padding: 25px 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .problems-section {
+            padding: 30px;
+        }
+
+        .difficulty-group {
+            margin-bottom: 30px;
+        }
+
+        .difficulty-header {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .difficulty-header.easy {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .difficulty-header.medium {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: #000;
+        }
+
+        .difficulty-header.hard {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .problem-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .problem-item.revisit {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #2196f3;
+        }
+
+        .problem-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .problem-item.revisit:hover {
+            background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
+        }
+
+        .problem-number {
+            font-weight: bold;
+            color: #6c757d;
+            min-width: 40px;
+        }
+
+        .problem-link {
+            flex: 1;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .problem-link:hover {
+            text-decoration: underline;
+            color: #0056b3;
+        }
+
+        .problem-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .message {
+            padding: 15px;
+            margin: 20px 30px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .modal-list {
+            list-style: none;
+        }
+
+        .modal-list li {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-list li.revisit {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #2196f3;
+        }
+
+        .modal-list a {
+            color: #007bff;
+            text-decoration: none;
+            flex: 1;
+        }
+
+        .modal-list a:hover {
+            text-decoration: underline;
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .close-modal:hover {
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .problem-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .problem-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 LeetCode Problem Selector</h1>
+            <p class="subtitle">Smart problem selection with progressive difficulty unlocking</p>
+        </header>
+
+        <div id="inputSection" class="input-section">
+            <div class="input-group">
+                <h3>📋 Paste JSON Here:</h3>
+                <textarea id="jsonInput" placeholder='Paste your JSON here... e.g., {"result": {"Arrays & Hashing": ["https://leetcode.com/problems/..."], ...}}'></textarea>
+            </div>
+            <div class="input-group">
+                <h3>📁 Or Upload JSON File:</h3>
+                <div class="file-upload">
+                    <input type="file" id="fileInput" accept=".json">
+                    <button class="button button-secondary" onclick="loadFromFile()">Upload File</button>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="button button-primary" onclick="loadProblems()">Load Problems</button>
+            </div>
+        </div>
+
+        <div id="jsonLoadedSection" class="json-loaded-section hidden">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h3 style="color: #28a745; margin: 0;">✅ Problems Data Loaded</h3>
+                    <p style="color: #6c757d; margin: 5px 0 0 0; font-size: 0.9em;">Ready to generate problem sets</p>
+                </div>
+                <button class="button button-secondary" onclick="showChangeJsonModal()">🔄 Change JSON</button>
+            </div>
+        </div>
+
+        <div id="progressSection" class="progress-section hidden">
+            <h2>📊 Your Progress</h2>
+
+            <h3 style="margin-top: 20px; color: #667eea;">🎯 Current Session</h3>
+            <div class="progress-stats">
+                <div class="stat-card clickable" onclick="showCompletedProblems('session', 'all')">
+                    <div class="stat-value" id="sessionTotalCompleted">0</div>
+                    <div class="stat-label">Session Completed</div>
+                </div>
+                <div class="stat-card clickable" onclick="showCompletedProblems('session', 'easy')">
+                    <div class="stat-value" id="sessionEasyCompleted">0</div>
+                    <div class="stat-label">Easy (Need 20)</div>
+                </div>
+                <div class="stat-card clickable" onclick="showCompletedProblems('session', 'medium')">
+                    <div class="stat-value" id="sessionMediumCompleted">0</div>
+                    <div class="stat-label">Medium (Need 3)</div>
+                </div>
+                <div class="stat-card clickable" onclick="showCompletedProblems('session', 'hard')">
+                    <div class="stat-value" id="sessionHardCompleted">0</div>
+                    <div class="stat-label">Hard</div>
+                </div>
+            </div>
+            <div id="unlockStatus" class="unlock-status locked"></div>
+
+            <div class="stats-divider"></div>
+
+            <h3 style="margin-top: 25px; color: #28a745;">🏆 Global Stats (All Time)</h3>
+            <div class="progress-stats">
+                <div class="stat-card clickable" onclick="showCompletedProblems('global', 'all')">
+                    <div class="stat-value" id="globalTotalCompleted">0</div>
+                    <div class="stat-label">Total Completed</div>
+                </div>
+                <div class="stat-card clickable" onclick="showCompletedProblems('global', 'easy')">
+                    <div class="stat-value" id="globalEasyCompleted">0</div>
+                    <div class="stat-label">Easy Problems</div>
+                </div>
+                <div class="stat-card clickable" onclick="showCompletedProblems('global', 'medium')">
+                    <div class="stat-value" id="globalMediumCompleted">0</div>
+                    <div class="stat-label">Medium Problems</div>
+                </div>
+                <div class="stat-card clickable" onclick="showCompletedProblems('global', 'hard')">
+                    <div class="stat-value" id="globalHardCompleted">0</div>
+                    <div class="stat-label">Hard Problems</div>
+                </div>
+                <div class="stat-card clickable" onclick="showList('skipped')">
+                    <div class="stat-value" id="skippedCount">0</div>
+                    <div class="stat-label">Skipped</div>
+                </div>
+                <div class="stat-card clickable" onclick="showList('revisit')">
+                    <div class="stat-value" id="revisitCount">0</div>
+                    <div class="stat-label">Revisit</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="controlsSection" class="controls-section hidden">
+            <button class="button button-primary" onclick="generateProblems()">🎲 Generate 30 Problems</button>
+            <button class="button button-secondary" onclick="showList('skipped')">📋 Show Skipped</button>
+            <button class="button button-secondary" onclick="showList('revisit')">↻ Show Revisit</button>
+        </div>
+
+        <div id="messageArea"></div>
+
+        <div id="loadingArea" class="loading hidden">
+            <div class="loading-spinner"></div>
+            <p>Fetching problem difficulties from LeetCode API...</p>
+            <p>This may take a minute for large problem sets</p>
+        </div>
+
+        <div id="problemsSection" class="problems-section hidden"></div>
+    </div>
+
+    <div id="listModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div class="modal-header" id="modalTitle"></div>
+            <ul class="modal-list" id="modalList"></ul>
+        </div>
+    </div>
+
+    <div id="changeJsonModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeChangeJsonModal()">&times;</span>
+            <div class="modal-header">🔄 Change Problems JSON</div>
+            <div style="margin: 20px 0;">
+                <h4 style="margin-bottom: 10px;">Paste JSON:</h4>
+                <textarea id="modalJsonInput" style="width: 100%; min-height: 200px; padding: 10px; border-radius: 5px; border: 2px solid #dee2e6;" placeholder='Paste your JSON here...'></textarea>
+            </div>
+            <div style="margin: 20px 0;">
+                <h4 style="margin-bottom: 10px;">Or Upload File:</h4>
+                <input type="file" id="modalFileInput" accept=".json" style="width: 100%; padding: 10px;">
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="button button-primary" onclick="loadProblemsFromModal()">Load New Problems</button>
+                <button class="button button-secondary" onclick="closeChangeJsonModal()" style="margin-left: 10px;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let problemsLoaded = false;
+
+        function showMessage(message, type = 'success') {
+            const messageArea = document.getElementById('messageArea');
+            messageArea.innerHTML = `<div class="message ${type}">${message}</div>`;
+            setTimeout(() => {
+                messageArea.innerHTML = '';
+            }, 3000);
+        }
+
+        function showChangeJsonModal() {
+            document.getElementById('changeJsonModal').style.display = 'block';
+        }
+
+        function closeChangeJsonModal() {
+            document.getElementById('changeJsonModal').style.display = 'none';
+            document.getElementById('modalJsonInput').value = '';
+            document.getElementById('modalFileInput').value = '';
+        }
+
+        async function loadProblemsFromModal() {
+            const jsonText = document.getElementById('modalJsonInput').value.trim();
+            const fileInput = document.getElementById('modalFileInput');
+
+            if (!jsonText && !fileInput.files[0]) {
+                showMessage('Please provide JSON text or upload a file', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+
+            if (fileInput.files[0]) {
+                formData.append('file', fileInput.files[0]);
+            } else {
+                formData.append('json_text', jsonText);
+            }
+
+            // Show loading indicator
+            document.getElementById('loadingArea').classList.remove('hidden');
+            closeChangeJsonModal();
+
+            try {
+                const response = await fetch('/api/load_problems', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                document.getElementById('loadingArea').classList.add('hidden');
+
+                if (data.success) {
+                    problemsLoaded = true;
+                    showLoadedState();
+                    updateProgress();
+                    showMessage(data.message);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                document.getElementById('loadingArea').classList.add('hidden');
+                showMessage('Error loading problems: ' + error.message, 'error');
+            }
+        }
+
+        function showLoadedState() {
+            document.getElementById('inputSection').classList.add('hidden');
+            document.getElementById('jsonLoadedSection').classList.remove('hidden');
+            document.getElementById('progressSection').classList.remove('hidden');
+            document.getElementById('controlsSection').classList.remove('hidden');
+        }
+
+        function showInputState() {
+            document.getElementById('inputSection').classList.remove('hidden');
+            document.getElementById('jsonLoadedSection').classList.add('hidden');
+        }
+
+        function loadFromFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                showMessage('Please select a file first', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('jsonInput').value = e.target.result;
+                showMessage('File content loaded into text area. Click "Load Problems" to continue.');
+            };
+            reader.readAsText(file);
+        }
+
+        async function loadProblems() {
+            const jsonText = document.getElementById('jsonInput').value.trim();
+
+            if (!jsonText) {
+                showMessage('Please paste JSON or upload a file first', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('json_text', jsonText);
+
+            // Show loading indicator
+            document.getElementById('loadingArea').classList.remove('hidden');
+            document.getElementById('messageArea').innerHTML = '';
+
+            try {
+                const response = await fetch('/api/load_problems', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                // Hide loading indicator
+                document.getElementById('loadingArea').classList.add('hidden');
+
+                if (data.success) {
+                    problemsLoaded = true;
+                    showLoadedState();
+                    updateProgress();
+                    showMessage(data.message);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                document.getElementById('loadingArea').classList.add('hidden');
+                showMessage('Error loading problems: ' + error.message, 'error');
+            }
+        }
+
+        async function checkInitialState() {
+            try {
+                const response = await fetch('/api/check_problems');
+                const data = await response.json();
+
+                if (data.loaded) {
+                    problemsLoaded = true;
+                    showLoadedState();
+                    updateProgress();
+
+                    // If there's an existing session, show it
+                    if (data.has_session) {
+                        const genResponse = await fetch('/api/generate', { method: 'POST' });
+                        const genData = await genResponse.json();
+                        if (genData.success) {
+                            displayProblems(genData.problems);
+                        }
+                    }
+                } else {
+                    showInputState();
+                }
+            } catch (error) {
+                console.log('No previous state found, showing input form');
+                showInputState();
+            }
+        }
+
+        async function generateProblems() {
+            if (!problemsLoaded) {
+                showMessage('Please load problems first', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ force_new: true })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    displayProblems(data.problems);
+                    // Update progress to show the reset session stats
+                    await updateProgress();
+                    showMessage(`Generated ${data.problems.length} new problems! Session stats reset.`);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error generating problems: ' + error.message, 'error');
+            }
+        }
+
+        function displayProblems(problems) {
+            const problemsSection = document.getElementById('problemsSection');
+            problemsSection.classList.remove('hidden');
+
+            // Group by difficulty
+            const grouped = {
+                easy: problems.filter(p => p.difficulty === 'easy'),
+                medium: problems.filter(p => p.difficulty === 'medium'),
+                hard: problems.filter(p => p.difficulty === 'hard')
+            };
+
+            let html = '';
+
+            // Display Easy
+            if (grouped.easy.length > 0) {
+                html += `<div class="difficulty-group">
+                    <div class="difficulty-header easy">🟢 EASY (${grouped.easy.length} problems)</div>`;
+                grouped.easy.forEach((problem, index) => {
+                    html += createProblemHTML(problem, index + 1);
+                });
+                html += '</div>';
+            }
+
+            // Display Medium
+            if (grouped.medium.length > 0) {
+                html += `<div class="difficulty-group">
+                    <div class="difficulty-header medium">🟡 MEDIUM (${grouped.medium.length} problems)</div>`;
+                grouped.medium.forEach((problem, index) => {
+                    html += createProblemHTML(problem, index + 1);
+                });
+                html += '</div>';
+            }
+
+            // Display Hard
+            if (grouped.hard.length > 0) {
+                html += `<div class="difficulty-group">
+                    <div class="difficulty-header hard">🔴 HARD (${grouped.hard.length} problems)</div>`;
+                grouped.hard.forEach((problem, index) => {
+                    html += createProblemHTML(problem, index + 1);
+                });
+                html += '</div>';
+            }
+
+            problemsSection.innerHTML = html;
+        }
+
+        function createProblemHTML(problem, index) {
+            const slug = problem.url.split('/').filter(s => s).pop();
+            const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const revisitClass = problem.is_revisit ? 'revisit' : '';
+
+            return `<div class="problem-item ${revisitClass}" data-url="${problem.url}" data-difficulty="${problem.difficulty}">
+                <span class="problem-number">${index}.</span>
+                <a class="problem-link" href="${problem.url}" target="_blank">${name}</a>
+                <div class="problem-actions">
+                    <button class="button button-success" onclick="markComplete('${problem.url}')">✓ Complete</button>
+                    <button class="button button-warning" onclick="markSkip('${problem.url}', '${problem.difficulty}')">⊘ Skip</button>
+                    <button class="button button-info" onclick="markRevisit('${problem.url}')">↻ Revisit</button>
+                </div>
+            </div>`;
+        }
+
+        async function markComplete(url) {
+            try {
+                const response = await fetch('/api/mark_complete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    updateProgress();
+                    showMessage('✓ Problem marked as complete!');
+                    // Remove the problem from display
+                    const problemItem = document.querySelector(`[data-url="${url}"]`);
+                    if (problemItem) {
+                        problemItem.style.opacity = '0';
+                        setTimeout(() => problemItem.remove(), 300);
+                    }
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function markSkip(url, difficulty) {
+            try {
+                const response = await fetch('/api/mark_skip', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    updateProgress();
+
+                    // Find and replace the problem
+                    const problemItem = document.querySelector(`[data-url="${url}"]`);
+                    if (problemItem && data.replacement) {
+                        const parentGroup = problemItem.parentElement;
+                        const index = Array.from(parentGroup.children).filter(el =>
+                            el.classList.contains('problem-item')
+                        ).indexOf(problemItem);
+
+                        // Create replacement problem
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = createProblemHTML(data.replacement, index + 1);
+                        const newProblem = tempDiv.firstChild;
+
+                        // Replace with animation
+                        problemItem.style.opacity = '0';
+                        setTimeout(() => {
+                            problemItem.replaceWith(newProblem);
+                            newProblem.style.opacity = '0';
+                            setTimeout(() => newProblem.style.opacity = '1', 10);
+                        }, 300);
+
+                        showMessage('⊘ Problem skipped and replaced!');
+                    } else {
+                        // If no replacement, just remove
+                        if (problemItem) {
+                            problemItem.style.opacity = '0';
+                            setTimeout(() => problemItem.remove(), 300);
+                        }
+                        showMessage('⊘ Problem marked as skipped');
+                    }
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function markRevisit(url) {
+            try {
+                const response = await fetch('/api/mark_revisit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    updateProgress();
+                    // Change the color of the problem
+                    const problemItem = document.querySelector(`[data-url="${url}"]`);
+                    if (problemItem) {
+                        problemItem.classList.add('revisit');
+                    }
+                    showMessage('↻ Problem marked for revisit');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function updateProgress() {
+            try {
+                const response = await fetch('/api/progress');
+                const progress = await response.json();
+
+                // Update session stats
+                const sessionTotal = progress.session.total_problems || 0;
+                document.getElementById('sessionTotalCompleted').textContent =
+                    `${progress.session.total}/${sessionTotal}`;
+                document.getElementById('sessionEasyCompleted').textContent = progress.session.easy;
+                document.getElementById('sessionMediumCompleted').textContent = progress.session.medium;
+                document.getElementById('sessionHardCompleted').textContent = progress.session.hard;
+
+                // Update global stats
+                document.getElementById('globalTotalCompleted').textContent = progress.global.total;
+                document.getElementById('globalEasyCompleted').textContent = progress.global.easy;
+                document.getElementById('globalMediumCompleted').textContent = progress.global.medium;
+                document.getElementById('globalHardCompleted').textContent = progress.global.hard;
+                document.getElementById('skippedCount').textContent = progress.skipped;
+                document.getElementById('revisitCount').textContent = progress.revisit;
+
+                // Update unlock status based on session
+                const unlockStatus = document.getElementById('unlockStatus');
+                if (sessionTotal === 0) {
+                    unlockStatus.textContent = '⏳ Generate problems to start a new session';
+                    unlockStatus.className = 'unlock-status locked';
+                } else if (progress.session.can_unlock_hard) {
+                    unlockStatus.textContent = '🔓 Hard Problems UNLOCKED for this session!';
+                    unlockStatus.className = 'unlock-status unlocked';
+                } else {
+                    unlockStatus.textContent = `🔒 Hard Problems Locked - Need: ${progress.session.needs_easy} Easy, ${progress.session.needs_medium} Medium in current session`;
+                    unlockStatus.className = 'unlock-status locked';
+                }
+            } catch (error) {
+                console.error('Error updating progress:', error);
+            }
+        }
+
+        async function showList(type) {
+            try {
+                const response = await fetch(`/api/lists/${type}`);
+                const data = await response.json();
+
+                const modal = document.getElementById('listModal');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalList = document.getElementById('modalList');
+
+                modalTitle.textContent = type === 'skipped' ? '📋 Skipped Problems' : '↻ Revisit Problems';
+
+                if (data.urls.length === 0) {
+                    modalList.innerHTML = '<li>No problems in this list yet</li>';
+                } else {
+                    if (type === 'skipped') {
+                        // Handle skipped list with completion buttons
+                        modalList.innerHTML = data.urls.map(item => {
+                            const url = item.url;
+                            const slug = url.split('/').filter(s => s).pop();
+                            const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                            const revisitClass = item.is_revisit ? 'revisit' : '';
+                            return `<li class="${revisitClass}">
+                                <a href="${url}" target="_blank">${name}</a>
+                                <button class="button button-success" onclick="markCompleteFromModal('${url}')">✓ Complete</button>
+                            </li>`;
+                        }).join('');
+                    } else {
+                        // Handle revisit list (simple display)
+                        modalList.innerHTML = data.urls.map(url => {
+                            const slug = url.split('/').filter(s => s).pop();
+                            const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                            return `<li class="revisit"><a href="${url}" target="_blank">${name}</a></li>`;
+                        }).join('');
+                    }
+                }
+
+                modal.style.display = 'block';
+            } catch (error) {
+                showMessage('Error loading list: ' + error.message, 'error');
+            }
+        }
+
+        async function showCompletedProblems(scope, difficulty) {
+            try {
+                const response = await fetch(`/api/completed/${scope}/${difficulty}`);
+                const data = await response.json();
+
+                const modal = document.getElementById('listModal');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalList = document.getElementById('modalList');
+
+                // Create title
+                const scopeText = scope === 'session' ? 'Current Session' : 'Global (All Time)';
+                const difficultyText = difficulty === 'all' ? 'All' : difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+                const difficultyEmoji = {
+                    'all': '✅',
+                    'easy': '🟢',
+                    'medium': '🟡',
+                    'hard': '🔴'
+                };
+
+                modalTitle.textContent = `${difficultyEmoji[difficulty]} ${difficultyText} - ${scopeText} (${data.urls.length})`;
+
+                if (data.urls.length === 0) {
+                    modalList.innerHTML = '<li>No completed problems in this category yet</li>';
+                } else {
+                    modalList.innerHTML = data.urls.map(item => {
+                        const url = item.url;
+                        const slug = url.split('/').filter(s => s).pop();
+                        const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        const revisitClass = item.is_revisit ? 'revisit' : '';
+                        return `<li class="${revisitClass}">
+                            <a href="${url}" target="_blank">${name}</a>
+                        </li>`;
+                    }).join('');
+                }
+
+                modal.style.display = 'block';
+            } catch (error) {
+                showMessage('Error loading completed problems: ' + error.message, 'error');
+            }
+        }
+
+        async function markCompleteFromModal(url) {
+            try {
+                const response = await fetch('/api/mark_complete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    updateProgress();
+                    showMessage('✓ Problem marked as complete!');
+                    // Refresh the modal list
+                    closeModal();
+                    setTimeout(() => showList('skipped'), 500);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('listModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const listModal = document.getElementById('listModal');
+            const changeJsonModal = document.getElementById('changeJsonModal');
+            if (event.target == listModal) {
+                listModal.style.display = 'none';
+            }
+            if (event.target == changeJsonModal) {
+                closeChangeJsonModal();
+            }
+        }
+
+        // Check initial state on page load
+        window.onload = function() {
+            checkInitialState();
+        };
+    </script>
+</body>
+</html>

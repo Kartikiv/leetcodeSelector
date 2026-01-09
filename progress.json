@@ -1,0 +1,56 @@
+{
+  "completed": [
+    "https://leetcode.com/problems/missing-number/"
+  ],
+  "skipped": [
+    "https://leetcode.com/problems/design-hashset/"
+  ],
+  "revisit": [
+    "https://leetcode.com/problems/design-hashset/"
+  ],
+  "global_stats": {
+    "easy_completed": 1,
+    "medium_completed": 0,
+    "hard_completed": 0,
+    "total_completed": 1
+  },
+  "current_session": {
+    "problems": [
+      "https://leetcode.com/problems/missing-number/",
+      "https://leetcode.com/problems/n-th-tribonacci-number/",
+      "https://leetcode.com/problems/clear-digits/",
+      "https://leetcode.com/problems/majority-element/",
+      "https://leetcode.com/problems/can-place-flowers/",
+      "https://leetcode.com/problems/remove-element/",
+      "https://leetcode.com/problems/longest-palindrome/",
+      "https://leetcode.com/problems/island-perimeter/",
+      "https://leetcode.com/problems/number-of-senior-citizens/",
+      "https://leetcode.com/problems/find-words-that-can-be-formed-by-characters",
+      "https://leetcode.com/problems/matrix-diagonal-sum/",
+      "https://leetcode.com/problems/binary-search/",
+      "https://leetcode.com/problems/verifying-an-alien-dictionary/",
+      "https://leetcode.com/problems/last-stone-weight/",
+      "https://leetcode.com/problems/convert-1d-array-into-2d-array/",
+      "https://leetcode.com/problems/check-if-two-string-arrays-are-equivalent",
+      "https://leetcode.com/problems/maximum-ascending-subarray-sum/",
+      "https://leetcode.com/problems/longest-common-prefix/",
+      "https://leetcode.com/problems/single-number/",
+      "https://leetcode.com/problems/calculate-money-in-leetcode-bank",
+      "https://leetcode.com/problems/design-add-and-search-words-data-structure/",
+      "https://leetcode.com/problems/create-binary-tree-from-descriptions/",
+      "https://leetcode.com/problems/binary-search-tree-iterator/",
+      "https://leetcode.com/problems/minimum-number-of-changes-to-make-binary-string-beautiful/",
+      "https://leetcode.com/problems/construct-binary-tree-from-preorder-and-postorder-traversal/",
+      "https://leetcode.com/problems/find-the-duplicate-number/",
+      "https://leetcode.com/problems/count-number-of-maximum-bitwise-or-subsets/",
+      "https://leetcode.com/problems/find-all-duplicates-in-an-array",
+      "https://leetcode.com/problems/find-k-th-smallest-pair-distance/",
+      "https://leetcode.com/problems/parsing-a-boolean-expression/"
+    ],
+    "easy_completed": 1,
+    "medium_completed": 0,
+    "hard_completed": 0,
+    "total_completed": 1,
+    "generated_at": "2026-01-08 10:32:51"
+  }
+}
