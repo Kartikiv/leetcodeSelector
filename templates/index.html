@@ -175,17 +175,6 @@
             text-align: center;
         }
 
-        .stat-card.clickable {
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .stat-card.clickable:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-        }
-
         .stat-value {
             font-size: 2em;
             font-weight: bold;
@@ -440,8 +429,16 @@
 <body>
     <div class="container">
         <header>
-            <h1>🚀 LeetCode Problem Selector</h1>
-            <p class="subtitle">Smart problem selection with progressive difficulty unlocking</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                <div>
+                    <h1>🚀 LeetCode Problem Selector</h1>
+                    <p class="subtitle">Smart problem selection with progressive difficulty unlocking</p>
+                </div>
+                <div style="text-align: right;">
+                    <p style="margin-bottom: 10px; font-size: 0.9em; color: white;">Welcome, <strong id="headerUsername">User</strong>!</p>
+                    <button class="button button-secondary" onclick="handleLogout()" style="padding: 8px 20px; font-size: 14px;">🚪 Logout</button>
+                </div>
+            </div>
         </header>
 
         <div id="inputSection" class="input-section">
@@ -476,19 +473,19 @@
 
             <h3 style="margin-top: 20px; color: #667eea;">🎯 Current Session</h3>
             <div class="progress-stats">
-                <div class="stat-card clickable" onclick="showCompletedProblems('session', 'all')">
+                <div class="stat-card">
                     <div class="stat-value" id="sessionTotalCompleted">0</div>
                     <div class="stat-label">Session Completed</div>
                 </div>
-                <div class="stat-card clickable" onclick="showCompletedProblems('session', 'easy')">
+                <div class="stat-card">
                     <div class="stat-value" id="sessionEasyCompleted">0</div>
                     <div class="stat-label">Easy (Need 20)</div>
                 </div>
-                <div class="stat-card clickable" onclick="showCompletedProblems('session', 'medium')">
+                <div class="stat-card">
                     <div class="stat-value" id="sessionMediumCompleted">0</div>
                     <div class="stat-label">Medium (Need 3)</div>
                 </div>
-                <div class="stat-card clickable" onclick="showCompletedProblems('session', 'hard')">
+                <div class="stat-card">
                     <div class="stat-value" id="sessionHardCompleted">0</div>
                     <div class="stat-label">Hard</div>
                 </div>
@@ -499,27 +496,27 @@
 
             <h3 style="margin-top: 25px; color: #28a745;">🏆 Global Stats (All Time)</h3>
             <div class="progress-stats">
-                <div class="stat-card clickable" onclick="showCompletedProblems('global', 'all')">
+                <div class="stat-card">
                     <div class="stat-value" id="globalTotalCompleted">0</div>
                     <div class="stat-label">Total Completed</div>
                 </div>
-                <div class="stat-card clickable" onclick="showCompletedProblems('global', 'easy')">
+                <div class="stat-card">
                     <div class="stat-value" id="globalEasyCompleted">0</div>
                     <div class="stat-label">Easy Problems</div>
                 </div>
-                <div class="stat-card clickable" onclick="showCompletedProblems('global', 'medium')">
+                <div class="stat-card">
                     <div class="stat-value" id="globalMediumCompleted">0</div>
                     <div class="stat-label">Medium Problems</div>
                 </div>
-                <div class="stat-card clickable" onclick="showCompletedProblems('global', 'hard')">
+                <div class="stat-card">
                     <div class="stat-value" id="globalHardCompleted">0</div>
                     <div class="stat-label">Hard Problems</div>
                 </div>
-                <div class="stat-card clickable" onclick="showList('skipped')">
+                <div class="stat-card">
                     <div class="stat-value" id="skippedCount">0</div>
                     <div class="stat-label">Skipped</div>
                 </div>
-                <div class="stat-card clickable" onclick="showList('revisit')">
+                <div class="stat-card">
                     <div class="stat-value" id="revisitCount">0</div>
                     <div class="stat-label">Revisit</div>
                 </div>
@@ -657,18 +654,6 @@
             }
         }
 
-        function showLoadedState() {
-            document.getElementById('inputSection').classList.add('hidden');
-            document.getElementById('jsonLoadedSection').classList.remove('hidden');
-            document.getElementById('progressSection').classList.remove('hidden');
-            document.getElementById('controlsSection').classList.remove('hidden');
-        }
-
-        function showInputState() {
-            document.getElementById('inputSection').classList.remove('hidden');
-            document.getElementById('jsonLoadedSection').classList.add('hidden');
-        }
-
         function loadFromFile() {
             const fileInput = document.getElementById('fileInput');
             const file = fileInput.files[0];
@@ -714,7 +699,8 @@
 
                 if (data.success) {
                     problemsLoaded = true;
-                    showLoadedState();
+                    document.getElementById('progressSection').classList.remove('hidden');
+                    document.getElementById('controlsSection').classList.remove('hidden');
                     updateProgress();
                     showMessage(data.message);
                 } else {
@@ -726,8 +712,33 @@
             }
         }
 
+        async function handleLogout() {
+            const confirmed = confirm('Are you sure you want to logout?');
+            if (!confirmed) return;
+
+            try {
+                const response = await fetch('/api/logout', { method: 'POST' });
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                showMessage('Error logging out: ' + error.message, 'error');
+            }
+        }
+
         async function checkInitialState() {
             try {
+                // Get current user info
+                const userResponse = await fetch('/api/current_user');
+                const userData = await userResponse.json();
+
+                if (userData.authenticated) {
+                    document.getElementById('headerUsername').textContent = userData.username;
+                }
+
+                // Check if problems are loaded
                 const response = await fetch('/api/check_problems');
                 const data = await response.json();
 
@@ -753,6 +764,18 @@
             }
         }
 
+        function showLoadedState() {
+            document.getElementById('inputSection').classList.add('hidden');
+            document.getElementById('jsonLoadedSection').classList.remove('hidden');
+            document.getElementById('progressSection').classList.remove('hidden');
+            document.getElementById('controlsSection').classList.remove('hidden');
+        }
+
+        function showInputState() {
+            document.getElementById('inputSection').classList.remove('hidden');
+            document.getElementById('jsonLoadedSection').classList.add('hidden');
+        }
+
         async function generateProblems() {
             if (!problemsLoaded) {
                 showMessage('Please load problems first', 'error');
@@ -769,7 +792,6 @@
 
                 if (data.success) {
                     displayProblems(data.problems);
-                    // Update progress to show the reset session stats
                     await updateProgress();
                     showMessage(`Generated ${data.problems.length} new problems! Session stats reset.`);
                 } else {
@@ -949,9 +971,8 @@
                 const progress = await response.json();
 
                 // Update session stats
-                const sessionTotal = progress.session.total_problems || 0;
                 document.getElementById('sessionTotalCompleted').textContent =
-                    `${progress.session.total}/${sessionTotal}`;
+                    `${progress.session.total}/${progress.session.total_problems}`;
                 document.getElementById('sessionEasyCompleted').textContent = progress.session.easy;
                 document.getElementById('sessionMediumCompleted').textContent = progress.session.medium;
                 document.getElementById('sessionHardCompleted').textContent = progress.session.hard;
@@ -966,10 +987,7 @@
 
                 // Update unlock status based on session
                 const unlockStatus = document.getElementById('unlockStatus');
-                if (sessionTotal === 0) {
-                    unlockStatus.textContent = '⏳ Generate problems to start a new session';
-                    unlockStatus.className = 'unlock-status locked';
-                } else if (progress.session.can_unlock_hard) {
+                if (progress.session.can_unlock_hard) {
                     unlockStatus.textContent = '🔓 Hard Problems UNLOCKED for this session!';
                     unlockStatus.className = 'unlock-status unlocked';
                 } else {
@@ -1023,47 +1041,6 @@
             }
         }
 
-        async function showCompletedProblems(scope, difficulty) {
-            try {
-                const response = await fetch(`/api/completed/${scope}/${difficulty}`);
-                const data = await response.json();
-
-                const modal = document.getElementById('listModal');
-                const modalTitle = document.getElementById('modalTitle');
-                const modalList = document.getElementById('modalList');
-
-                // Create title
-                const scopeText = scope === 'session' ? 'Current Session' : 'Global (All Time)';
-                const difficultyText = difficulty === 'all' ? 'All' : difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-                const difficultyEmoji = {
-                    'all': '✅',
-                    'easy': '🟢',
-                    'medium': '🟡',
-                    'hard': '🔴'
-                };
-
-                modalTitle.textContent = `${difficultyEmoji[difficulty]} ${difficultyText} - ${scopeText} (${data.urls.length})`;
-
-                if (data.urls.length === 0) {
-                    modalList.innerHTML = '<li>No completed problems in this category yet</li>';
-                } else {
-                    modalList.innerHTML = data.urls.map(item => {
-                        const url = item.url;
-                        const slug = url.split('/').filter(s => s).pop();
-                        const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                        const revisitClass = item.is_revisit ? 'revisit' : '';
-                        return `<li class="${revisitClass}">
-                            <a href="${url}" target="_blank">${name}</a>
-                        </li>`;
-                    }).join('');
-                }
-
-                modal.style.display = 'block';
-            } catch (error) {
-                showMessage('Error loading completed problems: ' + error.message, 'error');
-            }
-        }
-
         async function markCompleteFromModal(url) {
             try {
                 const response = await fetch('/api/mark_complete', {
@@ -1106,7 +1083,6 @@
                 const response = await fetch('/api/export_progress');
                 const data = await response.json();
 
-                // Create a blob and download
                 const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -1132,26 +1108,24 @@
                 return;
             }
 
-            let importData;
-
-            try {
-                if (fileInput.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = async function(e) {
-                        try {
-                            importData = JSON.parse(e.target.result);
-                            await performImport(importData);
-                        } catch (error) {
-                            showMessage('Invalid JSON file: ' + error.message, 'error');
-                        }
-                    };
-                    reader.readAsText(fileInput.files[0]);
-                } else {
-                    importData = JSON.parse(jsonText);
+            if (fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const importData = JSON.parse(e.target.result);
+                        await performImport(importData);
+                    } catch (error) {
+                        showMessage('Invalid JSON file: ' + error.message, 'error');
+                    }
+                };
+                reader.readAsText(fileInput.files[0]);
+            } else {
+                try {
+                    const importData = JSON.parse(jsonText);
                     await performImport(importData);
+                } catch (error) {
+                    showMessage('Invalid JSON format: ' + error.message, 'error');
                 }
-            } catch (error) {
-                showMessage('Invalid JSON format: ' + error.message, 'error');
             }
         }
 
@@ -1168,18 +1142,7 @@
 
                 if (data.success) {
                     await updateProgress();
-
-                    // If there's a session in the imported data, display it
-                    const checkResponse = await fetch('/api/check_problems');
-                    const checkData = await checkResponse.json();
-                    if (checkData.has_session) {
-                        const genResponse = await fetch('/api/generate', { method: 'POST' });
-                        const genData = await genResponse.json();
-                        if (genData.success) {
-                            displayProblems(genData.problems);
-                        }
-                    }
-
+                    await checkInitialState();
                     showMessage('📥 ' + data.message);
                 } else {
                     showMessage(data.message, 'error');
@@ -1250,7 +1213,7 @@
             }
         }
 
-        // Check initial state on page load
+        // Load progress on page load if problems were previously loaded
         window.onload = function() {
             checkInitialState();
         };

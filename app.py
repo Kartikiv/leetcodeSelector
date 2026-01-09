@@ -1,21 +1,123 @@
-from flask import Flask, render_template, jsonify, request, send_from_directory
+from flask import Flask, render_template, jsonify, request, send_from_directory, redirect, url_for, session
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 import json
 import random
 import os
 import requests
 import time
 from typing import Dict, List
+from functools import wraps
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
+app.config['PERMANENT_SESSION_LIFETIME'] = 2592000  # 30 days
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+os.makedirs('users', exist_ok=True)
+
+# Setup Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+
+class User(UserMixin):
+    def __init__(self, user_id, username, email):
+        self.id = user_id
+        self.username = username
+        self.email = email
+
+    @staticmethod
+    def get_users_db():
+        """Get users database"""
+        if os.path.exists('users/users.json'):
+            with open('users/users.json', 'r') as f:
+                return json.load(f)
+        return {}
+
+    @staticmethod
+    def save_users_db(users_db):
+        """Save users database"""
+        with open('users/users.json', 'w') as f:
+            json.dump(users_db, f, indent=2)
+
+    @staticmethod
+    def get(user_id):
+        """Get user by ID"""
+        users_db = User.get_users_db()
+        if user_id in users_db:
+            user_data = users_db[user_id]
+            return User(user_id, user_data['username'], user_data['email'])
+        return None
+
+    @staticmethod
+    def get_by_username(username):
+        """Get user by username"""
+        users_db = User.get_users_db()
+        for user_id, user_data in users_db.items():
+            if user_data['username'] == username:
+                return User(user_id, user_data['username'], user_data['email'])
+        return None
+
+    @staticmethod
+    def create(username, email, password):
+        """Create a new user"""
+        users_db = User.get_users_db()
+
+        # Check if username or email already exists
+        for user_data in users_db.values():
+            if user_data['username'] == username:
+                return None, "Username already exists"
+            if user_data['email'] == email:
+                return None, "Email already exists"
+
+        # Generate unique user ID
+        user_id = str(len(users_db) + 1)
+        while user_id in users_db:
+            user_id = str(int(user_id) + 1)
+
+        # Create user directory
+        user_dir = f'users/{user_id}'
+        os.makedirs(user_dir, exist_ok=True)
+
+        # Save user - use pbkdf2:sha256 method explicitly for Python 3.9 compatibility
+        users_db[user_id] = {
+            'username': username,
+            'email': email,
+            'password_hash': generate_password_hash(password, method='pbkdf2:sha256'),
+            'created_at': time.strftime('%Y-%m-%d %H:%M:%S')
+        }
+        User.save_users_db(users_db)
+
+        return User(user_id, username, email), None
+
+    @staticmethod
+    def verify_password(username, password):
+        """Verify user password"""
+        users_db = User.get_users_db()
+        for user_id, user_data in users_db.items():
+            if user_data['username'] == username:
+                if check_password_hash(user_data['password_hash'], password):
+                    return User(user_id, user_data['username'], user_data['email'])
+        return None
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
 
 
 class LeetCodeProblemSelector:
-    def __init__(self, progress_file: str = 'progress.json'):
-        self.progress_file = progress_file
-        self.difficulty_cache_file = 'difficulty_cache.json'
-        self.problems_file = 'problems_data.json'  # Store uploaded JSON
+    def __init__(self, user_id: str):
+        self.user_id = user_id
+        self.user_dir = f'users/{user_id}'
+        os.makedirs(self.user_dir, exist_ok=True)
+
+        self.progress_file = f'{self.user_dir}/progress.json'
+        self.difficulty_cache_file = f'{self.user_dir}/difficulty_cache.json'
+        self.problems_file = f'{self.user_dir}/problems_data.json'
+
         self.progress = self._load_progress()
         self.problems_data = None
         self.difficulty_map = None
@@ -35,9 +137,12 @@ class LeetCodeProblemSelector:
                 json.dump(self.problems_data, f, indent=2)
 
             self.difficulty_map = self._initialize_difficulty_map()
+            print(f"Problems loaded successfully for user {self.user_id}")
             return True
         except Exception as e:
             print(f"Error loading problems: {e}")
+            import traceback
+            traceback.print_exc()
             return False
 
     def _load_saved_problems(self):
@@ -47,26 +152,17 @@ class LeetCodeProblemSelector:
                 with open(self.problems_file, 'r') as f:
                     self.problems_data = json.load(f)
                 self.difficulty_map = self._initialize_difficulty_map()
-                print("Loaded previously uploaded problems data")
+                print(f"Loaded previously uploaded problems data for user {self.user_id}")
                 return True
             except Exception as e:
                 print(f"Error loading saved problems: {e}")
+                import traceback
+                traceback.print_exc()
         return False
 
     def has_problems_loaded(self) -> bool:
         """Check if problems data is loaded"""
         return self.problems_data is not None
-
-    def load_problems(self, problems_json: str):
-        """Load problems from JSON string"""
-        try:
-            data = json.loads(problems_json)
-            self.problems_data = data['result'] if 'result' in data else data
-            self.difficulty_map = self._initialize_difficulty_map()
-            return True
-        except Exception as e:
-            print(f"Error loading problems: {e}")
-            return False
 
     def _load_progress(self) -> Dict:
         """Load progress from file or create new if doesn't exist"""
@@ -441,19 +537,102 @@ class LeetCodeProblemSelector:
             return False
 
 
-# Global selector instance
-selector = LeetCodeProblemSelector()
+def get_selector():
+    """Get selector for current user"""
+    if not current_user.is_authenticated:
+        return None
+    return LeetCodeProblemSelector(current_user.id)
+
+
+# Authentication routes
+@app.route('/login', methods=['GET'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    return render_template('login.html')
+
+
+@app.route('/register', methods=['GET'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    return render_template('register.html')
+
+
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    data = request.json
+    username = data.get('username', '').strip()
+    email = data.get('email', '').strip()
+    password = data.get('password', '')
+
+    if not username or not email or not password:
+        return jsonify({'success': False, 'message': 'All fields are required'})
+
+    if len(password) < 6:
+        return jsonify({'success': False, 'message': 'Password must be at least 6 characters'})
+
+    user, error = User.create(username, email, password)
+    if error:
+        return jsonify({'success': False, 'message': error})
+
+    login_user(user, remember=True)
+    session.permanent = True
+    return jsonify({'success': True, 'message': 'Account created successfully!'})
+
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    data = request.json
+    username = data.get('username', '')
+    password = data.get('password', '')
+    remember = data.get('remember', True)
+
+    user = User.verify_password(username, password)
+    if user:
+        login_user(user, remember=remember)
+        if remember:
+            session.permanent = True
+        return jsonify({'success': True, 'message': 'Login successful!'})
+
+    return jsonify({'success': False, 'message': 'Invalid username or password'})
+
+
+@app.route('/api/logout', methods=['POST'])
+@login_required
+def api_logout():
+    logout_user()
+    return jsonify({'success': True, 'message': 'Logged out successfully'})
+
+
+@app.route('/api/current_user', methods=['GET'])
+def api_current_user():
+    if current_user.is_authenticated:
+        return jsonify({
+            'authenticated': True,
+            'username': current_user.username,
+            'email': current_user.email
+        })
+    return jsonify({'authenticated': False})
 
 
 @app.route('/')
+@login_required
 def index():
-    return render_template('index.html')
+    return render_template('index.html', username=current_user.username)
 
 
 @app.route('/api/load_problems', methods=['POST'])
+@login_required
 def load_problems():
     """Load problems from JSON input or file upload"""
+    selector = get_selector()
+    if not selector:
+        return jsonify({'success': False, 'message': 'User session error'})
+
     try:
+        problems_json = None
+
         if 'file' in request.files:
             file = request.files['file']
             if file.filename == '':
@@ -461,41 +640,71 @@ def load_problems():
 
             if file and file.filename.endswith('.json'):
                 problems_json = file.read().decode('utf-8')
-                if selector.load_problems(problems_json):
-                    return jsonify({'success': True, 'message': 'Problems loaded successfully!'})
-                else:
-                    return jsonify({'success': False, 'message': 'Invalid JSON format'})
-
         elif 'json_text' in request.form:
             problems_json = request.form['json_text']
-            if selector.load_problems(problems_json):
-                return jsonify({'success': True, 'message': 'Problems loaded successfully!'})
-            else:
-                return jsonify({'success': False, 'message': 'Invalid JSON format'})
+        else:
+            return jsonify({'success': False, 'message': 'No input provided'})
 
-        return jsonify({'success': False, 'message': 'No input provided'})
+        if not problems_json:
+            return jsonify({'success': False, 'message': 'No JSON content provided'})
+
+        print(f"Loading problems for user {current_user.id}")
+        print(f"JSON length: {len(problems_json)} characters")
+
+        if selector.load_problems(problems_json):
+            print(f"Problems loaded successfully for user {current_user.id}")
+            print(f"Problems data type: {type(selector.problems_data)}")
+            print(f"Has difficulty map: {selector.difficulty_map is not None}")
+            return jsonify({'success': True, 'message': 'Problems loaded successfully!'})
+        else:
+            return jsonify({'success': False, 'message': 'Invalid JSON format or error processing problems'})
 
     except Exception as e:
+        print(f"Error in load_problems route: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'success': False, 'message': str(e)})
 
 
 @app.route('/api/check_problems', methods=['GET'])
+@login_required
 def check_problems():
     """Check if problems data is loaded"""
+    selector = get_selector()
+    if not selector:
+        return jsonify({'loaded': False, 'has_session': False})
+
+    has_problems = selector.has_problems_loaded()
+    has_session = len(selector.progress['current_session']['problems']) > 0
+
+    print(f"Check problems for user {current_user.id}: loaded={has_problems}, has_session={has_session}")
+
     return jsonify({
-        'loaded': selector.has_problems_loaded(),
-        'has_session': len(selector.progress['current_session']['problems']) > 0
+        'loaded': has_problems,
+        'has_session': has_session
     })
 
 
 @app.route('/api/generate', methods=['POST'])
+@login_required
 def generate_problems():
     """Generate new problem set"""
+    selector = get_selector()
+    if not selector:
+        return jsonify({'success': False, 'message': 'User session error'})
+
+    print(f"Generate called for user {current_user.id}")
+    print(f"Problems data loaded: {selector.problems_data is not None}")
+    print(f"Difficulty map loaded: {selector.difficulty_map is not None}")
+
     if not selector.problems_data:
         return jsonify({'success': False, 'message': 'Please load problems first'})
 
     # Check if we should return current session or generate new
     force_new = request.json.get('force_new', False) if request.is_json else False
+
+    print(f"Force new: {force_new}")
+    print(f"Current session problems: {len(selector.progress['current_session']['problems'])}")
 
     if not force_new and len(selector.progress['current_session']['problems']) > 0:
         # Return current session
@@ -508,19 +717,26 @@ def generate_problems():
                     'difficulty': difficulty,
                     'is_revisit': selector.is_in_revisit(url)
                 })
+        print(f"Returning existing session with {len(problems)} problems")
         return jsonify({'success': True, 'problems': problems, 'existing_session': True})
 
     # Generate new session
+    print("Generating new problem set...")
     problems = selector.select_problems()
+    print(f"Generated {len(problems)} problems")
+
     # Add revisit status to each problem
     for problem in problems:
         problem['is_revisit'] = selector.is_in_revisit(problem['url'])
+
     return jsonify({'success': True, 'problems': problems, 'existing_session': False})
 
 
 @app.route('/api/mark_complete', methods=['POST'])
+@login_required
 def mark_complete():
     """Mark a problem as complete"""
+    selector = get_selector()
     url = request.json.get('url')
     if selector.mark_complete(url):
         return jsonify({'success': True, 'progress': selector.get_progress()})
@@ -528,8 +744,10 @@ def mark_complete():
 
 
 @app.route('/api/mark_skip', methods=['POST'])
+@login_required
 def mark_skip():
     """Mark a problem as skipped and return replacement"""
+    selector = get_selector()
     url = request.json.get('url')
     result = selector.mark_skip(url)
     if result['success']:
@@ -548,8 +766,10 @@ def mark_skip():
 
 
 @app.route('/api/mark_revisit', methods=['POST'])
+@login_required
 def mark_revisit():
     """Mark a problem for revisit"""
+    selector = get_selector()
     url = request.json.get('url')
     if selector.mark_revisit(url):
         return jsonify({'success': True, 'progress': selector.get_progress()})
@@ -557,14 +777,18 @@ def mark_revisit():
 
 
 @app.route('/api/progress', methods=['GET'])
+@login_required
 def get_progress():
     """Get current progress"""
+    selector = get_selector()
     return jsonify(selector.get_progress())
 
 
 @app.route('/api/lists/<list_type>', methods=['GET'])
+@login_required
 def get_list(list_type):
     """Get skipped or revisit list with revisit status"""
+    selector = get_selector()
     if list_type in ['skipped', 'revisit']:
         urls = selector.progress[list_type]
         # Add revisit status for skipped list
@@ -576,8 +800,10 @@ def get_list(list_type):
 
 
 @app.route('/api/completed/<scope>/<difficulty>', methods=['GET'])
+@login_required
 def get_completed(scope, difficulty):
     """Get completed problems filtered by scope (session/global) and difficulty (all/easy/medium/hard)"""
+    selector = get_selector()
     completed_urls = selector.progress['completed']
 
     # Filter by scope
@@ -597,23 +823,29 @@ def get_completed(scope, difficulty):
 
 
 @app.route('/api/reset_progress', methods=['POST'])
+@login_required
 def reset_progress():
     """Reset all progress data"""
+    selector = get_selector()
     if selector.reset_all_progress():
         return jsonify({'success': True, 'message': 'All progress has been reset'})
     return jsonify({'success': False, 'message': 'Failed to reset progress'})
 
 
 @app.route('/api/export_progress', methods=['GET'])
+@login_required
 def export_progress():
     """Export progress data as JSON"""
+    selector = get_selector()
     export_data = selector.export_progress()
     return jsonify(export_data)
 
 
 @app.route('/api/import_progress', methods=['POST'])
+@login_required
 def import_progress():
     """Import progress data from JSON"""
+    selector = get_selector()
     try:
         import_data = request.json
         if selector.import_progress(import_data):
