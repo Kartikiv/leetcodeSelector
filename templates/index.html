@@ -530,6 +530,9 @@
             <button class="button button-primary" onclick="generateProblems()">🎲 Generate 30 Problems</button>
             <button class="button button-secondary" onclick="showList('skipped')">📋 Show Skipped</button>
             <button class="button button-secondary" onclick="showList('revisit')">↻ Show Revisit</button>
+            <button class="button button-secondary" onclick="exportProgress()">💾 Export Progress</button>
+            <button class="button button-secondary" onclick="showImportModal()">📥 Import Progress</button>
+            <button class="button button-secondary" onclick="confirmResetProgress()" style="background: #dc3545;">🗑️ Reset All</button>
         </div>
 
         <div id="messageArea"></div>
@@ -566,6 +569,25 @@
             <div style="text-align: center; margin-top: 20px;">
                 <button class="button button-primary" onclick="loadProblemsFromModal()">Load New Problems</button>
                 <button class="button button-secondary" onclick="closeChangeJsonModal()" style="margin-left: 10px;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="importProgressModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeImportModal()">&times;</span>
+            <div class="modal-header">📥 Import Progress</div>
+            <div style="margin: 20px 0;">
+                <h4 style="margin-bottom: 10px;">Paste Progress JSON:</h4>
+                <textarea id="importProgressInput" style="width: 100%; min-height: 200px; padding: 10px; border-radius: 5px; border: 2px solid #dee2e6;" placeholder='Paste your exported progress JSON here...'></textarea>
+            </div>
+            <div style="margin: 20px 0;">
+                <h4 style="margin-bottom: 10px;">Or Upload Progress File:</h4>
+                <input type="file" id="importProgressFile" accept=".json" style="width: 100%; padding: 10px;">
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="button button-primary" onclick="importProgressData()">Import Progress</button>
+                <button class="button button-secondary" onclick="closeImportModal()" style="margin-left: 10px;">Cancel</button>
             </div>
         </div>
     </div>
@@ -1069,15 +1091,162 @@
             document.getElementById('listModal').style.display = 'none';
         }
 
+        function showImportModal() {
+            document.getElementById('importProgressModal').style.display = 'block';
+        }
+
+        function closeImportModal() {
+            document.getElementById('importProgressModal').style.display = 'none';
+            document.getElementById('importProgressInput').value = '';
+            document.getElementById('importProgressFile').value = '';
+        }
+
+        async function exportProgress() {
+            try {
+                const response = await fetch('/api/export_progress');
+                const data = await response.json();
+
+                // Create a blob and download
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `leetcode-progress-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                showMessage('💾 Progress exported successfully!');
+            } catch (error) {
+                showMessage('Error exporting progress: ' + error.message, 'error');
+            }
+        }
+
+        async function importProgressData() {
+            const jsonText = document.getElementById('importProgressInput').value.trim();
+            const fileInput = document.getElementById('importProgressFile');
+
+            if (!jsonText && !fileInput.files[0]) {
+                showMessage('Please provide progress JSON or upload a file', 'error');
+                return;
+            }
+
+            let importData;
+
+            try {
+                if (fileInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = async function(e) {
+                        try {
+                            importData = JSON.parse(e.target.result);
+                            await performImport(importData);
+                        } catch (error) {
+                            showMessage('Invalid JSON file: ' + error.message, 'error');
+                        }
+                    };
+                    reader.readAsText(fileInput.files[0]);
+                } else {
+                    importData = JSON.parse(jsonText);
+                    await performImport(importData);
+                }
+            } catch (error) {
+                showMessage('Invalid JSON format: ' + error.message, 'error');
+            }
+        }
+
+        async function performImport(importData) {
+            try {
+                const response = await fetch('/api/import_progress', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(importData)
+                });
+
+                const data = await response.json();
+                closeImportModal();
+
+                if (data.success) {
+                    await updateProgress();
+
+                    // If there's a session in the imported data, display it
+                    const checkResponse = await fetch('/api/check_problems');
+                    const checkData = await checkResponse.json();
+                    if (checkData.has_session) {
+                        const genResponse = await fetch('/api/generate', { method: 'POST' });
+                        const genData = await genResponse.json();
+                        if (genData.success) {
+                            displayProblems(genData.problems);
+                        }
+                    }
+
+                    showMessage('📥 ' + data.message);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                closeImportModal();
+                showMessage('Error importing progress: ' + error.message, 'error');
+            }
+        }
+
+        async function confirmResetProgress() {
+            const confirmed = confirm(
+                '⚠️ WARNING: This will delete ALL your progress!\n\n' +
+                'This includes:\n' +
+                '• All completed problems\n' +
+                '• Current session\n' +
+                '• Skipped problems list\n' +
+                '• Revisit list\n' +
+                '• Global statistics\n\n' +
+                'Your problems data will be kept.\n\n' +
+                'Are you absolutely sure you want to continue?'
+            );
+
+            if (!confirmed) return;
+
+            const doubleConfirmed = confirm(
+                '🚨 FINAL WARNING!\n\n' +
+                'This action CANNOT be undone!\n\n' +
+                'Click OK to permanently delete all progress.'
+            );
+
+            if (!doubleConfirmed) return;
+
+            try {
+                const response = await fetch('/api/reset_progress', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    await updateProgress();
+                    document.getElementById('problemsSection').innerHTML = '';
+                    document.getElementById('problemsSection').classList.add('hidden');
+                    showMessage('🗑️ ' + data.message);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error resetting progress: ' + error.message, 'error');
+            }
+        }
+
         // Close modal when clicking outside
         window.onclick = function(event) {
             const listModal = document.getElementById('listModal');
             const changeJsonModal = document.getElementById('changeJsonModal');
+            const importProgressModal = document.getElementById('importProgressModal');
+
             if (event.target == listModal) {
                 listModal.style.display = 'none';
             }
             if (event.target == changeJsonModal) {
                 closeChangeJsonModal();
+            }
+            if (event.target == importProgressModal) {
+                closeImportModal();
             }
         }
 

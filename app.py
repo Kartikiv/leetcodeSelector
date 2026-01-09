@@ -393,6 +393,53 @@ class LeetCodeProblemSelector:
             'revisit': len(self.progress['revisit'])
         }
 
+    def reset_all_progress(self):
+        """Reset all progress data (keeps problems data)"""
+        self.progress = {
+            'completed': [],
+            'skipped': [],
+            'revisit': [],
+            'global_stats': {
+                'easy_completed': 0,
+                'medium_completed': 0,
+                'hard_completed': 0,
+                'total_completed': 0
+            },
+            'current_session': {
+                'problems': [],
+                'easy_completed': 0,
+                'medium_completed': 0,
+                'hard_completed': 0,
+                'total_completed': 0,
+                'generated_at': None
+            }
+        }
+        self._save_progress()
+        return True
+
+    def export_progress(self) -> Dict:
+        """Export all progress data for backup"""
+        return {
+            'progress': self.progress,
+            'export_timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
+            'version': '1.0'
+        }
+
+    def import_progress(self, import_data: Dict) -> bool:
+        """Import progress data from backup"""
+        try:
+            if 'progress' in import_data:
+                # Validate the structure
+                required_keys = ['completed', 'skipped', 'revisit', 'global_stats', 'current_session']
+                if all(key in import_data['progress'] for key in required_keys):
+                    self.progress = import_data['progress']
+                    self._save_progress()
+                    return True
+            return False
+        except Exception as e:
+            print(f"Error importing progress: {e}")
+            return False
+
 
 # Global selector instance
 selector = LeetCodeProblemSelector()
@@ -547,6 +594,34 @@ def get_completed(scope, difficulty):
     url_data = [{'url': url, 'is_revisit': selector.is_in_revisit(url)} for url in completed_urls]
 
     return jsonify({'urls': url_data})
+
+
+@app.route('/api/reset_progress', methods=['POST'])
+def reset_progress():
+    """Reset all progress data"""
+    if selector.reset_all_progress():
+        return jsonify({'success': True, 'message': 'All progress has been reset'})
+    return jsonify({'success': False, 'message': 'Failed to reset progress'})
+
+
+@app.route('/api/export_progress', methods=['GET'])
+def export_progress():
+    """Export progress data as JSON"""
+    export_data = selector.export_progress()
+    return jsonify(export_data)
+
+
+@app.route('/api/import_progress', methods=['POST'])
+def import_progress():
+    """Import progress data from JSON"""
+    try:
+        import_data = request.json
+        if selector.import_progress(import_data):
+            return jsonify({'success': True, 'message': 'Progress imported successfully!'})
+        else:
+            return jsonify({'success': False, 'message': 'Invalid progress data format'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
 
 
 if __name__ == '__main__':
