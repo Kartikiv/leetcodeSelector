@@ -528,12 +528,67 @@ class LeetCodeProblemSelector:
                 # Validate the structure
                 required_keys = ['completed', 'skipped', 'revisit', 'global_stats', 'current_session']
                 if all(key in import_data['progress'] for key in required_keys):
-                    self.progress = import_data['progress']
+                    imported_progress = import_data['progress']
+
+                    # Merge completed problems (avoid duplicates)
+                    existing_completed = set(self.progress['completed'])
+                    new_completed = set(imported_progress['completed'])
+                    all_completed = list(existing_completed | new_completed)
+
+                    # Update progress with merged data
+                    imported_progress['completed'] = all_completed
+
+                    # Recalculate global stats based on actual completed problems
+                    if self.difficulty_map:
+                        easy_count = sum(1 for url in all_completed if self._get_difficulty(url) == 'easy')
+                        medium_count = sum(1 for url in all_completed if self._get_difficulty(url) == 'medium')
+                        hard_count = sum(1 for url in all_completed if self._get_difficulty(url) == 'hard')
+
+                        imported_progress['global_stats'] = {
+                            'easy_completed': easy_count,
+                            'medium_completed': medium_count,
+                            'hard_completed': hard_count,
+                            'total_completed': len(all_completed)
+                        }
+
+                    # CRITICAL: Remove completed problems from imported session
+                    completed_set = set(all_completed)
+                    if 'problems' in imported_progress.get('current_session', {}):
+                        session_problems = imported_progress['current_session']['problems']
+                        cleaned_session = [p for p in session_problems if p not in completed_set]
+                        imported_progress['current_session']['problems'] = cleaned_session
+
+                        # Recalculate session stats
+                        if self.difficulty_map:
+                            session_easy = 0
+                            session_medium = 0
+                            session_hard = 0
+
+                            for url in cleaned_session:
+                                diff = self._get_difficulty(url)
+                                if diff == 'easy':
+                                    session_easy += 1
+                                elif diff == 'medium':
+                                    session_medium += 1
+                                elif diff == 'hard':
+                                    session_hard += 1
+
+                            imported_progress['current_session']['easy_completed'] = 0
+                            imported_progress['current_session']['medium_completed'] = 0
+                            imported_progress['current_session']['hard_completed'] = 0
+                            imported_progress['current_session']['total_completed'] = 0
+
+                        print(
+                            f"Cleaned imported session: removed {len(session_problems) - len(cleaned_session)} completed problems")
+
+                    self.progress = imported_progress
                     self._save_progress()
                     return True
             return False
         except Exception as e:
             print(f"Error importing progress: {e}")
+            import traceback
+            traceback.print_exc()
             return False
 
 
@@ -707,9 +762,16 @@ def generate_problems():
     print(f"Current session problems: {len(selector.progress['current_session']['problems'])}")
 
     if not force_new and len(selector.progress['current_session']['problems']) > 0:
-        # Return current session
+        # Return current session, but FILTER OUT completed problems
+        completed_set = set(selector.progress['completed'])
         problems = []
+
         for url in selector.progress['current_session']['problems']:
+            # Skip if already completed
+            if url in completed_set:
+                print(f"Skipping completed problem in session: {url}")
+                continue
+
             difficulty = selector._get_difficulty(url)
             if difficulty:
                 problems.append({
@@ -717,7 +779,9 @@ def generate_problems():
                     'difficulty': difficulty,
                     'is_revisit': selector.is_in_revisit(url)
                 })
-        print(f"Returning existing session with {len(problems)} problems")
+
+        print(
+            f"Returning existing session with {len(problems)} problems (filtered {len(selector.progress['current_session']['problems']) - len(problems)} completed)")
         return jsonify({'success': True, 'problems': problems, 'existing_session': True})
 
     # Generate new session
@@ -857,4 +921,4 @@ def import_progress():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=3000)
+    app.run(host='0.0.0.0', debug=False, port=3000)

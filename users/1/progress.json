@@ -1,19 +1,51 @@
 {
-  "completed": [],
-  "skipped": [],
-  "revisit": [],
-  "global_stats": {
+  "completed": [
+    "https://leetcode.com/problems/invert-binary-tree/",
+    "https://leetcode.com/problems/binary-tree-preorder-traversal/",
+    "https://leetcode.com/problems/add-binary/"
+  ],
+  "current_session": {
     "easy_completed": 0,
-    "medium_completed": 0,
+    "generated_at": "2026-01-09 09:20:00",
     "hard_completed": 0,
+    "medium_completed": 0,
+    "problems": [
+      "https://leetcode.com/problems/n-th-tribonacci-number/",
+      "https://leetcode.com/problems/greatest-common-divisor-of-strings/",
+      "https://leetcode.com/problems/binary-tree-postorder-traversal/",
+      "https://leetcode.com/problems/remove-duplicates-from-sorted-array/",
+      "https://leetcode.com/problems/contains-duplicate-ii/",
+      "https://leetcode.com/problems/reverse-string/",
+      "https://leetcode.com/problems/longest-common-prefix/",
+      "https://leetcode.com/problems/binary-tree-inorder-traversal/",
+      "https://leetcode.com/problems/single-number/",
+      "https://leetcode.com/problems/roman-to-integer/",
+      "https://leetcode.com/problems/island-perimeter/",
+      "https://leetcode.com/problems/same-tree/",
+      "https://leetcode.com/problems/reverse-bits/",
+      "https://leetcode.com/problems/linked-list-cycle/",
+      "https://leetcode.com/problems/concatenation-of-array/",
+      "https://leetcode.com/problems/min-cost-climbing-stairs/",
+      "https://leetcode.com/problems/find-the-town-judge/",
+      "https://leetcode.com/problems/valid-sudoku/",
+      "https://leetcode.com/problems/decode-string/",
+      "https://leetcode.com/problems/subsets-ii/",
+      "https://leetcode.com/problems/partition-to-k-equal-sum-subsets/",
+      "https://leetcode.com/problems/koko-eating-bananas/",
+      "https://leetcode.com/problems/stone-game/",
+      "https://leetcode.com/problems/sort-colors/",
+      "https://leetcode.com/problems/copy-list-with-random-pointer/",
+      "https://leetcode.com/problems/burst-balloons/",
+      "https://leetcode.com/problems/ipo/"
+    ],
     "total_completed": 0
   },
-  "current_session": {
-    "problems": [],
-    "easy_completed": 0,
+  "global_stats": {
+    "easy_completed": 3,
     "medium_completed": 0,
     "hard_completed": 0,
-    "total_completed": 0,
-    "generated_at": null
-  }
+    "total_completed": 3
+  },
+  "revisit": [],
+  "skipped": []
 }

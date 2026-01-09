@@ -168,12 +168,23 @@
             margin-top: 15px;
         }
 
-        .stat-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
+       .stat-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card[onclick] {
+    cursor: pointer;
+}
+
+.stat-card[onclick]:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+}
 
         .stat-value {
             font-size: 2em;
@@ -472,57 +483,54 @@
             <h2>📊 Your Progress</h2>
 
             <h3 style="margin-top: 20px; color: #667eea;">🎯 Current Session</h3>
-            <div class="progress-stats">
-                <div class="stat-card">
-                    <div class="stat-value" id="sessionTotalCompleted">0</div>
-                    <div class="stat-label">Session Completed</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="sessionEasyCompleted">0</div>
-                    <div class="stat-label">Easy (Need 20)</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="sessionMediumCompleted">0</div>
-                    <div class="stat-label">Medium (Need 3)</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="sessionHardCompleted">0</div>
-                    <div class="stat-label">Hard</div>
-                </div>
-            </div>
+<div class="progress-stats">
+    <div class="stat-card" onclick="showCompletedList('session', 'all')" style="cursor: pointer;">
+        <div class="stat-value" id="sessionTotalCompleted">0</div>
+        <div class="stat-label">Session Completed</div>
+    </div>
+    <div class="stat-card" onclick="showCompletedList('session', 'easy')" style="cursor: pointer;">
+        <div class="stat-value" id="sessionEasyCompleted">0</div>
+        <div class="stat-label">Easy (Need 20)</div>
+    </div>
+    <div class="stat-card" onclick="showCompletedList('session', 'medium')" style="cursor: pointer;">
+        <div class="stat-value" id="sessionMediumCompleted">0</div>
+        <div class="stat-label">Medium (Need 3)</div>
+    </div>
+    <div class="stat-card" onclick="showCompletedList('session', 'hard')" style="cursor: pointer;">
+        <div class="stat-value" id="sessionHardCompleted">0</div>
+        <div class="stat-label">Hard</div>
+    </div>
+</div>
             <div id="unlockStatus" class="unlock-status locked"></div>
 
             <div class="stats-divider"></div>
-
             <h3 style="margin-top: 25px; color: #28a745;">🏆 Global Stats (All Time)</h3>
             <div class="progress-stats">
-                <div class="stat-card">
-                    <div class="stat-value" id="globalTotalCompleted">0</div>
-                    <div class="stat-label">Total Completed</div>
+                <div class="stat-card" onclick="showCompletedList('global', 'all')" style="cursor: pointer;">
+                <div class="stat-value" id="globalTotalCompleted">0</div>
+                <div class="stat-label">Total Completed</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" onclick="showCompletedList('global', 'easy')" style="cursor: pointer;">
                     <div class="stat-value" id="globalEasyCompleted">0</div>
-                    <div class="stat-label">Easy Problems</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="globalMediumCompleted">0</div>
-                    <div class="stat-label">Medium Problems</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="globalHardCompleted">0</div>
-                    <div class="stat-label">Hard Problems</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="skippedCount">0</div>
-                    <div class="stat-label">Skipped</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="revisitCount">0</div>
-                    <div class="stat-label">Revisit</div>
-                </div>
+                <div class="stat-label">Easy Problems</div>
+            </div>
+            <div class="stat-card" onclick="showCompletedList('global', 'medium')" style="cursor: pointer;">
+                <div class="stat-value" id="globalMediumCompleted">0</div>
+                <div class="stat-label">Medium Problems</div>
+            </div>
+            <div class="stat-card" onclick="showCompletedList('global', 'hard')" style="cursor: pointer;">
+                <div class="stat-value" id="globalHardCompleted">0</div>
+                <div class="stat-label">Hard Problems</div>
+            </div>
+            <div class="stat-card" onclick="showList('skipped')" style="cursor: pointer;">
+                <div class="stat-value" id="skippedCount">0</div>
+                <div class="stat-label">Skipped</div>
+            </div>
+            <div class="stat-card" onclick="showList('revisit')" style="cursor: pointer;">
+                <div class="stat-value" id="revisitCount">0</div>
+                <div class="stat-label">Revisit</div>
             </div>
         </div>
-
         <div id="controlsSection" class="controls-section hidden">
             <button class="button button-primary" onclick="generateProblems()">🎲 Generate 30 Problems</button>
             <button class="button button-secondary" onclick="showList('skipped')">📋 Show Skipped</button>
@@ -609,7 +617,50 @@
             document.getElementById('modalJsonInput').value = '';
             document.getElementById('modalFileInput').value = '';
         }
+async function showCompletedList(scope, difficulty) {
+    try {
+        const response = await fetch(`/api/completed/${scope}/${difficulty}`);
+        const data = await response.json();
 
+        const modal = document.getElementById('listModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalList = document.getElementById('modalList');
+
+        // Set title based on scope and difficulty
+        let title = '';
+        if (scope === 'session') {
+            title = '🎯 Current Session - ';
+        } else {
+            title = '🏆 Global - ';
+        }
+
+        if (difficulty === 'all') {
+            title += 'All Completed';
+        } else {
+            title += difficulty.charAt(0).toUpperCase() + difficulty.slice(1) + ' Completed';
+        }
+
+        modalTitle.textContent = title;
+
+        if (data.urls.length === 0) {
+            modalList.innerHTML = '<li>No completed problems yet</li>';
+        } else {
+            modalList.innerHTML = data.urls.map(item => {
+                const url = item.url;
+                const slug = url.split('/').filter(s => s).pop();
+                const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                const revisitClass = item.is_revisit ? 'revisit' : '';
+                return `<li class="${revisitClass}">
+                    <a href="${url}" target="_blank">${name}</a>
+                </li>`;
+            }).join('');
+        }
+
+        modal.style.display = 'block';
+    } catch (error) {
+        showMessage('Error loading completed list: ' + error.message, 'error');
+    }
+}
         async function loadProblemsFromModal() {
             const jsonText = document.getElementById('modalJsonInput').value.trim();
             const fileInput = document.getElementById('modalFileInput');
