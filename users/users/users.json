@@ -1,0 +1,14 @@
+{
+  "1": {
+    "username": "kartikiv",
+    "email": "manjackle6@gmail.com",
+    "password_hash": "pbkdf2:sha256:1000000$wE4Jq9pMC6qZqlW1$13ff3f9df3adcddb399a490084c7709ce23f7df90b23392ffade1fc452f55c02",
+    "created_at": "2026-01-08 16:57:03"
+  },
+  "2": {
+    "username": "kartikLinkedIn",
+    "email": "karthikivaturi@outlook.com",
+    "password_hash": "pbkdf2:sha256:1000000$ALHLQWWanH6vdP5r$21e8ffdb176e61dabf8dc9ebed1c51ed22e0a997f2f0771051aa7aa3eaeea49b",
+    "created_at": "2026-01-08 17:24:37"
+  }
+}

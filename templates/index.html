@@ -435,6 +435,114 @@
                 justify-content: flex-end;
             }
         }
+        /* Category Tooltip */
+.category-tooltip {
+    position: fixed;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.category-tooltip.show {
+    opacity: 1;
+}
+
+.category-tooltip::before {
+    content: '📁 Category: ';
+    opacity: 0.8;
+    font-size: 12px;
+}
+
+
+/* View Toggle Buttons */
+.view-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.toggle-btn {
+    padding: 8px 20px;
+    border: 2px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.toggle-btn:hover {
+    background: #f0f0f0;
+}
+
+.toggle-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+/* Category Groups in Modal */
+.category-group {
+    margin-bottom: 20px;
+}
+
+.category-group-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.category-count {
+    background: rgba(255,255,255,0.3);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.9em;
+}
+
+/* Difficulty Groups in Modal */
+.difficulty-group-modal {
+    margin-bottom: 20px;
+}
+
+.difficulty-group-modal .difficulty-header {
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.difficulty-group-modal .difficulty-header.easy {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.difficulty-group-modal .difficulty-header.medium {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: #000;
+}
+
+.difficulty-group-modal .difficulty-header.hard {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+}
     </style>
 </head>
 <body>
@@ -617,6 +725,7 @@
             document.getElementById('modalJsonInput').value = '';
             document.getElementById('modalFileInput').value = '';
         }
+
 async function showCompletedList(scope, difficulty) {
     try {
         const response = await fetch(`/api/completed/${scope}/${difficulty}`);
@@ -645,15 +754,28 @@ async function showCompletedList(scope, difficulty) {
         if (data.urls.length === 0) {
             modalList.innerHTML = '<li>No completed problems yet</li>';
         } else {
-            modalList.innerHTML = data.urls.map(item => {
-                const url = item.url;
-                const slug = url.split('/').filter(s => s).pop();
-                const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                const revisitClass = item.is_revisit ? 'revisit' : '';
-                return `<li class="${revisitClass}">
-                    <a href="${url}" target="_blank">${name}</a>
-                </li>`;
-            }).join('');
+            // Create view toggle and container
+            let html = `
+                <div class="view-toggle">
+                    <button class="toggle-btn active" onclick="switchView('difficulty', this)" data-scope="${scope}" data-difficulty="${difficulty}">
+                        📊 By Difficulty
+                    </button>
+                    <button class="toggle-btn" onclick="switchView('category', this)" data-scope="${scope}" data-difficulty="${difficulty}">
+                        📁 By Category
+                    </button>
+                </div>
+                <div id="problemsListContainer"></div>
+            `;
+
+            modalList.innerHTML = html;
+
+            // Store data globally for view switching
+            window.currentProblemsData = data.urls;
+            window.currentScope = scope;
+            window.currentDifficulty = difficulty;
+
+            // Display in difficulty view by default
+            displayByDifficulty(data.urls);
         }
 
         modal.style.display = 'block';
@@ -661,6 +783,144 @@ async function showCompletedList(scope, difficulty) {
         showMessage('Error loading completed list: ' + error.message, 'error');
     }
 }
+
+function switchView(viewType, button) {
+    // Update active button
+    document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+
+    // Switch view
+    if (viewType === 'difficulty') {
+        displayByDifficulty(window.currentProblemsData);
+    } else {
+        displayByCategory(window.currentProblemsData);
+    }
+}
+
+function displayByDifficulty(problems) {
+    const container = document.getElementById('problemsListContainer');
+
+    // Group by difficulty
+    const grouped = {
+        easy: problems.filter(p => p.difficulty === 'easy'),
+        medium: problems.filter(p => p.difficulty === 'medium'),
+        hard: problems.filter(p => p.difficulty === 'hard')
+    };
+
+    let html = '';
+
+    // Easy problems
+    if (grouped.easy.length > 0) {
+        html += `
+            <div class="difficulty-group-modal">
+                <div class="difficulty-header easy">
+                    <span>🟢 Easy</span>
+                    <span class="category-count">${grouped.easy.length}</span>
+                </div>
+                <ul style="list-style: none; padding: 0;">
+                    ${grouped.easy.map(item => createProblemListItem(item)).join('')}
+                </ul>
+            </div>
+        `;
+    }
+
+    // Medium problems
+    if (grouped.medium.length > 0) {
+        html += `
+            <div class="difficulty-group-modal">
+                <div class="difficulty-header medium">
+                    <span>🟡 Medium</span>
+                    <span class="category-count">${grouped.medium.length}</span>
+                </div>
+                <ul style="list-style: none; padding: 0;">
+                    ${grouped.medium.map(item => createProblemListItem(item)).join('')}
+                </ul>
+            </div>
+        `;
+    }
+
+    // Hard problems
+    if (grouped.hard.length > 0) {
+        html += `
+            <div class="difficulty-group-modal">
+                <div class="difficulty-header hard">
+                    <span>🔴 Hard</span>
+                    <span class="category-count">${grouped.hard.length}</span>
+                </div>
+                <ul style="list-style: none; padding: 0;">
+                    ${grouped.hard.map(item => createProblemListItem(item)).join('')}
+                </ul>
+            </div>
+        `;
+    }
+
+    container.innerHTML = html || '<p>No problems to display</p>';
+}
+
+function displayByCategory(problems) {
+    const container = document.getElementById('problemsListContainer');
+
+    // Group by category
+    const grouped = {};
+    problems.forEach(problem => {
+        const category = problem.category || 'Unknown';
+        if (!grouped[category]) {
+            grouped[category] = [];
+        }
+        grouped[category].push(problem);
+    });
+
+    // Sort categories alphabetically
+    const sortedCategories = Object.keys(grouped).sort();
+
+    let html = '';
+
+    sortedCategories.forEach(category => {
+        const categoryProblems = grouped[category];
+        html += `
+            <div class="category-group">
+                <div class="category-group-header">
+                    <span>📁 ${category}</span>
+                    <span class="category-count">${categoryProblems.length}</span>
+                </div>
+                <ul style="list-style: none; padding: 0;">
+                    ${categoryProblems.map(item => createProblemListItem(item)).join('')}
+                </ul>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html || '<p>No problems to display</p>';
+}
+
+function createProblemListItem(item) {
+    const url = item.url;
+    const slug = url.split('/').filter(s => s).pop();
+    const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    const revisitClass = item.is_revisit ? 'revisit' : '';
+
+    // Add difficulty badge
+    const difficultyBadge = getDifficultyBadge(item.difficulty);
+
+    return `
+        <li class="${revisitClass}" style="padding: 10px; margin-bottom: 10px; background: #f8f9fa; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="flex: 1;">
+                <a href="${url}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: 500;">${name}</a>
+                ${difficultyBadge}
+            </div>
+        </li>
+    `;
+}
+
+function getDifficultyBadge(difficulty) {
+    const badges = {
+        'easy': '<span style="background: #28a745; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; margin-left: 8px;">Easy</span>',
+        'medium': '<span style="background: #ffc107; color: #000; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; margin-left: 8px;">Medium</span>',
+        'hard': '<span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; margin-left: 8px;">Hard</span>'
+    };
+    return badges[difficulty] || '';
+}
+
         async function loadProblemsFromModal() {
             const jsonText = document.getElementById('modalJsonInput').value.trim();
             const fileInput = document.getElementById('modalFileInput');
@@ -900,21 +1160,93 @@ async function showCompletedList(scope, difficulty) {
         }
 
         function createProblemHTML(problem, index) {
-            const slug = problem.url.split('/').filter(s => s).pop();
-            const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            const revisitClass = problem.is_revisit ? 'revisit' : '';
+    const slug = problem.url.split('/').filter(s => s).pop();
+    const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    const revisitClass = problem.is_revisit ? 'revisit' : '';
+    const category = problem.category || 'Unknown';
 
-            return `<div class="problem-item ${revisitClass}" data-url="${problem.url}" data-difficulty="${problem.difficulty}">
-                <span class="problem-number">${index}.</span>
-                <a class="problem-link" href="${problem.url}" target="_blank">${name}</a>
-                <div class="problem-actions">
-                    <button class="button button-success" onclick="markComplete('${problem.url}')">✓ Complete</button>
-                    <button class="button button-warning" onclick="markSkip('${problem.url}', '${problem.difficulty}')">⊘ Skip</button>
-                    <button class="button button-info" onclick="markRevisit('${problem.url}')">↻ Revisit</button>
-                </div>
-            </div>`;
+    return `<div class="problem-item ${revisitClass}"
+        data-url="${problem.url}"
+        data-difficulty="${problem.difficulty}"
+        data-category="${category}">
+        <span class="problem-number">${index}.</span>
+        <a class="problem-link"
+           href="${problem.url}"
+           target="_blank"
+           oncontextmenu="return false;"
+           onclick="handleProblemClick(event, '${problem.url}', '${category}')">${name}</a>
+        <div class="problem-actions">
+            <button class="button button-success" onclick="markComplete('${problem.url}')">✓ Complete</button>
+            <button class="button button-warning" onclick="markSkip('${problem.url}', '${problem.difficulty}')">⊘ Skip</button>
+            <button class="button button-info" onclick="markRevisit('${problem.url}')">↻ Revisit</button>
+        </div>
+    </div>`;
+}
+
+
+// Handle problem link clicks with Cmd/Ctrl detection
+let categoryTooltip = null;
+
+function handleProblemClick(event, url, category) {
+    // Check if Cmd (Mac) or Ctrl (Windows/Linux) is pressed
+    if (event.metaKey || event.ctrlKey) {
+        event.preventDefault();
+        event.stopPropagation();
+        showCategoryTooltip(event, category);
+        return false;
+    }
+    // Normal click - let it open in new tab
+    return true;
+}
+
+function showCategoryTooltip(event, category) {
+    // Remove existing tooltip if any
+    if (categoryTooltip) {
+        categoryTooltip.remove();
+    }
+
+    // Create tooltip
+    categoryTooltip = document.createElement('div');
+    categoryTooltip.className = 'category-tooltip';
+    categoryTooltip.textContent = category;
+    document.body.appendChild(categoryTooltip);
+
+    // Position near cursor
+    const x = event.clientX + 10;
+    const y = event.clientY + 10;
+
+    categoryTooltip.style.left = x + 'px';
+    categoryTooltip.style.top = y + 'px';
+
+    // Show with animation
+    setTimeout(() => categoryTooltip.classList.add('show'), 10);
+
+    // Hide after 3 seconds
+    setTimeout(() => {
+        if (categoryTooltip) {
+            categoryTooltip.classList.remove('show');
+            setTimeout(() => {
+                if (categoryTooltip) {
+                    categoryTooltip.remove();
+                    categoryTooltip = null;
+                }
+            }, 200);
         }
+    }, 3000);
+}
 
+// Close tooltip on any click
+document.addEventListener('click', function() {
+    if (categoryTooltip) {
+        categoryTooltip.classList.remove('show');
+        setTimeout(() => {
+            if (categoryTooltip) {
+                categoryTooltip.remove();
+                categoryTooltip = null;
+            }
+        }, 200);
+    }
+});
         async function markComplete(url) {
             try {
                 const response = await fetch('/api/mark_complete', {
@@ -1050,49 +1382,94 @@ async function showCompletedList(scope, difficulty) {
             }
         }
 
-        async function showList(type) {
-            try {
-                const response = await fetch(`/api/lists/${type}`);
-                const data = await response.json();
+async function showList(type) {
+    try {
+        const response = await fetch(`/api/lists/${type}`);
+        const data = await response.json();
 
-                const modal = document.getElementById('listModal');
-                const modalTitle = document.getElementById('modalTitle');
-                const modalList = document.getElementById('modalList');
+        const modal = document.getElementById('listModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalList = document.getElementById('modalList');
 
-                modalTitle.textContent = type === 'skipped' ? '📋 Skipped Problems' : '↻ Revisit Problems';
+        const listTitle = type === 'skipped' ? '📋 Skipped Problems' : '↻ Revisit Problems';
+        modalTitle.innerHTML = `${listTitle} <button class="button button-info" id="toggleCategoryBtn" onclick="toggleCategoryDisplay()" style="margin-left: 15px; padding: 6px 12px; font-size: 12px;">📁 Show Categories</button>`;
 
-                if (data.urls.length === 0) {
-                    modalList.innerHTML = '<li>No problems in this list yet</li>';
-                } else {
-                    if (type === 'skipped') {
-                        // Handle skipped list with completion buttons
-                        modalList.innerHTML = data.urls.map(item => {
-                            const url = item.url;
-                            const slug = url.split('/').filter(s => s).pop();
-                            const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                            const revisitClass = item.is_revisit ? 'revisit' : '';
-                            return `<li class="${revisitClass}">
-                                <a href="${url}" target="_blank">${name}</a>
-                                <button class="button button-success" onclick="markCompleteFromModal('${url}')">✓ Complete</button>
-                            </li>`;
-                        }).join('');
-                    } else {
-                        // Handle revisit list (simple display)
-                        modalList.innerHTML = data.urls.map(url => {
-                            const slug = url.split('/').filter(s => s).pop();
-                            const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                            return `<li class="revisit"><a href="${url}" target="_blank">${name}</a></li>`;
-                        }).join('');
-                    }
-                }
-
-                modal.style.display = 'block';
-            } catch (error) {
-                showMessage('Error loading list: ' + error.message, 'error');
+        if (data.urls.length === 0) {
+            modalList.innerHTML = '<li>No problems in this list yet</li>';
+        } else {
+            if (type === 'skipped') {
+                // Store problems for toggle
+                window.currentCompletedProblems = data.urls;
+                window.showCategories = false;
+                displaySkippedProblems(data.urls);
+            } else {
+                // Revisit list
+                window.currentCompletedProblems = data.urls.map(url => ({url: url, is_revisit: true, category: 'Unknown'}));
+                window.showCategories = false;
+                displayRevisitProblems(data.urls);
             }
         }
 
-        async function markCompleteFromModal(url) {
+        modal.style.display = 'block';
+    } catch (error) {
+        showMessage('Error loading list: ' + error.message, 'error');
+    }
+}
+
+function displaySkippedProblems(problems) {
+    const modalList = document.getElementById('modalList');
+
+    modalList.innerHTML = problems.map(item => {
+        const url = item.url;
+        const slug = url.split('/').filter(s => s).pop();
+        const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        const revisitClass = item.is_revisit ? 'revisit' : '';
+        const category = item.category || 'Unknown';
+
+        if (window.showCategories) {
+            return `<li class="${revisitClass}">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 5px; flex: 1;">
+                        <a href="${url}" target="_blank">${name}</a>
+                        <span style="font-size: 0.85em; color: #667eea; font-weight: 600;">📁 ${category}</span>
+                    </div>
+                    <button class="button button-success" onclick="markCompleteFromModal('${url}')">✓ Complete</button>
+                </div>
+            </li>`;
+        } else {
+            return `<li class="${revisitClass}">
+                <a href="${url}" target="_blank">${name}</a>
+                <button class="button button-success" onclick="markCompleteFromModal('${url}')">✓ Complete</button>
+            </li>`;
+        }
+    }).join('');
+}
+
+function displayRevisitProblems(urls) {
+    const modalList = document.getElementById('modalList');
+
+    modalList.innerHTML = urls.map(url => {
+        const slug = url.split('/').filter(s => s).pop();
+        const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+        // For revisit list, we need to fetch category - using Unknown for now
+        // In a real implementation, you'd fetch this from backend
+        const category = 'Unknown';
+
+        if (window.showCategories) {
+            return `<li class="revisit">
+                <div style="display: flex; flex-direction: column; gap: 5px; flex: 1;">
+                    <a href="${url}" target="_blank">${name}</a>
+                    <span style="font-size: 0.85em; color: #667eea; font-weight: 600;">📁 ${category}</span>
+                </div>
+            </li>`;
+        } else {
+            return `<li class="revisit">
+                <a href="${url}" target="_blank">${name}</a>
+            </li>`;
+        }
+    }).join('');
+}        async function markCompleteFromModal(url) {
             try {
                 const response = await fetch('/api/mark_complete', {
                     method: 'POST',

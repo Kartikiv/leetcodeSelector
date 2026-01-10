@@ -1,0 +1,19 @@
+{
+  "completed": [],
+  "skipped": [],
+  "revisit": [],
+  "global_stats": {
+    "easy_completed": 0,
+    "medium_completed": 0,
+    "hard_completed": 0,
+    "total_completed": 0
+  },
+  "current_session": {
+    "problems": [],
+    "easy_completed": 0,
+    "medium_completed": 0,
+    "hard_completed": 0,
+    "total_completed": 0,
+    "generated_at": null
+  }
+}

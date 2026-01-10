@@ -460,6 +460,16 @@ class LeetCodeProblemSelector:
                 return diff
         return None
 
+    def _get_problem_category(self, problem_url: str) -> str:
+        """Get category of a problem from the original problems data"""
+        if not self.problems_data:
+            return "Unknown"
+
+        for category, problems in self.problems_data.items():
+            if problem_url in problems:
+                return category
+        return "Unknown"
+
     def get_progress(self) -> Dict:
         """Get current progress (both session and global)"""
         session = self.progress['current_session']
@@ -777,6 +787,7 @@ def generate_problems():
                 problems.append({
                     'url': url,
                     'difficulty': difficulty,
+                    'category': selector._get_problem_category(url),
                     'is_revisit': selector.is_in_revisit(url)
                 })
 
@@ -789,9 +800,10 @@ def generate_problems():
     problems = selector.select_problems()
     print(f"Generated {len(problems)} problems")
 
-    # Add revisit status to each problem
+    # Add revisit status and category to each problem
     for problem in problems:
         problem['is_revisit'] = selector.is_in_revisit(problem['url'])
+        problem['category'] = selector._get_problem_category(problem['url'])
 
     return jsonify({'success': True, 'problems': problems, 'existing_session': False})
 
@@ -851,15 +863,52 @@ def get_progress():
 @app.route('/api/lists/<list_type>', methods=['GET'])
 @login_required
 def get_list(list_type):
-    """Get skipped or revisit list with revisit status"""
+    """Get skipped or revisit list with revisit status and category"""
     selector = get_selector()
     if list_type in ['skipped', 'revisit']:
         urls = selector.progress[list_type]
+        # Add revisit status, difficulty, and category for skipped list
+        if list_type == 'skipped':
+            url_data = [{
+                'url': url,
+                'is_revisit': selector.is_in_revisit(url),
+                'difficulty': selector._get_difficulty(url),
+                'category': selector._get_problem_category(url)
+            } for url in urls]
+            return jsonify({'urls': url_data})
+        # Add category for revisit list too
+        url_data = [{
+            'url': url,
+            'is_revisit': True,
+            'category': selector._get_problem_category(url)
+        } for url in urls]
+        return jsonify({'urls': url_data})
+    return jsonify({'urls': []})
+
+
+@app.route('/api/lists/<list_type>/<difficulty>', methods=['GET'])
+@login_required
+def get_list_by_difficulty(list_type, difficulty):
+    """Get skipped or revisit list filtered by difficulty"""
+    selector = get_selector()
+    if list_type in ['skipped', 'revisit']:
+        urls = selector.progress[list_type]
+
+        # Filter by difficulty if not 'all'
+        if difficulty != 'all':
+            urls = [url for url in urls if selector._get_difficulty(url) == difficulty]
+
         # Add revisit status for skipped list
         if list_type == 'skipped':
-            url_data = [{'url': url, 'is_revisit': selector.is_in_revisit(url)} for url in urls]
+            url_data = [
+                {'url': url, 'is_revisit': selector.is_in_revisit(url), 'difficulty': selector._get_difficulty(url)} for
+                url in urls]
             return jsonify({'urls': url_data})
-        return jsonify({'urls': urls})
+
+        # For revisit, just return URLs with difficulty info
+        url_data = [{'url': url, 'difficulty': selector._get_difficulty(url)} for url in urls]
+        return jsonify({'urls': url_data})
+
     return jsonify({'urls': []})
 
 
@@ -880,8 +929,16 @@ def get_completed(scope, difficulty):
     if difficulty != 'all':
         completed_urls = [url for url in completed_urls if selector._get_difficulty(url) == difficulty]
 
-    # Add revisit status
-    url_data = [{'url': url, 'is_revisit': selector.is_in_revisit(url)} for url in completed_urls]
+    # Add revisit status and category
+    url_data = [
+        {
+            'url': url,
+            'is_revisit': selector.is_in_revisit(url),
+            'category': selector._get_problem_category(url),
+            'difficulty': selector._get_difficulty(url)
+        }
+        for url in completed_urls
+    ]
 
     return jsonify({'urls': url_data})
 
