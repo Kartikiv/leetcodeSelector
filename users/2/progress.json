@@ -9,11 +9,42 @@
     "total_completed": 0
   },
   "current_session": {
-    "problems": [],
+    "problems": [
+      "https://leetcode.com/problems/article-views-i/",
+      "https://leetcode.com/problems/roman-to-integer/",
+      "https://leetcode.com/problems/second-minimum-node-in-a-binary-tree/",
+      "https://leetcode.com/problems/invert-binary-tree/",
+      "https://leetcode.com/problems/sqrtx/",
+      "https://leetcode.com/problems/valid-perfect-square/",
+      "https://leetcode.com/problems/symmetric-tree/",
+      "https://leetcode.com/problems/two-sum-iii-data-structure-design/",
+      "https://leetcode.com/problems/diameter-of-binary-tree/",
+      "https://leetcode.com/problems/moving-average-from-data-stream/",
+      "https://leetcode.com/problems/merge-two-sorted-lists/",
+      "https://leetcode.com/problems/isomorphic-strings/",
+      "https://leetcode.com/problems/long-pressed-name/",
+      "https://leetcode.com/problems/shortest-word-distance/",
+      "https://leetcode.com/problems/two-sum/",
+      "https://leetcode.com/problems/maximum-depth-of-binary-tree/",
+      "https://leetcode.com/problems/merge-two-binary-trees/",
+      "https://leetcode.com/problems/valid-parentheses/",
+      "https://leetcode.com/problems/find-smallest-letter-greater-than-target/",
+      "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
+      "https://leetcode.com/problems/maximum-subarray/",
+      "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/",
+      "https://leetcode.com/problems/partition-equal-subset-sum/",
+      "https://leetcode.com/problems/house-robber-iii/",
+      "https://leetcode.com/problems/binary-search-tree-iterator/",
+      "https://leetcode.com/problems/reverse-words-in-a-string/",
+      "https://leetcode.com/problems/evaluate-reverse-polish-notation/",
+      "https://leetcode.com/problems/sparse-matrix-multiplication/",
+      "https://leetcode.com/problems/word-ladder-ii/",
+      "https://leetcode.com/problems/time-to-cross-a-bridge/"
+    ],
     "easy_completed": 0,
     "medium_completed": 0,
     "hard_completed": 0,
     "total_completed": 0,
-    "generated_at": null
+    "generated_at": "2026-01-12 00:46:32"
   }
 }
