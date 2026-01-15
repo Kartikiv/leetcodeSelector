@@ -323,8 +323,174 @@
             border: 1px solid #f5c6cb;
         }
 
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
         .hidden {
             display: none;
+        }
+
+        .problem-sets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .problem-set-card {
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s;
+            background: white;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .problem-set-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .problem-set-card.active {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #f8fff9 0%, #e8f5e9 100%);
+        }
+
+        .set-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .set-card-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .set-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-public {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-private {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .badge-active {
+            background: #c8e6c9;
+            color: #2e7d32;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        .set-card-description {
+            color: #6c757d;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            font-size: 0.9em;
+        }
+
+        .set-card-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-bottom: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .set-card-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .set-card-actions button {
+            padding: 6px 14px;
+            font-size: 13px;
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .file-upload-area input[type="file"] {
+            display: none;
+        }
+
+        .upload-label {
+            cursor: pointer;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .divider-text {
+            text-align: center;
+            margin: 20px 0;
+            color: #6c757d;
+            position: relative;
+        }
+
+        .divider-text::before,
+        .divider-text::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: #dee2e6;
+        }
+
+        .divider-text::before {
+            left: 0;
+        }
+
+        .divider-text::after {
+            right: 0;
         }
 
         .loading {
@@ -560,31 +726,18 @@
             </div>
         </header>
 
-        <div id="inputSection" class="input-section">
-            <div class="input-group">
-                <h3>📋 Paste JSON Here:</h3>
-                <textarea id="jsonInput" placeholder='Paste your JSON here... e.g., {"result": {"Arrays & Hashing": ["https://leetcode.com/problems/..."], ...}}'></textarea>
+        <div id="problemSetSelectionSection" class="input-section">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2 style="color: #333; margin-bottom: 10px;">📚 Select or Create a Problem Set</h2>
+                <p style="color: #6c757d;">Choose a problem set to start solving problems</p>
             </div>
-            <div class="input-group">
-                <h3>📁 Or Upload JSON File:</h3>
-                <div class="file-upload">
-                    <input type="file" id="fileInput" accept=".json">
-                    <button class="button button-secondary" onclick="loadFromFile()">Upload File</button>
-                </div>
-            </div>
-            <div style="text-align: center; margin-top: 20px;">
-                <button class="button button-primary" onclick="loadProblems()">Load Problems</button>
-            </div>
-        </div>
 
-        <div id="jsonLoadedSection" class="json-loaded-section hidden">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div>
-                    <h3 style="color: #28a745; margin: 0;">✅ Problems Data Loaded</h3>
-                    <p style="color: #6c757d; margin: 5px 0 0 0; font-size: 0.9em;">Ready to generate problem sets</p>
-                </div>
-                <button class="button button-secondary" onclick="showChangeJsonModal()">🔄 Change JSON</button>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 30px;">
+                <button class="button button-primary" onclick="showCreateProblemSetModal()">+ Create New Set</button>
+                <button class="button button-secondary" onclick="refreshProblemSetsList()">🔄 Refresh List</button>
             </div>
+
+            <div id="problemSetsListContainer"></div>
         </div>
 
         <div id="progressSection" class="progress-section hidden">
@@ -640,6 +793,7 @@
             </div>
         </div>
         <div id="controlsSection" class="controls-section hidden">
+            <button class="button button-info" onclick="showProblemSetSelection()" style="background: #17a2b8;">📚 Change Problem Set</button>
             <button class="button button-primary" onclick="generateProblems()">🎲 Generate 30 Problems</button>
             <button class="button button-secondary" onclick="showList('skipped')">📋 Show Skipped</button>
             <button class="button button-secondary" onclick="showList('revisit')">↻ Show Revisit</button>
@@ -652,8 +806,8 @@
 
         <div id="loadingArea" class="loading hidden">
             <div class="loading-spinner"></div>
-            <p>Fetching problem difficulties from LeetCode API...</p>
-            <p>This may take a minute for large problem sets</p>
+            <p id="loadingMessage">Fetching problem difficulties from LeetCode API...</p>
+            <p id="loadingSubMessage">This may take a minute for large problem sets</p>
         </div>
 
         <div id="problemsSection" class="problems-section hidden"></div>
@@ -664,6 +818,53 @@
             <span class="close-modal" onclick="closeModal()">&times;</span>
             <div class="modal-header" id="modalTitle"></div>
             <ul class="modal-list" id="modalList"></ul>
+        </div>
+    </div>
+
+    <div id="createProblemSetModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeCreateProblemSetModal()">&times;</span>
+            <div class="modal-header">📚 Create New Problem Set</div>
+
+            <form id="createProblemSetForm" onsubmit="createProblemSet(event)">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: #495057; font-weight: 600;">Set Name *</label>
+                    <input type="text" id="problemSetName" required placeholder="e.g., Blind 75, Grind 169, My Custom List"
+                           style="width: 100%; padding: 12px; border: 2px solid #dee2e6; border-radius: 10px; font-size: 14px;">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: #495057; font-weight: 600;">Description</label>
+                    <input type="text" id="problemSetDescription" placeholder="Brief description of this problem set"
+                           style="width: 100%; padding: 12px; border: 2px solid #dee2e6; border-radius: 10px; font-size: 14px;">
+                </div>
+
+                <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="problemSetPublic" style="width: auto; margin: 0;">
+                    <label for="problemSetPublic" style="margin: 0; font-weight: normal;">Make this set available to all users</label>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: #495057; font-weight: 600;">Problems Data *</label>
+
+                    <div class="file-upload-area" onclick="document.getElementById('problemSetJsonFile').click()">
+                        <input type="file" id="problemSetJsonFile" accept=".json" onchange="handleProblemSetFileSelect(event)">
+                        <label class="upload-label">📁 Click to upload JSON file</label>
+                        <p style="margin-top: 10px; font-size: 0.9em; color: #6c757d;">Or paste JSON below</p>
+                    </div>
+
+                    <textarea id="problemSetJson" placeholder='Paste your problems JSON here' required
+                              style="width: 100%; min-height: 200px; padding: 12px; border: 2px solid #dee2e6; border-radius: 10px;
+                                     font-family: 'Courier New', monospace; font-size: 13px; resize: vertical;"></textarea>
+                    <small style="color: #6c757d; display: block; margin-top: 5px;">
+                        Format: {"Category": ["url1", "url2"]} or LeetCode API format
+                    </small>
+                </div>
+
+                <button type="submit" class="button button-success" id="createProblemSetButton" style="width: 100%;">
+                    Create Problem Set
+                </button>
+            </form>
         </div>
     </div>
 
@@ -707,13 +908,243 @@
 
     <script>
         let problemsLoaded = false;
+        let currentActiveProblemSet = null;
+
+        // Problem Set Management Functions
+        async function loadProblemSetsList() {
+            try {
+                const response = await fetch('/api/problem_sets');
+                const data = await response.json();
+
+                if (!data.success) {
+                    showMessage('Failed to load problem sets', 'error');
+                    return;
+                }
+
+                const container = document.getElementById('problemSetsListContainer');
+
+                if (data.sets.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>📦 No Problem Sets Available</h3>
+                            <p>Create your first problem set to get started!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Find active set
+                const activeSet = data.sets.find(s => s.is_active);
+                currentActiveProblemSet = activeSet ? activeSet.id : null;
+
+                container.innerHTML = `
+                    <div class="problem-sets-grid">
+                        ${data.sets.map(set => `
+                            <div class="problem-set-card ${set.is_active ? 'active' : ''}" onclick="selectProblemSet('${set.id}', ${set.is_active})">
+                                <div class="set-card-header">
+                                    <div style="flex: 1;">
+                                        <div class="set-card-name">${escapeHtml(set.name)}</div>
+                                        ${set.is_active ? '<span class="set-badge badge-active">✓ Active</span>' : ''}
+                                    </div>
+                                    <span class="set-badge ${set.is_public ? 'badge-public' : 'badge-private'}">
+                                        ${set.is_public ? '🌐 Public' : '🔒 Private'}
+                                    </span>
+                                </div>
+
+                                ${set.description ? `<div class="set-card-description">${escapeHtml(set.description)}</div>` : ''}
+
+                                <div class="set-card-meta">
+                                    <span>📝 ${set.problem_count} problems</span>
+                                    <span>👤 ${escapeHtml(set.created_by)}</span>
+                                </div>
+
+                                <div class="set-card-actions" onclick="event.stopPropagation()">
+                                    ${!set.is_active ? `
+                                        <button class="button button-success" onclick="activateProblemSet('${set.id}', '${escapeHtml(set.name)}')">
+                                            ✓ Use This
+                                        </button>
+                                    ` : `
+                                        <button class="button button-primary" onclick="selectProblemSet('${set.id}', true)">
+                                            🎲 Start Solving
+                                        </button>
+                                    `}
+                                    ${!set.is_public && set.created_by === 'You' ? `
+                                        <button class="button button-danger" onclick="deleteProblemSet('${set.id}', '${escapeHtml(set.name)}')">
+                                            🗑️
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                // If there's an active set, automatically transition to problem solving
+                if (activeSet) {
+                    problemsLoaded = true;
+                    showLoadedState();
+                    await updateProgress();
+                }
+            } catch (error) {
+                showMessage('Error loading problem sets: ' + error.message, 'error');
+            }
+        }
+
+        async function selectProblemSet(setId, isActive) {
+            if (isActive) {
+                // Already active, show the problems interface
+                problemsLoaded = true;
+                await showLoadedState();
+                await updateProgress();
+            } else {
+                activateProblemSet(setId, '');
+            }
+        }
+
+        async function activateProblemSet(setId, setName) {
+            try {
+                // Show loading indicator with custom message
+                const loadingArea = document.getElementById('loadingArea');
+                const loadingMessage = document.getElementById('loadingMessage');
+                const loadingSubMessage = document.getElementById('loadingSubMessage');
+
+                loadingMessage.textContent = 'Activating problem set...';
+                loadingSubMessage.textContent = 'Fetching problem difficulties from LeetCode. This may take a moment for large sets.';
+                loadingArea.classList.remove('hidden');
+
+                showMessage('⏳ Activating problem set and fetching difficulty data...', 'info');
+
+                const response = await fetch(`/api/problem_sets/${setId}/activate`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                loadingArea.classList.add('hidden');
+
+                if (data.success) {
+                    showMessage('✓ Problem set activated successfully!', 'success');
+                    // Wait a bit to show the success message
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                document.getElementById('loadingArea').classList.add('hidden');
+                showMessage('Error activating problem set: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteProblemSet(setId, setName) {
+            if (!confirm(`Delete "${setName}"? This cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/problem_sets/${setId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('✓ Problem set deleted', 'success');
+                    await loadProblemSetsList();
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error deleting problem set: ' + error.message, 'error');
+            }
+        }
+
+        function showCreateProblemSetModal() {
+            document.getElementById('createProblemSetModal').style.display = 'block';
+        }
+
+        function closeCreateProblemSetModal() {
+            document.getElementById('createProblemSetModal').style.display = 'none';
+            document.getElementById('createProblemSetForm').reset();
+        }
+
+        function handleProblemSetFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('problemSetJson').value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        async function createProblemSet(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('problemSetName').value.trim();
+            const description = document.getElementById('problemSetDescription').value.trim();
+            const problemsJson = document.getElementById('problemSetJson').value.trim();
+            const isPublic = document.getElementById('problemSetPublic').checked;
+            const button = document.getElementById('createProblemSetButton');
+
+            button.disabled = true;
+            button.textContent = 'Creating...';
+
+            // Show loading message
+            showMessage('⏳ Creating problem set and validating data...', 'info');
+
+            try {
+                const response = await fetch('/api/problem_sets', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name,
+                        description,
+                        problems_json: problemsJson,
+                        is_public: isPublic
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('✓ ' + data.message, 'success');
+                    closeCreateProblemSetModal();
+                    await loadProblemSetsList();
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error creating problem set: ' + error.message, 'error');
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Create Problem Set';
+            }
+        }
+
+        function refreshProblemSetsList() {
+            loadProblemSetsList();
+            showMessage('🔄 Refreshed problem sets', 'success');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
         function showMessage(message, type = 'success') {
             const messageArea = document.getElementById('messageArea');
             messageArea.innerHTML = `<div class="message ${type}">${message}</div>`;
+
+            // Info messages stay longer since they indicate ongoing processes
+            const timeout = type === 'info' ? 10000 : 3000;
+
             setTimeout(() => {
                 messageArea.innerHTML = '';
-            }, 3000);
+            }, timeout);
         }
 
         function showChangeJsonModal() {
@@ -1067,24 +1498,78 @@ function getDifficultyBadge(difficulty) {
                         }
                     }
                 } else {
-                    showInputState();
+                    // No problem set loaded, show problem set selection
+                    showProblemSetSelection();
                 }
             } catch (error) {
-                console.log('No previous state found, showing input form');
-                showInputState();
+                console.log('No previous state found, showing problem set selection');
+                showProblemSetSelection();
             }
         }
 
-        function showLoadedState() {
-            document.getElementById('inputSection').classList.add('hidden');
-            document.getElementById('jsonLoadedSection').classList.remove('hidden');
+        async function showLoadedState() {
+            document.getElementById('problemSetSelectionSection').classList.add('hidden');
             document.getElementById('progressSection').classList.remove('hidden');
             document.getElementById('controlsSection').classList.remove('hidden');
+
+            // Check if there's an existing session and display it
+            try {
+                const response = await fetch('/api/check_problems');
+                const data = await response.json();
+
+                if (data.has_session) {
+                    const genResponse = await fetch('/api/generate', { method: 'POST' });
+                    const genData = await genResponse.json();
+                    if (genData.success) {
+                        displayProblems(genData.problems);
+                    }
+                }
+            } catch (error) {
+                console.log('No existing session');
+            }
         }
 
-        function showInputState() {
-            document.getElementById('inputSection').classList.remove('hidden');
-            document.getElementById('jsonLoadedSection').classList.add('hidden');
+        function showProblemSetSelection() {
+            console.log('showProblemSetSelection called');
+
+            // Show feedback
+            showMessage('📚 Loading problem sets...', 'info');
+
+            // Get all main sections
+            const problemSetSection = document.getElementById('problemSetSelectionSection');
+            const progressSection = document.getElementById('progressSection');
+            const controlsSection = document.getElementById('controlsSection');
+            const problemsSection = document.getElementById('problemsSection');
+
+            console.log('problemSetSection found:', !!problemSetSection);
+            console.log('problemSetSection classes before:', problemSetSection ? problemSetSection.className : 'null');
+
+            // Show problem set selection
+            if (problemSetSection) {
+                problemSetSection.classList.remove('hidden');
+                problemSetSection.style.display = 'block'; // Force display
+                console.log('problemSetSection classes after:', problemSetSection.className);
+            }
+
+            // Hide other sections
+            if (progressSection) {
+                progressSection.classList.add('hidden');
+            }
+
+            if (controlsSection) {
+                controlsSection.classList.add('hidden');
+            }
+
+            if (problemsSection) {
+                problemsSection.classList.add('hidden');
+            }
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Load problem sets
+            console.log('Calling loadProblemSetsList');
+            loadProblemSetsList();
         }
 
         async function generateProblems() {
@@ -1629,6 +2114,7 @@ function displayRevisitProblems(urls) {
             const listModal = document.getElementById('listModal');
             const changeJsonModal = document.getElementById('changeJsonModal');
             const importProgressModal = document.getElementById('importProgressModal');
+            const createProblemSetModal = document.getElementById('createProblemSetModal');
 
             if (event.target == listModal) {
                 listModal.style.display = 'none';
@@ -1638,6 +2124,9 @@ function displayRevisitProblems(urls) {
             }
             if (event.target == importProgressModal) {
                 closeImportModal();
+            }
+            if (event.target == createProblemSetModal) {
+                closeCreateProblemSetModal();
             }
         }
 

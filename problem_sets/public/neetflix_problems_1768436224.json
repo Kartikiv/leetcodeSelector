@@ -1,0 +1,74 @@
+{
+  "id": "neetflix_problems_1768436224",
+  "name": "Neetflix Problems",
+  "description": "netflix problems",
+  "problems": {
+    "Sliding Window": [
+      "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+      "https://leetcode.com/problems/contains-duplicate-ii/",
+      "https://leetcode.com/problems/contains-duplicate-iii/",
+      "https://leetcode.com/problems/fruit-into-baskets/"
+    ],
+    "Two Pointers": [
+      "https://leetcode.com/problems/meeting-rooms-ii/",
+      "https://leetcode.com/problems/sum-of-square-numbers/"
+    ],
+    "Monotonic Stack": [
+      "https://leetcode.com/problems/daily-temperatures/"
+    ],
+    "Stack": [
+      "https://leetcode.com/problems/valid-parentheses/",
+      "https://leetcode.com/problems/flatten-nested-list-iterator/"
+    ],
+    "Heap / Priority Queue": [
+      "https://leetcode.com/problems/top-k-frequent-elements/",
+      "https://leetcode.com/problems/top-k-frequent-words/",
+      "https://leetcode.com/problems/network-delay-time/"
+    ],
+    "Linked List": [
+      "https://leetcode.com/problems/lru-cache/"
+    ],
+    "Tries": [
+      "https://leetcode.com/problems/word-break/"
+    ],
+    "Binary Search": [
+      "https://leetcode.com/problems/random-pick-with-weight/",
+      "https://leetcode.com/problems/koko-eating-bananas/",
+      "https://leetcode.com/problems/time-based-key-value-store/",
+      "https://leetcode.com/problems/snapshot-array/",
+      "https://leetcode.com/problems/number-of-flowers-in-full-bloom/"
+    ],
+    "Backtracking": [
+      "https://leetcode.com/problems/word-search/",
+      "https://leetcode.com/problems/all-paths-from-source-to-target/"
+    ],
+    "Dynamic Programming": [
+      "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
+      "https://leetcode.com/problems/coin-change/"
+    ],
+    "Graphs": [
+      "https://leetcode.com/problems/course-schedule-ii/",
+      "https://leetcode.com/problems/reconstruct-itinerary/",
+      "https://leetcode.com/problems/parallel-courses/"
+    ],
+    "Design": [
+      "https://leetcode.com/problems/logger-rate-limiter/"
+    ],
+    "Sorting": [
+      "https://leetcode.com/problems/merge-intervals/",
+      "https://leetcode.com/problems/majority-element/",
+      "https://leetcode.com/problems/contains-duplicate/"
+    ],
+    "Arrays & Hashing": [
+      "https://leetcode.com/problems/first-missing-positive/",
+      "https://leetcode.com/problems/summary-ranges/"
+    ],
+    "Other": [
+      "https://leetcode.com/problems/cache-with-time-limit/",
+      "https://leetcode.com/problems/to-be-or-not-to-be/"
+    ]
+  },
+  "created_by": "1",
+  "created_at": "2026-01-14 16:17:04",
+  "is_public": true
+}

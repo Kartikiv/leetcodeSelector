@@ -8,6 +8,7 @@ import requests
 import time
 from typing import Dict, List
 from functools import wraps
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -15,6 +16,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-
 app.config['PERMANENT_SESSION_LIFETIME'] = 2592000  # 30 days
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs('users', exist_ok=True)
+os.makedirs('problem_sets/public', exist_ok=True)
 
 # Setup Flask-Login
 login_manager = LoginManager()
@@ -109,22 +111,201 @@ def load_user(user_id):
 
 
 class LeetCodeProblemSelector:
+    # Class-level cache that's shared across all instances
+    _global_difficulty_cache = None
+    _global_cache_file = 'difficulty_cache.json'
+
     def __init__(self, user_id: str):
         self.user_id = user_id
         self.user_dir = f'users/{user_id}'
         os.makedirs(self.user_dir, exist_ok=True)
+        os.makedirs(f'{self.user_dir}/problem_sets', exist_ok=True)
 
         self.progress_file = f'{self.user_dir}/progress.json'
-        self.difficulty_cache_file = f'{self.user_dir}/difficulty_cache.json'
         self.problems_file = f'{self.user_dir}/problems_data.json'
+        self.active_set_file = f'{self.user_dir}/active_problem_set.json'
 
         self.progress = self._load_progress()
         self.problems_data = None
         self.difficulty_map = None
-        self.difficulty_cache = self._load_difficulty_cache()
 
-        # Try to load previously uploaded problems
-        self._load_saved_problems()
+        # Load global cache if not already loaded
+        if LeetCodeProblemSelector._global_difficulty_cache is None:
+            LeetCodeProblemSelector._global_difficulty_cache = self._load_global_difficulty_cache()
+
+        # Try to load active problem set
+        self._load_active_problem_set()
+
+    def _load_active_problem_set(self):
+        """Load the currently active problem set"""
+        if os.path.exists(self.active_set_file):
+            try:
+                with open(self.active_set_file, 'r') as f:
+                    active_set = json.load(f)
+                    set_id = active_set.get('set_id')
+                    if set_id:
+                        self._load_problem_set_by_id(set_id)
+                        return True
+            except Exception as e:
+                print(f"Error loading active problem set: {e}")
+
+        # Fallback to legacy problems_data.json
+        return self._load_saved_problems()
+
+    def _load_problem_set_by_id(self, set_id: str):
+        """Load a specific problem set"""
+        # Check user's private sets first
+        private_path = f'{self.user_dir}/problem_sets/{set_id}.json'
+        if os.path.exists(private_path):
+            with open(private_path, 'r') as f:
+                set_data = json.load(f)
+                self.problems_data = set_data['problems']
+                self.difficulty_map = self._initialize_difficulty_map()
+                return True
+
+        # Check public sets
+        public_path = f'problem_sets/public/{set_id}.json'
+        if os.path.exists(public_path):
+            with open(public_path, 'r') as f:
+                set_data = json.load(f)
+                self.problems_data = set_data['problems']
+                self.difficulty_map = self._initialize_difficulty_map()
+                return True
+
+        return False
+
+    def get_problem_sets(self):
+        """Get all available problem sets for the user"""
+        sets = []
+
+        # Get active set ID
+        active_set_id = None
+        if os.path.exists(self.active_set_file):
+            try:
+                with open(self.active_set_file, 'r') as f:
+                    active_set_id = json.load(f).get('set_id')
+            except:
+                pass
+
+        # Get public sets
+        public_dir = 'problem_sets/public'
+        if os.path.exists(public_dir):
+            for filename in os.listdir(public_dir):
+                if filename.endswith('.json'):
+                    try:
+                        with open(os.path.join(public_dir, filename), 'r') as f:
+                            set_data = json.load(f)
+                            sets.append({
+                                'id': set_data['id'],
+                                'name': set_data['name'],
+                                'description': set_data.get('description', ''),
+                                'problem_count': len(set_data['problems']),
+                                'is_public': True,
+                                'is_active': set_data['id'] == active_set_id,
+                                'created_by': set_data.get('created_by', 'System'),
+                                'created_at': set_data.get('created_at', '')
+                            })
+                    except Exception as e:
+                        print(f"Error loading public set {filename}: {e}")
+
+        # Get user's private sets
+        private_dir = f'{self.user_dir}/problem_sets'
+        if os.path.exists(private_dir):
+            for filename in os.listdir(private_dir):
+                if filename.endswith('.json'):
+                    try:
+                        with open(os.path.join(private_dir, filename), 'r') as f:
+                            set_data = json.load(f)
+                            sets.append({
+                                'id': set_data['id'],
+                                'name': set_data['name'],
+                                'description': set_data.get('description', ''),
+                                'problem_count': len(set_data['problems']),
+                                'is_public': False,
+                                'is_active': set_data['id'] == active_set_id,
+                                'created_by': 'You',
+                                'created_at': set_data.get('created_at', '')
+                            })
+                    except Exception as e:
+                        print(f"Error loading private set {filename}: {e}")
+
+        return sorted(sets, key=lambda x: (not x['is_public'], x['name']))
+
+    def create_problem_set(self, name: str, description: str, problems_json: str, is_public: bool = False):
+        """Create a new problem set"""
+        try:
+            data = json.loads(problems_json)
+            problems = data['result'] if 'result' in data else data
+
+            set_id = name.lower().replace(' ', '_').replace('-', '_')
+            set_id = ''.join(c for c in set_id if c.isalnum() or c == '_')
+            set_id = f"{set_id}_{int(time.time())}"
+
+            set_data = {
+                'id': set_id,
+                'name': name,
+                'description': description,
+                'problems': problems,
+                'created_by': self.user_id,
+                'created_at': time.strftime('%Y-%m-%d %H:%M:%S'),
+                'is_public': is_public
+            }
+
+            # Save to appropriate directory
+            if is_public:
+                filepath = f'problem_sets/public/{set_id}.json'
+            else:
+                filepath = f'{self.user_dir}/problem_sets/{set_id}.json'
+
+            with open(filepath, 'w') as f:
+                json.dump(set_data, f, indent=2)
+
+            return set_id
+        except Exception as e:
+            print(f"Error creating problem set: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    def set_active_problem_set(self, set_id: str):
+        """Set the active problem set"""
+        if self._load_problem_set_by_id(set_id):
+            with open(self.active_set_file, 'w') as f:
+                json.dump({'set_id': set_id}, f)
+            return True
+        return False
+
+    def delete_problem_set(self, set_id: str):
+        """Delete a user's problem set"""
+        filepath = f'{self.user_dir}/problem_sets/{set_id}.json'
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            # If this was the active set, clear it
+            if os.path.exists(self.active_set_file):
+                with open(self.active_set_file, 'r') as f:
+                    active = json.load(f)
+                    if active.get('set_id') == set_id:
+                        os.remove(self.active_set_file)
+                        self.problems_data = None
+                        self.difficulty_map = None
+            return True
+        return False
+
+    def export_problem_set(self, set_id: str):
+        """Export a problem set"""
+        # Check private sets
+        filepath = f'{self.user_dir}/problem_sets/{set_id}.json'
+        if os.path.exists(filepath):
+            with open(filepath, 'r') as f:
+                return json.load(f)
+
+        # Check public sets
+        filepath = f'problem_sets/public/{set_id}.json'
+        if os.path.exists(filepath):
+            with open(filepath, 'r') as f:
+                return json.load(f)
+
+        return None
 
     def load_problems(self, problems_json: str):
         """Load problems from JSON string"""
@@ -226,17 +407,26 @@ class LeetCodeProblemSelector:
         with open(self.progress_file, 'w') as f:
             json.dump(data, f, indent=2)
 
-    def _load_difficulty_cache(self) -> Dict:
-        """Load difficulty cache from file"""
-        if os.path.exists(self.difficulty_cache_file):
-            with open(self.difficulty_cache_file, 'r') as f:
-                return json.load(f)
+    def _load_global_difficulty_cache(self) -> Dict:
+        """Load global difficulty cache from file (shared across all users)"""
+        if os.path.exists(LeetCodeProblemSelector._global_cache_file):
+            try:
+                with open(LeetCodeProblemSelector._global_cache_file, 'r') as f:
+                    cache = json.load(f)
+                    print(f"Loaded global difficulty cache with {len(cache)} entries")
+                    return cache
+            except Exception as e:
+                print(f"Error loading global cache: {e}")
         return {}
 
-    def _save_difficulty_cache(self):
-        """Save difficulty cache to file"""
-        with open(self.difficulty_cache_file, 'w') as f:
-            json.dump(self.difficulty_cache, f, indent=2)
+    def _save_global_difficulty_cache(self):
+        """Save global difficulty cache to file"""
+        try:
+            with open(LeetCodeProblemSelector._global_cache_file, 'w') as f:
+                json.dump(LeetCodeProblemSelector._global_difficulty_cache, f, indent=2)
+            print(f"Saved global difficulty cache with {len(LeetCodeProblemSelector._global_difficulty_cache)} entries")
+        except Exception as e:
+            print(f"Error saving global cache: {e}")
 
     def _save_progress(self):
         """Save progress to file"""
@@ -248,9 +438,9 @@ class LeetCodeProblemSelector:
         # Extract slug from URL
         slug = problem_url.rstrip('/').split('/')[-1]
 
-        # Check cache first
-        if slug in self.difficulty_cache:
-            return self.difficulty_cache[slug]
+        # Check global cache first
+        if slug in LeetCodeProblemSelector._global_difficulty_cache:
+            return LeetCodeProblemSelector._global_difficulty_cache[slug]
 
         # LeetCode GraphQL API endpoint
         url = "https://leetcode.com/graphql"
@@ -282,9 +472,53 @@ class LeetCodeProblemSelector:
                     # Convert to lowercase for consistency
                     difficulty = difficulty.lower() if difficulty else 'medium'
 
-                    # Cache the result
-                    self.difficulty_cache[slug] = difficulty
-                    self._save_difficulty_cache()
+                    # Cache the result in global cache
+                    LeetCodeProblemSelector._global_difficulty_cache[slug] = difficulty
+                    self._save_global_difficulty_cache()
+
+                    return difficulty
+        except Exception as e:
+            print(f"Error fetching difficulty for {slug}: {e}")
+
+        # Default to medium if API call fails
+        return 'medium'
+
+    def _fetch_difficulty_parallel(self, problem_url: str, slug: str) -> str:
+        """Fetch difficulty for parallel processing - no sleep, direct cache update"""
+        # Double-check cache in case another thread already fetched it
+        if slug in LeetCodeProblemSelector._global_difficulty_cache:
+            return LeetCodeProblemSelector._global_difficulty_cache[slug]
+
+        url = "https://leetcode.com/graphql"
+
+        query = """
+        query questionData($titleSlug: String!) {
+            question(titleSlug: $titleSlug) {
+                difficulty
+            }
+        }
+        """
+
+        payload = {
+            "query": query,
+            "variables": {"titleSlug": slug}
+        }
+
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0"
+        }
+
+        try:
+            response = requests.post(url, json=payload, headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('data') and data['data'].get('question'):
+                    difficulty = data['data']['question']['difficulty']
+                    difficulty = difficulty.lower() if difficulty else 'medium'
+
+                    # Cache the result in global cache (thread-safe due to GIL)
+                    LeetCodeProblemSelector._global_difficulty_cache[slug] = difficulty
 
                     return difficulty
         except Exception as e:
@@ -294,38 +528,66 @@ class LeetCodeProblemSelector:
         return 'medium'
 
     def _initialize_difficulty_map(self) -> Dict[str, List[str]]:
-        """Categorize problems by difficulty using cache first, then LeetCode API"""
+        """Categorize problems by difficulty using global cache first, then parallel LeetCode API calls"""
         difficulty_map = {'easy': [], 'medium': [], 'hard': []}
 
         print("Building difficulty map...")
         total_problems = sum(len(problems) for problems in self.problems_data.values())
-        processed = 0
-        api_calls = 0
+
+        # Collect all problems and check cache
+        all_problems = []
+        problems_to_fetch = []
+        cached_count = 0
 
         for category, problems in self.problems_data.items():
             for problem_url in problems:
-                # Extract slug to check cache
                 slug = problem_url.rstrip('/').split('/')[-1]
+                all_problems.append((problem_url, slug))
 
-                # Try cache first
-                if slug in self.difficulty_cache:
-                    difficulty = self.difficulty_cache[slug]
+                # Check if in cache
+                if slug in LeetCodeProblemSelector._global_difficulty_cache:
+                    difficulty = LeetCodeProblemSelector._global_difficulty_cache[slug]
+                    difficulty_map[difficulty].append(problem_url)
+                    cached_count += 1
                 else:
-                    # Only fetch from API if not in cache
-                    difficulty = self._get_problem_difficulty_from_api(problem_url)
-                    api_calls += 1
-                    # Small delay to avoid rate limiting only for API calls
-                    time.sleep(0.1)
+                    problems_to_fetch.append((problem_url, slug))
 
-                difficulty_map[difficulty].append(problem_url)
+        print(f"Found {cached_count} problems in cache, need to fetch {len(problems_to_fetch)} from API")
 
-                processed += 1
-                if processed % 10 == 0:
-                    print(f"Progress: {processed}/{total_problems} problems processed ({api_calls} API calls)")
+        if problems_to_fetch:
+            # Fetch remaining problems in parallel
+            print(f"Fetching {len(problems_to_fetch)} problems in parallel (max 10 concurrent)...")
+
+            # Use ThreadPoolExecutor for parallel API calls
+            with ThreadPoolExecutor(max_workers=10) as executor:
+                # Submit all fetch tasks
+                future_to_problem = {
+                    executor.submit(self._fetch_difficulty_parallel, url, slug): (url, slug)
+                    for url, slug in problems_to_fetch
+                }
+
+                # Collect results as they complete
+                completed = 0
+                for future in as_completed(future_to_problem):
+                    url, slug = future_to_problem[future]
+                    try:
+                        difficulty = future.result()
+                        difficulty_map[difficulty].append(url)
+                        completed += 1
+
+                        if completed % 10 == 0 or completed == len(problems_to_fetch):
+                            print(f"Progress: {completed}/{len(problems_to_fetch)} API calls completed")
+                    except Exception as e:
+                        print(f"Error fetching {slug}: {e}")
+                        difficulty_map['medium'].append(url)  # Default to medium on error
+
+            # Save cache after all parallel fetches complete
+            print("Saving global difficulty cache...")
+            self._save_global_difficulty_cache()
 
         print(f"Difficulty map created: {len(difficulty_map['easy'])} easy, "
               f"{len(difficulty_map['medium'])} medium, {len(difficulty_map['hard'])} hard")
-        print(f"Used cache for {processed - api_calls} problems, fetched {api_calls} from API")
+        print(f"Used global cache for {cached_count} problems, fetched {len(problems_to_fetch)} from API")
 
         return difficulty_map
 
@@ -687,6 +949,12 @@ def index():
     return render_template('index.html', username=current_user.username)
 
 
+@app.route('/problem_sets')
+@login_required
+def problem_sets_page():
+    return render_template('problem_sets.html')
+
+
 @app.route('/api/load_problems', methods=['POST'])
 @login_required
 def load_problems():
@@ -975,6 +1243,77 @@ def import_progress():
             return jsonify({'success': False, 'message': 'Invalid progress data format'})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
+
+
+# Problem Set Management Endpoints
+@app.route('/api/problem_sets', methods=['GET'])
+@login_required
+def get_problem_sets():
+    """Get all available problem sets"""
+    selector = get_selector()
+    sets = selector.get_problem_sets()
+    return jsonify({'success': True, 'sets': sets})
+
+
+@app.route('/api/problem_sets', methods=['POST'])
+@login_required
+def create_problem_set():
+    """Create a new problem set"""
+    selector = get_selector()
+    data = request.json
+
+    name = data.get('name')
+    description = data.get('description', '')
+    problems_json = data.get('problems_json')
+    is_public = data.get('is_public', False)
+
+    if not name or not problems_json:
+        return jsonify({'success': False, 'message': 'Name and problems data are required'})
+
+    set_id = selector.create_problem_set(name, description, problems_json, is_public)
+
+    if set_id:
+        return jsonify({'success': True, 'set_id': set_id, 'message': f'Problem set "{name}" created successfully!'})
+    else:
+        return jsonify({'success': False, 'message': 'Failed to create problem set'})
+
+
+@app.route('/api/problem_sets/<set_id>/activate', methods=['POST'])
+@login_required
+def activate_problem_set(set_id):
+    """Set a problem set as active"""
+    selector = get_selector()
+
+    if selector.set_active_problem_set(set_id):
+        return jsonify({'success': True, 'message': 'Problem set activated successfully!'})
+    else:
+        return jsonify({'success': False, 'message': 'Failed to activate problem set'})
+
+
+@app.route('/api/problem_sets/<set_id>', methods=['DELETE'])
+@login_required
+def delete_problem_set(set_id):
+    """Delete a problem set"""
+    selector = get_selector()
+
+    if selector.delete_problem_set(set_id):
+        return jsonify({'success': True, 'message': 'Problem set deleted successfully!'})
+    else:
+        return jsonify({'success': False, 'message': 'Failed to delete problem set or set does not exist'})
+
+
+@app.route('/api/problem_sets/<set_id>/export', methods=['GET'])
+@login_required
+def export_problem_set(set_id):
+    """Export a problem set"""
+    selector = get_selector()
+
+    set_data = selector.export_problem_set(set_id)
+
+    if set_data:
+        return jsonify(set_data)
+    else:
+        return jsonify({'success': False, 'message': 'Problem set not found'}), 404
 
 
 if __name__ == '__main__':

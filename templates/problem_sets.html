@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem Sets - LeetCode Problem Selector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .nav-bar {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .nav-button {
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .nav-button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .button-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .button-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .button-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .problem-sets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .set-card {
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .set-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .set-card.active {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #f8fff9 0%, #e8f5e9 100%);
+        }
+
+        .set-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .set-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .set-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-public {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-private {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .badge-active {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .set-description {
+            color: #6c757d;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .set-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .set-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .set-actions button {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #667eea;
+            font-size: 1.8em;
+        }
+
+        .close {
+            font-size: 2em;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group textarea {
+            font-family: 'Courier New', monospace;
+            min-height: 200px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .file-upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .file-upload-area input[type="file"] {
+            display: none;
+        }
+
+        .upload-label {
+            cursor: pointer;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #6c757d;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: #dee2e6;
+        }
+
+        .divider::before {
+            left: 0;
+        }
+
+        .divider::after {
+            right: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Problem Sets</h1>
+            <p class="subtitle">Manage your LeetCode problem collections</p>
+            <div class="nav-bar">
+                <button class="nav-button" onclick="window.location.href='/'">← Back to Problems</button>
+                <button class="nav-button" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <div class="content">
+            <div id="messageArea"></div>
+
+            <div class="actions-bar">
+                <button class="button button-primary" onclick="showCreateModal()">+ Create New Set</button>
+                <button class="button button-secondary" onclick="refreshSets()">🔄 Refresh</button>
+            </div>
+
+            <div id="problemSetsContainer"></div>
+        </div>
+    </div>
+
+    <!-- Create/Import Modal -->
+    <div id="createModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create Problem Set</h2>
+                <span class="close" onclick="closeCreateModal()">&times;</span>
+            </div>
+
+            <form id="createForm" onsubmit="createProblemSet(event)">
+                <div class="form-group">
+                    <label for="setName">Set Name *</label>
+                    <input type="text" id="setName" required placeholder="e.g., Blind 75, Grind 169">
+                </div>
+
+                <div class="form-group">
+                    <label for="setDescription">Description</label>
+                    <input type="text" id="setDescription" placeholder="Brief description of this problem set">
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="isPublic">
+                    <label for="isPublic">Make this set available to all users</label>
+                </div>
+
+                <div class="form-group">
+                    <label>Problems Data *</label>
+
+                    <div class="file-upload-area">
+                        <input type="file" id="jsonFile" accept=".json" onchange="handleFileSelect(event)">
+                        <label for="jsonFile" class="upload-label">
+                            📁 Click to upload JSON file
+                        </label>
+                        <p style="margin-top: 10px; font-size: 0.9em; color: #6c757d;">
+                            Or paste JSON below
+                        </p>
+                    </div>
+
+                    <textarea id="problemsJson" placeholder='Paste your problems JSON here (e.g., from LeetCode API response)' required></textarea>
+                    <small style="color: #6c757d; display: block; margin-top: 5px;">
+                        Format: Array of problem objects with "titleSlug" or full JSON from LeetCode
+                    </small>
+                </div>
+
+                <button type="submit" class="button button-success" id="createButton">Create Problem Set</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Export Problem Set</h2>
+                <span class="close" onclick="closeExportModal()">&times;</span>
+            </div>
+
+            <div class="form-group">
+                <label>Problem Set JSON</label>
+                <textarea id="exportJson" readonly style="min-height: 300px;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="button button-primary" onclick="downloadExport()">💾 Download JSON</button>
+                <button class="button button-secondary" onclick="copyExportToClipboard()">📋 Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentExportData = null;
+        let currentExportFilename = '';
+
+        async function loadProblemSets() {
+            try {
+                const response = await fetch('/api/problem_sets');
+                const data = await response.json();
+
+                if (!data.success) {
+                    showMessage('Failed to load problem sets', 'error');
+                    return;
+                }
+
+                const container = document.getElementById('problemSetsContainer');
+
+                if (data.sets.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>📦 No Problem Sets Yet</h3>
+                            <p>Create your first problem set to get started!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Get current active set
+                const activeSets = data.sets.filter(s => s.is_active);
+
+                container.innerHTML = `
+                    <div class="problem-sets-grid">
+                        ${data.sets.map(set => `
+                            <div class="set-card ${set.is_active ? 'active' : ''}">
+                                <div class="set-header">
+                                    <div>
+                                        <div class="set-name">${escapeHtml(set.name)}</div>
+                                        ${set.is_active ? '<span class="set-badge badge-active">✓ Active</span>' : ''}
+                                    </div>
+                                    <span class="set-badge ${set.is_public ? 'badge-public' : 'badge-private'}">
+                                        ${set.is_public ? '🌐 Public' : '🔒 Private'}
+                                    </span>
+                                </div>
+
+                                ${set.description ? `<div class="set-description">${escapeHtml(set.description)}</div>` : ''}
+
+                                <div class="set-meta">
+                                    <span>📝 ${set.problem_count} problems</span>
+                                    <span>👤 ${escapeHtml(set.created_by)}</span>
+                                </div>
+
+                                <div class="set-actions">
+                                    ${!set.is_active ? `
+                                        <button class="button button-success" onclick="activateSet('${set.id}')">
+                                            ✓ Use This Set
+                                        </button>
+                                    ` : '<span style="color: #28a745; font-weight: 600;">Currently Active</span>'}
+
+                                    <button class="button button-secondary" onclick="exportSet('${set.id}', '${escapeHtml(set.name)}')">
+                                        📤 Export
+                                    </button>
+
+                                    ${!set.is_public && set.created_by === 'You' ? `
+                                        <button class="button button-danger" onclick="deleteSet('${set.id}', '${escapeHtml(set.name)}')">
+                                            🗑️ Delete
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                showMessage('Error loading problem sets: ' + error.message, 'error');
+            }
+        }
+
+        function showCreateModal() {
+            document.getElementById('createModal').style.display = 'block';
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').style.display = 'none';
+            document.getElementById('createForm').reset();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('problemsJson').value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        async function createProblemSet(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('setName').value.trim();
+            const description = document.getElementById('setDescription').value.trim();
+            const problemsJson = document.getElementById('problemsJson').value.trim();
+            const isPublic = document.getElementById('isPublic').checked;
+            const createButton = document.getElementById('createButton');
+
+            createButton.disabled = true;
+            createButton.textContent = 'Creating...';
+
+            try {
+                const response = await fetch('/api/problem_sets', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, description, problems_json: problemsJson, is_public: isPublic })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('✓ ' + data.message, 'success');
+                    closeCreateModal();
+                    await loadProblemSets();
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error creating problem set: ' + error.message, 'error');
+            } finally {
+                createButton.disabled = false;
+                createButton.textContent = 'Create Problem Set';
+            }
+        }
+
+        async function activateSet(setId) {
+            if (!confirm('Switch to this problem set? Your progress will be preserved.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/problem_sets/${setId}/activate`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('✓ ' + data.message, 'success');
+                    await loadProblemSets();
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error activating problem set: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteSet(setId, setName) {
+            if (!confirm(`Are you sure you want to delete "${setName}"? This cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/problem_sets/${setId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('✓ ' + data.message, 'success');
+                    await loadProblemSets();
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error deleting problem set: ' + error.message, 'error');
+            }
+        }
+
+        async function exportSet(setId, setName) {
+            try {
+                const response = await fetch(`/api/problem_sets/${setId}/export`);
+                const data = await response.json();
+
+                if (data.id) {
+                    currentExportData = data;
+                    currentExportFilename = `${setName.toLowerCase().replace(/\s+/g, '_')}.json`;
+                    document.getElementById('exportJson').value = JSON.stringify(data, null, 2);
+                    document.getElementById('exportModal').style.display = 'block';
+                } else {
+                    showMessage('Failed to export problem set', 'error');
+                }
+            } catch (error) {
+                showMessage('Error exporting problem set: ' + error.message, 'error');
+            }
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').style.display = 'none';
+            currentExportData = null;
+        }
+
+        function downloadExport() {
+            if (!currentExportData) return;
+
+            const blob = new Blob([JSON.stringify(currentExportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = currentExportFilename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showMessage('💾 Problem set exported successfully!', 'success');
+        }
+
+        function copyExportToClipboard() {
+            const textarea = document.getElementById('exportJson');
+            textarea.select();
+            document.execCommand('copy');
+            showMessage('📋 Copied to clipboard!', 'success');
+        }
+
+        function refreshSets() {
+            loadProblemSets();
+            showMessage('🔄 Refreshed problem sets', 'success');
+        }
+
+        function showMessage(message, type = 'success') {
+            const messageArea = document.getElementById('messageArea');
+            messageArea.innerHTML = `<div class="message ${type}">${message}</div>`;
+            setTimeout(() => {
+                messageArea.innerHTML = '';
+            }, 5000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function logout() {
+            try {
+                await fetch('/logout', { method: 'POST' });
+                window.location.href = '/login';
+            } catch (error) {
+                window.location.href = '/login';
+            }
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const createModal = document.getElementById('createModal');
+            const exportModal = document.getElementById('exportModal');
+
+            if (event.target == createModal) {
+                closeCreateModal();
+            }
+            if (event.target == exportModal) {
+                closeExportModal();
+            }
+        }
+
+        // Load problem sets on page load
+        window.onload = function() {
+            loadProblemSets();
+        };
+    </script>
+</body>
+</html>
