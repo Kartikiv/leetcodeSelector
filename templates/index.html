@@ -1933,10 +1933,10 @@ function displaySkippedProblems(problems) {
 function displayRevisitProblems(urls) {
     const modalList = document.getElementById('modalList');
 
-    modalList.innerHTML = urls.map(url => {
+    modalList.innerHTML = urls.map(item => {
+        const url = item.url;
         const slug = url.split('/').filter(s => s).pop();
         const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-
         // For revisit list, we need to fetch category - using Unknown for now
         // In a real implementation, you'd fetch this from backend
         const category = 'Unknown';
