@@ -39,10 +39,19 @@
     "https://leetcode.com/problems/plus-one/",
     "https://leetcode.com/problems/sqrtx/",
     "https://leetcode.com/problems/counting-bits/",
-    "https://leetcode.com/problems/majority-element/"
+    "https://leetcode.com/problems/majority-element/",
+    "https://leetcode.com/problems/sum-of-all-subset-xor-totals/",
+    "https://leetcode.com/problems/search-insert-position/",
+    "https://leetcode.com/problems/design-hashset/",
+    "https://leetcode.com/problems/design-hashmap/",
+    "https://leetcode.com/problems/valid-anagram/",
+    "https://leetcode.com/problems/implement-queue-using-stacks/",
+    "https://leetcode.com/problems/baseball-game/",
+    "https://leetcode.com/problems/subtree-of-another-tree/",
+    "https://leetcode.com/problems/guess-number-higher-or-lower/"
   ],
   "current_session": {
-    "easy_completed": 11,
+    "easy_completed": 20,
     "generated_at": "2026-01-14 00:23:25",
     "hard_completed": 0,
     "medium_completed": 0,
@@ -78,18 +87,21 @@
       "https://leetcode.com/problems/split-array-largest-sum/",
       "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/"
     ],
-    "total_completed": 11
+    "total_completed": 20
   },
   "global_stats": {
-    "easy_completed": 31,
+    "easy_completed": 40,
     "medium_completed": 9,
     "hard_completed": 0,
-    "total_completed": 40
+    "total_completed": 49
   },
   "revisit": [
     "https://leetcode.com/problems/daily-temperatures/",
     "https://leetcode.com/problems/burst-balloons/",
-    "https://leetcode.com/problems/ipo/"
+    "https://leetcode.com/problems/ipo/",
+    "https://leetcode.com/problems/search-insert-position/",
+    "https://leetcode.com/problems/design-hashmap/",
+    "https://leetcode.com/problems/implement-queue-using-stacks/"
   ],
   "skipped": [
     "https://leetcode.com/problems/partition-to-k-equal-sum-subsets/"
