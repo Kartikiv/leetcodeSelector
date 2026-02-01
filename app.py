@@ -1316,5 +1316,51 @@ def export_problem_set(set_id):
         return jsonify({'success': False, 'message': 'Problem set not found'}), 404
 
 
+@app.route('/api/problem_sets/<set_id>/stats', methods=['GET'])
+@login_required
+def get_problem_set_stats(set_id):
+    """Get statistics for a specific problem set"""
+    selector = get_selector()
+
+    # Load the problem set to get all problems
+    if not selector._load_problem_set_by_id(set_id):
+        return jsonify({'success': False, 'message': 'Problem set not found'})
+
+    # Get all problems from this set
+    all_problems = []
+    for category, problems in selector.problems_data.items():
+        all_problems.extend(problems)
+
+    # Get completed problems
+    completed_set = set(selector.progress['completed'])
+
+    # Calculate stats
+    completed_problems = [p for p in all_problems if p in completed_set]
+    pending_problems = [p for p in all_problems if p not in completed_set]
+
+    # Add difficulty and category info
+    completed_with_info = [{
+        'url': url,
+        'difficulty': selector._get_difficulty(url),
+        'category': selector._get_problem_category(url),
+        'is_revisit': selector.is_in_revisit(url)
+    } for url in completed_problems]
+
+    pending_with_info = [{
+        'url': url,
+        'difficulty': selector._get_difficulty(url),
+        'category': selector._get_problem_category(url),
+        'is_revisit': selector.is_in_revisit(url)
+    } for url in pending_problems]
+
+    return jsonify({
+        'success': True,
+        'total': len(all_problems),
+        'completed': len(completed_problems),
+        'pending': len(pending_problems),
+        'completed_problems': completed_with_info,
+        'pending_problems': pending_with_info
+    })
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=False, port=3000)

@@ -938,46 +938,61 @@
                 currentActiveProblemSet = activeSet ? activeSet.id : null;
 
                 container.innerHTML = `
-                    <div class="problem-sets-grid">
-                        ${data.sets.map(set => `
-                            <div class="problem-set-card ${set.is_active ? 'active' : ''}" onclick="selectProblemSet('${set.id}', ${set.is_active})">
-                                <div class="set-card-header">
-                                    <div style="flex: 1;">
-                                        <div class="set-card-name">${escapeHtml(set.name)}</div>
-                                        ${set.is_active ? '<span class="set-badge badge-active">✓ Active</span>' : ''}
-                                    </div>
-                                    <span class="set-badge ${set.is_public ? 'badge-public' : 'badge-private'}">
-                                        ${set.is_public ? '🌐 Public' : '🔒 Private'}
-                                    </span>
-                                </div>
-
-                                ${set.description ? `<div class="set-card-description">${escapeHtml(set.description)}</div>` : ''}
-
-                                <div class="set-card-meta">
-                                    <span>📝 ${set.problem_count} problems</span>
-                                    <span>👤 ${escapeHtml(set.created_by)}</span>
-                                </div>
-
-                                <div class="set-card-actions" onclick="event.stopPropagation()">
-                                    ${!set.is_active ? `
-                                        <button class="button button-success" onclick="activateProblemSet('${set.id}', '${escapeHtml(set.name)}')">
-                                            ✓ Use This
-                                        </button>
-                                    ` : `
-                                        <button class="button button-primary" onclick="selectProblemSet('${set.id}', true)">
-                                            🎲 Start Solving
-                                        </button>
-                                    `}
-                                    ${!set.is_public && set.created_by === 'You' ? `
-                                        <button class="button button-danger" onclick="deleteProblemSet('${set.id}', '${escapeHtml(set.name)}')">
-                                            🗑️
-                                        </button>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        `).join('')}
+    <div class="problem-sets-grid">
+        ${data.sets.map(set => `
+            <div class="problem-set-card ${set.is_active ? 'active' : ''}" onclick="selectProblemSet('${set.id}', ${set.is_active})">
+                <div class="set-card-header">
+                    <div style="flex: 1;">
+                        <div class="set-card-name">${escapeHtml(set.name)}</div>
+                        ${set.is_active ? '<span class="set-badge badge-active">✓ Active</span>' : ''}
                     </div>
-                `;
+                    <span class="set-badge ${set.is_public ? 'badge-public' : 'badge-private'}">
+                        ${set.is_public ? '🌐 Public' : '🔒 Private'}
+                    </span>
+                </div>
+
+                ${set.description ? `<div class="set-card-description">${escapeHtml(set.description)}</div>` : ''}
+
+                <div class="set-card-meta">
+                    <span>📝 ${set.problem_count} problems</span>
+                    <span>👤 ${escapeHtml(set.created_by)}</span>
+                </div>
+
+                <div class="set-card-meta" id="stats-${set.id}" style="display: none; border-top: 1px solid #e9ecef; padding-top: 10px; margin-top: 10px;">
+                    <span style="color: #28a745; font-weight: 600;">✓ <span id="completed-${set.id}">0</span> completed</span>
+                    <span style="color: #ffc107; font-weight: 600;">⏳ <span id="pending-${set.id}">0</span> pending</span>
+                </div>
+
+                <div class="set-card-actions" onclick="event.stopPropagation()">
+                    ${set.is_active ? `
+                        <button class="button button-info" onclick="showSetStats('${set.id}', '${escapeHtml(set.name)}')" style="font-size: 13px; padding: 6px 14px;">
+                            📊 View Stats
+                        </button>
+                    ` : ''}
+                    ${!set.is_active ? `
+                        <button class="button button-success" onclick="activateProblemSet('${set.id}', '${escapeHtml(set.name)}')">
+                            ✓ Use This
+                        </button>
+                    ` : `
+                        <button class="button button-primary" onclick="selectProblemSet('${set.id}', true)">
+                            🎲 Start Solving
+                        </button>
+                    `}
+                    ${!set.is_public && set.created_by === 'You' ? `
+                        <button class="button button-danger" onclick="deleteProblemSet('${set.id}', '${escapeHtml(set.name)}')">
+                            🗑️
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `).join('')}
+    </div>
+`;
+
+// Load stats for active set
+if (activeSet) {
+    loadSetStats(activeSet.id);
+}
 
                 // If there's an active set, automatically transition to problem solving
                 if (activeSet) {
@@ -1000,7 +1015,223 @@
                 activateProblemSet(setId, '');
             }
         }
+async function loadSetStats(setId) {
+    try {
+        const response = await fetch(`/api/problem_sets/${setId}/stats`);
+        const data = await response.json();
 
+        if (data.success) {
+            // Update stats display
+            const statsDiv = document.getElementById(`stats-${setId}`);
+            if (statsDiv) {
+                statsDiv.style.display = 'flex';
+                document.getElementById(`completed-${setId}`).textContent = data.completed;
+                document.getElementById(`pending-${setId}`).textContent = data.pending;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading set stats:', error);
+    }
+}
+
+async function showSetStats(setId, setName) {
+    try {
+        const response = await fetch(`/api/problem_sets/${setId}/stats`);
+        const data = await response.json();
+
+        if (!data.success) {
+            showMessage('Failed to load statistics', 'error');
+            return;
+        }
+
+        const modal = document.getElementById('listModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalList = document.getElementById('modalList');
+
+        modalTitle.innerHTML = `
+            📊 Statistics: ${escapeHtml(setName)}
+            <div style="font-size: 0.6em; margin-top: 5px; opacity: 0.8;">
+                ${data.completed}/${data.total} problems completed (${Math.round(data.completed/data.total*100)}%)
+            </div>
+        `;
+
+        let html = `
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="switchSetStatsView('completed', '${setId}', this)">
+                    ✓ Completed (${data.completed})
+                </button>
+                <button class="toggle-btn" onclick="switchSetStatsView('pending', '${setId}', this)">
+                    ⏳ Pending (${data.pending})
+                </button>
+            </div>
+            <div id="problemsListContainer"></div>
+        `;
+
+        modalList.innerHTML = html;
+
+        // Store data globally for view switching
+        window.currentSetStatsData = data;
+        window.currentSetStatsId = setId;
+
+        // Display completed by default
+        displaySetProblems(data.completed_problems, 'completed');
+
+        modal.style.display = 'block';
+    } catch (error) {
+        showMessage('Error loading statistics: ' + error.message, 'error');
+    }
+}
+
+function switchSetStatsView(viewType, setId, button) {
+    // Update active button
+    document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+
+    const data = window.currentSetStatsData;
+    if (viewType === 'completed') {
+        displaySetProblems(data.completed_problems, 'completed');
+    } else {
+        displaySetProblems(data.pending_problems, 'pending');
+    }
+}
+
+function displaySetProblems(problems, type) {
+    const container = document.getElementById('problemsListContainer');
+
+    if (problems.length === 0) {
+        container.innerHTML = `<p style="text-align: center; padding: 20px; color: #6c757d;">No ${type} problems</p>`;
+        return;
+    }
+
+    // Group by difficulty
+    const grouped = {
+        easy: problems.filter(p => p.difficulty === 'easy'),
+        medium: problems.filter(p => p.difficulty === 'medium'),
+        hard: problems.filter(p => p.difficulty === 'hard')
+    };
+
+    let html = '';
+
+    // Easy problems
+    if (grouped.easy.length > 0) {
+        html += `
+            <div class="difficulty-group-modal">
+                <div class="difficulty-header easy">
+                    <span>🟢 Easy</span>
+                    <span class="category-count">${grouped.easy.length}</span>
+                </div>
+                <ul style="list-style: none; padding: 0;">
+                    ${grouped.easy.map(item => createSetProblemListItem(item, type)).join('')}
+                </ul>
+            </div>
+        `;
+    }
+
+    // Medium problems
+    if (grouped.medium.length > 0) {
+        html += `
+            <div class="difficulty-group-modal">
+                <div class="difficulty-header medium">
+                    <span>🟡 Medium</span>
+                    <span class="category-count">${grouped.medium.length}</span>
+                </div>
+                <ul style="list-style: none; padding: 0;">
+                    ${grouped.medium.map(item => createSetProblemListItem(item, type)).join('')}
+                </ul>
+            </div>
+        `;
+    }
+
+    // Hard problems
+    if (grouped.hard.length > 0) {
+        html += `
+            <div class="difficulty-group-modal">
+                <div class="difficulty-header hard">
+                    <span>🔴 Hard</span>
+                    <span class="category-count">${grouped.hard.length}</span>
+                </div>
+                <ul style="list-style: none; padding: 0;">
+                    ${grouped.hard.map(item => createSetProblemListItem(item, type)).join('')}
+                </ul>
+            </div>
+        `;
+    }
+
+    container.innerHTML = html;
+}
+
+function createSetProblemListItem(item, type) {
+    const url = item.url;
+    const slug = url.split('/').filter(s => s).pop();
+    const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    const revisitClass = item.is_revisit ? 'revisit' : '';
+    const category = item.category || 'Unknown';
+
+    return `
+        <li class="${revisitClass}" style="padding: 10px; margin-bottom: 10px; background: #f8f9fa; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="flex: 1;">
+                <a href="${url}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: 500;">${name}</a>
+                <div style="font-size: 0.85em; color: #667eea; margin-top: 4px;">📁 ${category}</div>
+            </div>
+            ${type === 'pending' ? `
+                <button class="button button-success" onclick="markCompleteFromStats('${url}')" style="font-size: 12px; padding: 6px 12px;">
+                    ✓ Mark Complete
+                </button>
+            ` : ''}
+        </li>
+    `;
+}
+
+async function markCompleteFromStats(url) {
+    try {
+        const response = await fetch('/api/mark_complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showMessage('✓ Problem marked as complete!', 'success');
+            // Reload stats
+            const setId = window.currentSetStatsId;
+            if (setId) {
+                const statsResponse = await fetch(`/api/problem_sets/${setId}/stats`);
+                const statsData = await statsResponse.json();
+                window.currentSetStatsData = statsData;
+
+                // Refresh the current view
+                const activeBtn = document.querySelector('.toggle-btn.active');
+                if (activeBtn) {
+                    const viewType = activeBtn.textContent.includes('Completed') ? 'completed' : 'pending';
+                    displaySetProblems(viewType === 'completed' ? statsData.completed_problems : statsData.pending_problems, viewType);
+
+                    // Update button counts
+                    document.querySelectorAll('.toggle-btn')[0].innerHTML = `✓ Completed (${statsData.completed})`;
+                    document.querySelectorAll('.toggle-btn')[1].innerHTML = `⏳ Pending (${statsData.pending})`;
+
+                    // Update modal title
+                    const modalTitle = document.getElementById('modalTitle');
+                    const setName = modalTitle.textContent.split(':')[1].split('\n')[0].trim();
+                    modalTitle.innerHTML = `
+                        📊 Statistics: ${setName}
+                        <div style="font-size: 0.6em; margin-top: 5px; opacity: 0.8;">
+                            ${statsData.completed}/${statsData.total} problems completed (${Math.round(statsData.completed/statsData.total*100)}%)
+                        </div>
+                    `;
+                }
+
+                // Update card stats
+                loadSetStats(setId);
+                updateProgress();
+            }
+        } else {
+            showMessage(data.message, 'error');
+        }
+    } catch (error) {
+        showMessage('Error: ' + error.message, 'error');
+    }
+}
         async function activateProblemSet(setId, setName) {
             try {
                 // Show loading indicator with custom message
