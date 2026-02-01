@@ -37,21 +37,21 @@
   },
   "current_session": {
     "problems": [
-      "https://leetcode.com/problems/minimum-limit-of-balls-in-a-bag/",
+      "https://leetcode.com/problems/single-threaded-cpu/",
       "https://leetcode.com/problems/minimum-size-subarray-sum/",
-      "https://leetcode.com/problems/binary-subarrays-with-sum/",
       "https://leetcode.com/problems/3sum/",
       "https://leetcode.com/problems/process-tasks-using-servers/",
+      "https://leetcode.com/problems/kth-largest-element-in-an-array/",
+      "https://leetcode.com/problems/single-threaded-cpu/",
+      "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
       "https://leetcode.com/problems/boats-to-save-people/",
-      "https://leetcode.com/problems/single-threaded-cpu/",
-      "https://leetcode.com/problems/single-threaded-cpu/",
       "https://leetcode.com/problems/minimum-number-of-refueling-stops/",
-      "https://leetcode.com/problems/minimum-number-of-refueling-stops/"
+      "https://leetcode.com/problems/minimum-cost-to-hire-k-workers/"
     ],
     "easy_completed": 0,
     "medium_completed": 0,
     "hard_completed": 0,
     "total_completed": 0,
-    "generated_at": "2026-02-01 00:34:11"
+    "generated_at": "2026-02-01 00:53:35"
   }
 }
