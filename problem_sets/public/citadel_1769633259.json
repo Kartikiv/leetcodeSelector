@@ -1,0 +1,73 @@
+{
+  "id": "citadel_1769633259",
+  "name": "Citadel",
+  "description": "Citadel Problems",
+  "problems": {
+    "PrefixSum_HashMap": [
+      "https://leetcode.com/problems/subarray-sum-equals-k/",
+      "https://leetcode.com/problems/binary-subarrays-with-sum/",
+      "https://leetcode.com/problems/continuous-subarray-sum/",
+      "https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/",
+      "https://leetcode.com/problems/count-of-range-sum/"
+    ],
+    "SlidingWindow": [
+      "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+      "https://leetcode.com/problems/minimum-window-substring/",
+      "https://leetcode.com/problems/longest-repeating-character-replacement/",
+      "https://leetcode.com/problems/subarrays-with-k-different-integers/",
+      "https://leetcode.com/problems/minimum-size-subarray-sum/",
+      "https://leetcode.com/problems/find-all-anagrams-in-a-string/",
+      "https://leetcode.com/problems/permutation-in-string/"
+    ],
+    "TwoPointers_SortingBasics": [
+      "https://leetcode.com/problems/container-with-most-water/",
+      "https://leetcode.com/problems/3sum/",
+      "https://leetcode.com/problems/boats-to-save-people/",
+      "https://leetcode.com/problems/interval-list-intersections/"
+    ],
+    "Greedy_Intervals_Scheduling": [
+      "https://leetcode.com/problems/meeting-rooms-ii/",
+      "https://leetcode.com/problems/non-overlapping-intervals/",
+      "https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended/",
+      "https://leetcode.com/problems/employee-free-time/"
+    ],
+    "Heap_PriorityQueue": [
+      "https://leetcode.com/problems/single-threaded-cpu/",
+      "https://leetcode.com/problems/process-tasks-using-servers/",
+      "https://leetcode.com/problems/minimum-number-of-refueling-stops/",
+      "https://leetcode.com/problems/minimum-cost-to-hire-k-workers/",
+      "https://leetcode.com/problems/top-k-frequent-elements/",
+      "https://leetcode.com/problems/kth-largest-element-in-an-array/"
+    ],
+    "BinarySearch_OnAnswer": [
+      "https://leetcode.com/problems/koko-eating-bananas/",
+      "https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/",
+      "https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/",
+      "https://leetcode.com/problems/split-array-largest-sum/",
+      "https://leetcode.com/problems/minimum-limit-of-balls-in-a-bag/"
+    ],
+    "MonotonicStack_OccasionalButDeadly": [
+      "https://leetcode.com/problems/daily-temperatures/",
+      "https://leetcode.com/problems/largest-rectangle-in-histogram/",
+      "https://leetcode.com/problems/sum-of-subarray-minimums/",
+      "https://leetcode.com/problems/car-fleet/"
+    ],
+    "MustDo_IfOnly12Problems": [
+      "https://leetcode.com/problems/subarray-sum-equals-k/",
+      "https://leetcode.com/problems/minimum-window-substring/",
+      "https://leetcode.com/problems/longest-repeating-character-replacement/",
+      "https://leetcode.com/problems/subarrays-with-k-different-integers/",
+      "https://leetcode.com/problems/meeting-rooms-ii/",
+      "https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended/",
+      "https://leetcode.com/problems/single-threaded-cpu/",
+      "https://leetcode.com/problems/minimum-number-of-refueling-stops/",
+      "https://leetcode.com/problems/koko-eating-bananas/",
+      "https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/",
+      "https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/",
+      "https://leetcode.com/problems/largest-rectangle-in-histogram/"
+    ]
+  },
+  "created_by": "4",
+  "created_at": "2026-01-28 20:47:39",
+  "is_public": true
+}

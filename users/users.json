@@ -16,5 +16,11 @@
     "email": "saikartiki.iv@gmail.com",
     "password_hash": "pbkdf2:sha256:1000000$51rj7LZkYk0TcNrY$aca3c74c6617136aa0b79de444269275fd94aaf11ed1a137cf1e00805d488a36",
     "created_at": "2026-01-14 14:38:10"
+  },
+  "4": {
+    "username": "citadelTraining",
+    "email": "kartikiv@icloud.com",
+    "password_hash": "pbkdf2:sha256:1000000$bZkifaUltU5lvM5X$e2ec3de8a9d40bc6f9cd8e098e134a1978ed125de878de72e72aa10d23efa664",
+    "created_at": "2026-01-28 20:44:29"
   }
 }
