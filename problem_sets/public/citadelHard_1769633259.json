@@ -1,0 +1,130 @@
+{
+  "id": "citadel_reinforce_100",
+  "name": "Citadel Reinforcement 100",
+  "description": "Harder follow-up set to reinforce the existing Citadel patterns (no duplicates within this list, and avoids the exact problems already in your current set).",
+  "problems": {
+    "PrefixSum_HashMap": [
+      "https://leetcode.com/problems/contiguous-array/",
+      "https://leetcode.com/problems/subarray-sums-divisible-by-k/",
+      "https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/",
+      "https://leetcode.com/problems/path-sum-iii/",
+      "https://leetcode.com/problems/make-sum-divisible-by-p/",
+      "https://leetcode.com/problems/minimum-operations-to-reduce-x-to-zero/",
+      "https://leetcode.com/problems/ways-to-split-array/",
+      "https://leetcode.com/problems/range-sum-query-immutable/",
+      "https://leetcode.com/problems/matrix-block-sum/",
+      "https://leetcode.com/problems/subarray-sum-equals-k-ii/",
+      "https://leetcode.com/problems/number-of-sub-arrays-with-odd-sum/",
+      "https://leetcode.com/problems/k-radius-subarray-averages/"
+    ],
+    "SlidingWindow": [
+      "https://leetcode.com/problems/fruit-into-baskets/",
+      "https://leetcode.com/problems/subarray-product-less-than-k/",
+      "https://leetcode.com/problems/max-consecutive-ones-iii/",
+      "https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters/",
+      "https://leetcode.com/problems/get-equal-substrings-within-budget/",
+      "https://leetcode.com/problems/maximum-erasure-value/",
+      "https://leetcode.com/problems/frequency-of-the-most-frequent-element/",
+      "https://leetcode.com/problems/maximize-the-confusion-of-an-exam/",
+      "https://leetcode.com/problems/length-of-longest-subarray-with-at-most-k-frequency/",
+      "https://leetcode.com/problems/substring-with-concatenation-of-all-words/",
+      "https://leetcode.com/problems/grumpy-bookstore-owner/",
+      "https://leetcode.com/problems/longest-nice-subarray/"
+    ],
+    "TwoPointers_SortingBasics": [
+      "https://leetcode.com/problems/trapping-rain-water/",
+      "https://leetcode.com/problems/4sum/",
+      "https://leetcode.com/problems/3sum-closest/",
+      "https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/",
+      "https://leetcode.com/problems/squares-of-a-sorted-array/",
+      "https://leetcode.com/problems/move-zeroes/",
+      "https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/",
+      "https://leetcode.com/problems/sort-colors/",
+      "https://leetcode.com/problems/reverse-words-in-a-string/",
+      "https://leetcode.com/problems/partition-array-according-to-given-pivot/"
+    ],
+    "Greedy_Intervals_Scheduling": [
+      "https://leetcode.com/problems/merge-intervals/",
+      "https://leetcode.com/problems/insert-interval/",
+      "https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/",
+      "https://leetcode.com/problems/video-stitching/",
+      "https://leetcode.com/problems/partition-labels/",
+      "https://leetcode.com/problems/remove-covered-intervals/",
+      "https://leetcode.com/problems/maximum-length-of-pair-chain/",
+      "https://leetcode.com/problems/task-scheduler/",
+      "https://leetcode.com/problems/minimum-interval-to-include-each-query/",
+      "https://leetcode.com/problems/minimum-number-of-days-to-disconnect-island/"
+    ],
+    "Heap_PriorityQueue": [
+      "https://leetcode.com/problems/find-median-from-data-stream/",
+      "https://leetcode.com/problems/merge-k-sorted-lists/",
+      "https://leetcode.com/problems/find-k-pairs-with-smallest-sums/",
+      "https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/",
+      "https://leetcode.com/problems/sliding-window-median/",
+      "https://leetcode.com/problems/ipo/",
+      "https://leetcode.com/problems/kth-largest-element-in-a-stream/",
+      "https://leetcode.com/problems/last-stone-weight/",
+      "https://leetcode.com/problems/the-k-weakest-rows-in-a-matrix/",
+      "https://leetcode.com/problems/reorganize-string/",
+      "https://leetcode.com/problems/find-the-most-competitive-subsequence/",
+      "https://leetcode.com/problems/minimum-deviation-in-array/"
+    ],
+    "BinarySearch_OnAnswer": [
+      "https://leetcode.com/problems/minimum-speed-to-arrive-on-time/",
+      "https://leetcode.com/problems/magnetic-force-between-two-balls/",
+      "https://leetcode.com/problems/maximum-candies-allocated-to-k-children/",
+      "https://leetcode.com/problems/find-the-smallest-divisor-given-a-threshold/",
+      "https://leetcode.com/problems/sum-of-mutated-array-closest-to-target/",
+      "https://leetcode.com/problems/kth-smallest-pair-distance/",
+      "https://leetcode.com/problems/minimize-max-distance-to-gas-station/",
+      "https://leetcode.com/problems/successful-pairs-of-spells-and-potions/",
+      "https://leetcode.com/problems/minimum-time-to-complete-trips/",
+      "https://leetcode.com/problems/maximum-number-of-removable-characters/",
+      "https://leetcode.com/problems/search-in-rotated-sorted-array/",
+      "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/"
+    ],
+    "MonotonicStack_OccasionalButDeadly": [
+      "https://leetcode.com/problems/next-greater-element-i/",
+      "https://leetcode.com/problems/next-greater-element-ii/",
+      "https://leetcode.com/problems/online-stock-span/",
+      "https://leetcode.com/problems/remove-k-digits/",
+      "https://leetcode.com/problems/remove-duplicate-letters/",
+      "https://leetcode.com/problems/final-prices-with-a-special-discount-in-a-shop/",
+      "https://leetcode.com/problems/sum-of-subarray-ranges/",
+      "https://leetcode.com/problems/maximum-width-ramp/",
+      "https://leetcode.com/problems/maximum-subarray-min-product/",
+      "https://leetcode.com/problems/find-building-where-alice-and-bob-can-meet/"
+    ],
+    "Deque_MonotonicQueue": [
+      "https://leetcode.com/problems/sliding-window-maximum/",
+      "https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/",
+      "https://leetcode.com/problems/constrained-subsequence-sum/",
+      "https://leetcode.com/problems/jump-game-vi/",
+      "https://leetcode.com/problems/max-value-of-equation/",
+      "https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/",
+      "https://leetcode.com/problems/maximum-number-of-visible-points/",
+      "https://leetcode.com/problems/minimum-operations-to-make-the-array-k-increasing/"
+    ],
+    "LineSweep_DifferenceArray": [
+      "https://leetcode.com/problems/car-pooling/",
+      "https://leetcode.com/problems/corporate-flight-bookings/",
+      "https://leetcode.com/problems/my-calendar-iii/",
+      "https://leetcode.com/problems/divide-intervals-into-minimum-number-of-groups/",
+      "https://leetcode.com/problems/rectangle-area-ii/",
+      "https://leetcode.com/problems/describe-the-painting/",
+      "https://leetcode.com/problems/meeting-rooms-iii/"
+    ],
+    "Mixed_InterviewCombos": [
+      "https://leetcode.com/problems/find-k-closest-elements/",
+      "https://leetcode.com/problems/hand-of-straights/",
+      "https://leetcode.com/problems/time-based-key-value-store/",
+      "https://leetcode.com/problems/minimum-size-subarray-sum/",
+      "https://leetcode.com/problems/minimum-window-substring/",
+      "https://leetcode.com/problems/longest-repeating-character-replacement/",
+      "https://leetcode.com/problems/meeting-rooms-ii/"
+    ]
+  },
+  "created_by": "4",
+  "created_at": "2026-01-31 00:00:00",
+  "is_public": true
+}
