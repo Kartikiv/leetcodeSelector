@@ -326,6 +326,44 @@ class LeetCodeProblemSelector:
             traceback.print_exc()
             return False
 
+    def select_problems_custom(self, easy_count: int = 20, medium_count: int = 8, hard_count: int = 2) -> List[Dict]:
+        """Select custom number of random problems with difficulty labels and start new session"""
+        if not self.problems_data:
+            return []
+
+        selected = []
+
+        # Select easy problems
+        available_easy = self._get_available_problems('easy')
+        num_easy = min(easy_count, len(available_easy))
+        if num_easy > 0:
+            selected.extend([{'difficulty': 'easy', 'url': p} for p in random.sample(available_easy, num_easy)])
+
+        # Select medium problems
+        available_medium = self._get_available_problems('medium')
+        num_medium = min(medium_count, len(available_medium))
+        if num_medium > 0:
+            selected.extend([{'difficulty': 'medium', 'url': p} for p in random.sample(available_medium, num_medium)])
+
+        # Select hard problems
+        available_hard = self._get_available_problems('hard')
+        num_hard = min(hard_count, len(available_hard))
+        if num_hard > 0:
+            selected.extend([{'difficulty': 'hard', 'url': p} for p in random.sample(available_hard, num_hard)])
+
+        # Initialize new session
+        self.progress['current_session'] = {
+            'problems': [p['url'] for p in selected],
+            'easy_completed': 0,
+            'medium_completed': 0,
+            'hard_completed': 0,
+            'total_completed': 0,
+            'generated_at': time.strftime('%Y-%m-%d %H:%M:%S')
+        }
+        self._save_progress()
+
+        return selected
+
     def _load_saved_problems(self):
         """Load previously saved problems data"""
         if os.path.exists(self.problems_file):
@@ -1018,64 +1056,6 @@ def check_problems():
     })
 
 
-@app.route('/api/generate', methods=['POST'])
-@login_required
-def generate_problems():
-    """Generate new problem set"""
-    selector = get_selector()
-    if not selector:
-        return jsonify({'success': False, 'message': 'User session error'})
-
-    print(f"Generate called for user {current_user.id}")
-    print(f"Problems data loaded: {selector.problems_data is not None}")
-    print(f"Difficulty map loaded: {selector.difficulty_map is not None}")
-
-    if not selector.problems_data:
-        return jsonify({'success': False, 'message': 'Please load problems first'})
-
-    # Check if we should return current session or generate new
-    force_new = request.json.get('force_new', False) if request.is_json else False
-
-    print(f"Force new: {force_new}")
-    print(f"Current session problems: {len(selector.progress['current_session']['problems'])}")
-
-    if not force_new and len(selector.progress['current_session']['problems']) > 0:
-        # Return current session, but FILTER OUT completed problems
-        completed_set = set(selector.progress['completed'])
-        problems = []
-
-        for url in selector.progress['current_session']['problems']:
-            # Skip if already completed
-            if url in completed_set:
-                print(f"Skipping completed problem in session: {url}")
-                continue
-
-            difficulty = selector._get_difficulty(url)
-            if difficulty:
-                problems.append({
-                    'url': url,
-                    'difficulty': difficulty,
-                    'category': selector._get_problem_category(url),
-                    'is_revisit': selector.is_in_revisit(url)
-                })
-
-        print(
-            f"Returning existing session with {len(problems)} problems (filtered {len(selector.progress['current_session']['problems']) - len(problems)} completed)")
-        return jsonify({'success': True, 'problems': problems, 'existing_session': True})
-
-    # Generate new session
-    print("Generating new problem set...")
-    problems = selector.select_problems()
-    print(f"Generated {len(problems)} problems")
-
-    # Add revisit status and category to each problem
-    for problem in problems:
-        problem['is_revisit'] = selector.is_in_revisit(problem['url'])
-        problem['category'] = selector._get_problem_category(problem['url'])
-
-    return jsonify({'success': True, 'problems': problems, 'existing_session': False})
-
-
 @app.route('/api/mark_complete', methods=['POST'])
 @login_required
 def mark_complete():
@@ -1316,6 +1296,67 @@ def export_problem_set(set_id):
         return jsonify({'success': False, 'message': 'Problem set not found'}), 404
 
 
+@app.route('/api/generate', methods=['POST'])
+@login_required
+def generate_problems():
+    """Generate new problem set"""
+    selector = get_selector()
+    if not selector:
+        return jsonify({'success': False, 'message': 'User session error'})
+
+    print(f"Generate called for user {current_user.id}")
+    print(f"Problems data loaded: {selector.problems_data is not None}")
+    print(f"Difficulty map loaded: {selector.difficulty_map is not None}")
+
+    if not selector.problems_data:
+        return jsonify({'success': False, 'message': 'Please load problems first'})
+
+    # Check if we should return current session or generate new
+    force_new = request.json.get('force_new', False) if request.is_json else False
+
+    # Get custom counts if provided
+    easy_count = request.json.get('easy_count', 20) if request.is_json else 20
+    medium_count = request.json.get('medium_count', 8) if request.is_json else 8
+    hard_count = request.json.get('hard_count', 2) if request.is_json else 2
+
+    print(f"Force new: {force_new}")
+    print(f"Current session problems: {len(selector.progress['current_session']['problems'])}")
+
+    if not force_new and len(selector.progress['current_session']['problems']) > 0:
+        # Return current session, but FILTER OUT completed problems
+        completed_set = set(selector.progress['completed'])
+        problems = []
+
+        for url in selector.progress['current_session']['problems']:
+            # Skip if already completed
+            if url in completed_set:
+                print(f"Skipping completed problem in session: {url}")
+                continue
+
+            difficulty = selector._get_difficulty(url)
+            if difficulty:
+                problems.append({
+                    'url': url,
+                    'difficulty': difficulty,
+                    'category': selector._get_problem_category(url),
+                    'is_revisit': selector.is_in_revisit(url)
+                })
+
+        print(
+            f"Returning existing session with {len(problems)} problems (filtered {len(selector.progress['current_session']['problems']) - len(problems)} completed)")
+        return jsonify({'success': True, 'problems': problems, 'existing_session': True})
+
+    # Generate new session with custom counts
+    print(f"Generating new problem set with {easy_count} easy, {medium_count} medium, {hard_count} hard...")
+    problems = selector.select_problems_custom(easy_count, medium_count, hard_count)
+    print(f"Generated {len(problems)} problems")
+
+    # Add revisit status and category to each problem
+    for problem in problems:
+        problem['is_revisit'] = selector.is_in_revisit(problem['url'])
+        problem['category'] = selector._get_problem_category(problem['url'])
+
+    return jsonify({'success': True, 'problems': problems, 'existing_session': False})
 @app.route('/api/problem_sets/<set_id>/stats', methods=['GET'])
 @login_required
 def get_problem_set_stats(set_id):

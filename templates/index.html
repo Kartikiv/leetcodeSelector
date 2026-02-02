@@ -4,617 +4,853 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LeetCode Problem Selector</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <style>/* Complete CSS for LeetCode Problem Selector - Elegant Edition */
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
 
-        header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
 
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            opacity: 0.9;
-            font-size: 1.1em;
-        }
-
-        .input-section {
-            padding: 30px;
-            background: #f8f9fa;
-            border-bottom: 2px solid #e9ecef;
-        }
-
-        .json-loaded-section {
-            padding: 20px 30px;
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            border-bottom: 2px solid #28a745;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group h3 {
-            margin-bottom: 10px;
-            color: #495057;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 150px;
-            padding: 15px;
-            border: 2px solid #dee2e6;
-            border-radius: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            resize: vertical;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .file-upload {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        input[type="file"] {
-            flex: 1;
-            padding: 10px;
-            border: 2px solid #dee2e6;
-            border-radius: 10px;
-        }
-
-        .button {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .button-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .button-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .button-success {
-            background: #28a745;
-            color: white;
-            padding: 8px 15px;
-            font-size: 14px;
-        }
-
-        .button-warning {
-            background: #ffc107;
-            color: #000;
-            padding: 8px 15px;
-            font-size: 14px;
-        }
-
-        .button-info {
-            background: #17a2b8;
-            color: white;
-            padding: 8px 15px;
-            font-size: 14px;
-        }
-
-        .progress-section {
-            padding: 25px 30px;
-            background: white;
-            border-bottom: 2px solid #e9ecef;
-        }
-
-        .progress-section h3 {
-            font-size: 1.2em;
-            padding: 10px 15px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        }
-
-        .stats-divider {
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #dee2e6, transparent);
-            margin: 20px 0;
-        }
-
-        .progress-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-       .stat-card {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 15px;
-    border-radius: 10px;
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
     text-align: center;
-    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Enhanced Header with Wave Effect */
+header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path d="M0,0 C300,80 900,80 1200,0 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.1)"/></svg>') no-repeat bottom;
+    background-size: cover;
+}
+
+.header-content {
+    position: relative;
+    z-index: 1;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 2.8em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.subtitle {
+    opacity: 0.95;
+    font-size: 1.2em;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+}
+
+.user-info {
+    text-align: right;
+    background: rgba(255,255,255,0.15);
+    padding: 15px 20px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.user-welcome {
+    margin-bottom: 10px;
+    font-size: 0.95em;
+}
+
+.username {
+    font-weight: 700;
+    font-size: 1.1em;
+}
+
+.input-section {
+    padding: 40px;
+    background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+    border-bottom: 2px solid #e9ecef;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.section-title h2 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 2em;
+}
+
+.section-title p {
+    color: #6c757d;
+    font-size: 1.1em;
+}
+
+.action-bar {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.button {
+    padding: 14px 32px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ripple Effect on Buttons */
+.button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.button:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.button:active {
+    transform: translateY(-1px);
+}
+
+.button-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.button-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+}
+
+.button-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 10px 18px;
+    font-size: 14px;
+}
+
+.button-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: #000;
+    padding: 10px 18px;
+    font-size: 14px;
+}
+
+.button-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+    padding: 10px 18px;
+    font-size: 14px;
+}
+
+.button-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+}
+
+.progress-section {
+    padding: 35px 40px;
+    background: #ffffff;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.progress-section h2 {
+    font-size: 2em;
+    margin-bottom: 25px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.progress-section h3 {
+    font-size: 1.3em;
+    padding: 12px 18px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    margin-top: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.stats-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #dee2e6, transparent);
+    margin: 30px 0;
+}
+
+.progress-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    padding: 20px;
+    border-radius: 14px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 2px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .stat-card[onclick] {
     cursor: pointer;
 }
 
+/* Enhanced Stat Card Hover */
 .stat-card[onclick]:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-color: #667eea;
 }
 
-        .stat-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            color: #6c757d;
-            margin-top: 5px;
-        }
-
-        .unlock-status {
-            margin-top: 15px;
-            padding: 15px;
-            border-radius: 10px;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .unlock-status.locked {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .unlock-status.unlocked {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .controls-section {
-            padding: 25px 30px;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-            background: #f8f9fa;
-            border-bottom: 2px solid #e9ecef;
-        }
-
-        .problems-section {
-            padding: 30px;
-        }
-
-        .difficulty-group {
-            margin-bottom: 30px;
-        }
-
-        .difficulty-header {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-            font-weight: bold;
-            color: white;
-        }
-
-        .difficulty-header.easy {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        }
-
-        .difficulty-header.medium {
-            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-            color: #000;
-        }
-
-        .difficulty-header.hard {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-        }
-
-        .problem-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            margin-bottom: 10px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            transition: all 0.3s;
-        }
-
-        .problem-item.revisit {
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            border: 2px solid #2196f3;
-        }
-
-        .problem-item:hover {
-            background: #e9ecef;
-            transform: translateX(5px);
-        }
-
-        .problem-item.revisit:hover {
-            background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
-        }
-
-        .problem-number {
-            font-weight: bold;
-            color: #6c757d;
-            min-width: 40px;
-        }
-
-        .problem-link {
-            flex: 1;
-            color: #007bff;
-            text-decoration: none;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .problem-link:hover {
-            text-decoration: underline;
-            color: #0056b3;
-        }
-
-        .problem-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .message {
-            padding: 15px;
-            margin: 20px 30px;
-            border-radius: 10px;
-            font-weight: 500;
-        }
-
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .message.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .problem-sets-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .problem-set-card {
-            border: 2px solid #e9ecef;
-            border-radius: 15px;
-            padding: 20px;
-            transition: all 0.3s;
-            background: white;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .problem-set-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border-color: #667eea;
-        }
-
-        .problem-set-card.active {
-            border-color: #28a745;
-            background: linear-gradient(135deg, #f8fff9 0%, #e8f5e9 100%);
-        }
-
-        .set-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 15px;
-        }
-
-        .set-card-name {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .set-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75em;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .badge-public {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .badge-private {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .badge-active {
-            background: #c8e6c9;
-            color: #2e7d32;
-            margin-top: 5px;
-            display: inline-block;
-        }
-
-        .set-card-description {
-            color: #6c757d;
-            margin-bottom: 15px;
-            line-height: 1.5;
-            font-size: 0.9em;
-        }
-
-        .set-card-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85em;
-            color: #6c757d;
-            margin-bottom: 15px;
-            padding-top: 10px;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .set-card-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .set-card-actions button {
-            padding: 6px 14px;
-            font-size: 13px;
-            flex: 1;
-            min-width: 80px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6c757d;
-        }
-
-        .empty-state h3 {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .file-upload-area {
-            border: 2px dashed #dee2e6;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .file-upload-area:hover {
-            border-color: #667eea;
-            background: #f8f9fa;
-        }
-
-        .file-upload-area input[type="file"] {
-            display: none;
-        }
-
-        .upload-label {
-            cursor: pointer;
-            color: #667eea;
-            font-weight: 600;
-        }
-
-        .divider-text {
-            text-align: center;
-            margin: 20px 0;
-            color: #6c757d;
-            position: relative;
-        }
-
-        .divider-text::before,
-        .divider-text::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 45%;
-            height: 1px;
-            background: #dee2e6;
-        }
-
-        .divider-text::before {
-            left: 0;
-        }
-
-        .divider-text::after {
-            right: 0;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 30px;
-            font-size: 1.2em;
-            color: #667eea;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-        }
-
-        .modal-content {
-            background: white;
-            margin: 50px auto;
-            padding: 30px;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 20px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-            color: #667eea;
-        }
-
-        .modal-list {
-            list-style: none;
-        }
-
-        .modal-list li {
-            padding: 10px;
-            margin-bottom: 10px;
-            background: #f8f9fa;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-list li.revisit {
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            border: 2px solid #2196f3;
-        }
-
-        .modal-list a {
-            color: #007bff;
-            text-decoration: none;
-            flex: 1;
-        }
-
-        .modal-list a:hover {
-            text-decoration: underline;
-        }
-
-        .close-modal {
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #6c757d;
-        }
-
-        .close-modal:hover {
-            color: #000;
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.8em;
-            }
-
-            .problem-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-
-            .problem-actions {
-                width: 100%;
-                justify-content: flex-end;
-            }
-        }
-        /* Category Tooltip */
+/* Gradient Text for Stat Values */
+.stat-value {
+    font-size: 2.5em;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 0.95em;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.unlock-status {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-align: center;
+    font-size: 1.05em;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.unlock-status.locked {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    color: #856404;
+    border: 2px solid #ffc107;
+}
+
+.unlock-status.unlocked {
+    background: linear-gradient(135deg, #d4edda 0%, #b8e6c0 100%);
+    color: #155724;
+    border: 2px solid #28a745;
+}
+
+.controls-section {
+    padding: 30px 40px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+    border-bottom: 2px solid #e9ecef;
+}
+
+.dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+/* Better Dropdown Menu */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    z-index: 1000;
+    min-width: 280px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.dropdown-menu.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+.dropdown-menu button {
+    display: block;
+    width: 100%;
+    padding: 16px 24px;
+    border: none;
+    background: white;
+    text-align: left;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+}
+
+.dropdown-menu button:last-child {
+    border-bottom: none;
+}
+
+.dropdown-menu button:hover {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #667eea;
+    padding-left: 28px;
+}
+
+.problems-section {
+    padding: 40px;
+    background: #fafbfc;
+}
+
+/* Smooth Fade In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.difficulty-group {
+    margin-bottom: 40px;
+    animation: fadeIn 0.5s ease;
+}
+
+.difficulty-header {
+    padding: 18px 24px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 1.4em;
+    font-weight: 700;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.difficulty-header.easy {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.difficulty-header.medium {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: #000;
+}
+
+.difficulty-header.hard {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+
+.problem-item {
+    display: flex;
+    align-items: center;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    background: white;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.problem-item.revisit {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border: 2px solid #2196f3;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+}
+
+/* Better Problem Item Hover */
+.problem-item:hover {
+    transform: translateX(8px) scale(1.01);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    border-color: #667eea;
+}
+
+.problem-item.revisit:hover {
+    background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
+    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.3);
+}
+
+.problem-number {
+    font-weight: 700;
+    color: #667eea;
+    min-width: 45px;
+    font-size: 1.1em;
+}
+
+.problem-link {
+    flex: 1;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1.05em;
+    transition: color 0.3s;
+}
+
+.problem-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.problem-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.message {
+    padding: 18px 24px;
+    margin: 25px 40px;
+    border-radius: 12px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Smooth Message Animation */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message {
+    animation: slideIn 0.3s ease;
+}
+
+.message.success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+    border-left: 4px solid #28a745;
+}
+
+.message.error {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+}
+
+.message.info {
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    color: #0c5460;
+    border-left: 4px solid #17a2b8;
+}
+
+.hidden {
+    display: none;
+}
+
+.problem-sets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.problem-set-card {
+    border: 2px solid #e9ecef;
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+    background: white;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Card Elevation on Hover */
+.problem-set-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+    border-color: #667eea;
+}
+
+.problem-set-card.active {
+    border-color: #28a745;
+    background: linear-gradient(135deg, #f8fff9 0%, #e8f5e9 100%);
+    box-shadow: 0 8px 24px rgba(40, 167, 69, 0.2);
+}
+
+.set-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 16px;
+}
+
+.set-card-name {
+    font-size: 1.4em;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.set-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    font-weight: 700;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-public {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    color: #1976d2;
+}
+
+.badge-private {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    color: #f57c00;
+}
+
+.badge-active {
+    background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+    color: #2e7d32;
+    margin-top: 8px;
+    display: inline-block;
+}
+
+.set-card-description {
+    color: #6c757d;
+    margin-bottom: 16px;
+    line-height: 1.6;
+    font-size: 0.95em;
+}
+
+.set-card-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-bottom: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #e9ecef;
+}
+
+.set-card-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.set-card-actions button {
+    padding: 8px 16px;
+    font-size: 13px;
+    flex: 1;
+    min-width: 90px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: #6c757d;
+}
+
+.empty-state h3 {
+    font-size: 1.8em;
+    margin-bottom: 12px;
+    color: #333;
+}
+
+.empty-state p {
+    font-size: 1.1em;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.3em;
+    color: #667eea;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 25px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Modal Backdrop Blur */
+.modal {
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: white;
+    margin: 60px auto;
+    padding: 40px;
+    width: 90%;
+    max-width: 700px;
+    border-radius: 20px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+/* Modal Slide Up Animation */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-content {
+    animation: slideUp 0.3s ease;
+}
+
+.modal-header {
+    font-size: 1.8em;
+    margin-bottom: 25px;
+    color: #667eea;
+    font-weight: 700;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 15px;
+}
+
+.modal-list {
+    list-style: none;
+}
+
+/* Modal List Item Enhancement */
+.modal-list li {
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.modal-list li:hover {
+    background: #e9ecef;
+    border-color: #667eea;
+    transform: translateX(4px);
+}
+
+.modal-list li.revisit {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border: 2px solid #2196f3;
+}
+
+.modal-list a {
+    color: #007bff;
+    text-decoration: none;
+    flex: 1;
+    font-weight: 600;
+}
+
+.modal-list a:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+
+.close-modal {
+    float: right;
+    font-size: 32px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #6c757d;
+    transition: all 0.3s;
+    line-height: 1;
+    margin-top: -10px;
+}
+
+/* Enhanced Close Button */
+.close-modal:hover {
+    color: #dc3545;
+    transform: rotate(90deg);
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    color: #495057;
+    font-weight: 600;
+    font-size: 1.05em;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+
+.form-group textarea {
+    font-family: 'Courier New', monospace;
+    min-height: 220px;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.file-upload-area {
+    border: 3px dashed #dee2e6;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+    cursor: pointer;
+    background: #f8f9fa;
+}
+
+/* File Upload Area Enhancement */
+.file-upload-area:hover {
+    border-color: #667eea;
+    background: white;
+    transform: scale(1.02);
+}
+
+.file-upload-area input[type="file"] {
+    display: none;
+}
+
+.upload-label {
+    cursor: pointer;
+    color: #667eea;
+    font-weight: 700;
+    font-size: 1.1em;
+}
+
 .category-tooltip {
     position: fixed;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 12px 20px;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 14px;
     font-weight: 600;
     z-index: 10000;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.2s;
+    transition: opacity 0.3s;
 }
 
 .category-tooltip.show {
@@ -623,76 +859,78 @@
 
 .category-tooltip::before {
     content: '📁 Category: ';
-    opacity: 0.8;
+    opacity: 0.9;
     font-size: 12px;
 }
 
-
-/* View Toggle Buttons */
 .view-toggle {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 12px;
+    margin-bottom: 24px;
     justify-content: center;
 }
 
 .toggle-btn {
-    padding: 8px 20px;
+    padding: 10px 24px;
     border: 2px solid #667eea;
     background: white;
     color: #667eea;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
     transition: all 0.3s;
+    font-size: 15px;
 }
 
 .toggle-btn:hover {
-    background: #f0f0f0;
+    background: #f8f9fa;
+    transform: translateY(-2px);
 }
 
+/* Toggle Button Enhancement */
 .toggle-btn.active {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
-/* Category Groups in Modal */
 .category-group {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .category-group-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-weight: 600;
-    margin-bottom: 10px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 700;
+    margin-bottom: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .category-count {
     background: rgba(255,255,255,0.3);
-    padding: 3px 10px;
-    border-radius: 12px;
+    padding: 4px 12px;
+    border-radius: 14px;
     font-size: 0.9em;
 }
 
-/* Difficulty Groups in Modal */
 .difficulty-group-modal {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .difficulty-group-modal .difficulty-header {
-    padding: 10px 15px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    font-weight: 600;
+    padding: 12px 18px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    font-weight: 700;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-size: 1.1em;
 }
 
 .difficulty-group-modal .difficulty-header.easy {
@@ -709,97 +947,542 @@
     background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
     color: white;
 }
-    </style>
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2em;
+    }
+
+    .header-top {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .user-info {
+        text-align: center;
+    }
+
+    .problem-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .problem-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 24px;
+        margin: 30px auto;
+    }
+
+    .problem-sets-grid {
+        grid-template-columns: 1fr;
+    }
+}/* Active Problem Set Section */
+.active-set-section {
+    padding: 35px 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-bottom: 3px solid #5568d3;
+}
+
+.active-set-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.active-set-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.active-set-title {
+    display: flex;
+    align-items: start;
+    gap: 15px;
+    flex: 1;
+}
+
+.active-set-icon {
+    font-size: 2.5em;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.active-set-title h2 {
+    font-size: 2.2em;
+    color: #333;
+    margin-bottom: 8px;
+    font-weight: 800;
+}
+
+.active-set-description {
+    color: #6c757d;
+    font-size: 1.1em;
+    line-height: 1.5;
+}
+
+.badge-active-large {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 0.9em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); }
+    50% { box-shadow: 0 4px 25px rgba(40, 167, 69, 0.5); }
+}
+
+.active-set-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.active-stat-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border: 2px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.active-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    border-color: #667eea;
+}
+
+.active-stat-card.completed {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-color: #28a745;
+}
+
+.active-stat-card.pending {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border-color: #ffc107;
+}
+
+.active-stat-card.percentage {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-color: #2196f3;
+}
+
+.active-stat-icon {
+    font-size: 2.5em;
+    line-height: 1;
+}
+
+.active-stat-content {
+    flex: 1;
+}
+
+.active-stat-value {
+    font-size: 2.5em;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.active-stat-label {
+    color: #6c757d;
+    font-weight: 600;
+    font-size: 0.95em;
+}
+
+.active-set-progress-bar {
+    background: #e9ecef;
+    height: 30px;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.active-set-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+    border-radius: 15px;
+    transition: width 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 0.95em;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.active-set-difficulty-breakdown {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.difficulty-mini-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.difficulty-mini-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.difficulty-mini-card.easy {
+    border-color: #28a745;
+}
+
+.difficulty-mini-card.medium {
+    border-color: #ffc107;
+}
+
+.difficulty-mini-card.hard {
+    border-color: #dc3545;
+}
+
+.difficulty-mini-label {
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+
+.difficulty-mini-card.easy .difficulty-mini-label {
+    color: #28a745;
+}
+
+.difficulty-mini-card.medium .difficulty-mini-label {
+    color: #ffc107;
+}
+
+.difficulty-mini-card.hard .difficulty-mini-label {
+    color: #dc3545;
+}
+
+.difficulty-mini-value {
+    font-size: 1.8em;
+    font-weight: 800;
+    color: #333;
+}
+
+.active-set-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    margin-top: 20px;
+    border-top: 2px solid #e9ecef;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.active-set-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6c757d;
+    font-size: 0.95em;
+}
+
+.active-set-meta-item strong {
+    color: #333;
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .active-set-header {
+        flex-direction: column;
+    }
+
+    .active-set-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .active-set-difficulty-breakdown {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                <div>
-                    <h1>🚀 LeetCode Problem Selector</h1>
-                    <p class="subtitle">Smart problem selection with progressive difficulty unlocking</p>
-                </div>
-                <div style="text-align: right;">
-                    <p style="margin-bottom: 10px; font-size: 0.9em; color: white;">Welcome, <strong id="headerUsername">User</strong>!</p>
-                    <button class="button button-secondary" onclick="handleLogout()" style="padding: 8px 20px; font-size: 14px;">🚪 Logout</button>
+            <div class="header-content">
+                <div class="header-top">
+                    <div style="flex: 1;">
+                        <h1>
+                            <span>🚀</span>
+                            <span>LeetCode Problem Selector</span>
+                        </h1>
+                        <p class="subtitle">Smart problem selection with progressive difficulty unlocking</p>
+                    </div>
+                    <div class="user-info">
+                        <p class="user-welcome">Welcome back,</p>
+                        <p class="username" id="headerUsername">User</p>
+                        <button class="button button-secondary" onclick="handleLogout()" style="padding: 10px 24px; font-size: 14px; margin-top: 10px;">
+                            🚪 Logout
+                        </button>
+                    </div>
                 </div>
             </div>
         </header>
 
         <div id="problemSetSelectionSection" class="input-section">
-            <div style="text-align: center; margin-bottom: 30px;">
-                <h2 style="color: #333; margin-bottom: 10px;">📚 Select or Create a Problem Set</h2>
-                <p style="color: #6c757d;">Choose a problem set to start solving problems</p>
+            <div class="section-title">
+                <h2>📚 Select or Create a Problem Set</h2>
+                <p>Choose a problem set to start solving problems</p>
             </div>
 
-            <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 30px;">
-                <button class="button button-primary" onclick="showCreateProblemSetModal()">+ Create New Set</button>
-                <button class="button button-secondary" onclick="refreshProblemSetsList()">🔄 Refresh List</button>
+            <div class="action-bar">
+                <button class="button button-primary" onclick="showCreateProblemSetModal()">
+                    ➕ Create New Set
+                </button>
+                <button class="button button-secondary" onclick="refreshProblemSetsList()">
+                    🔄 Refresh List
+                </button>
             </div>
 
             <div id="problemSetsListContainer"></div>
+        </div>
+        <!-- Active Problem Set Section -->
+        <div id="activeSetSection" class="active-set-section hidden">
+            <div class="active-set-card">
+                <div class="active-set-header">
+                    <div class="active-set-title">
+                        <span class="active-set-icon">📚</span>
+                        <div>
+                            <h2 id="activeSetName">Problem Set Name</h2>
+                            <p class="active-set-description" id="activeSetDescription">Set description</p>
+                        </div>
+                    </div>
+                    <div class="active-set-badge">
+                        <span class="badge-active-large">✓ ACTIVE SET</span>
+                    </div>
+                </div>
+
+                <div class="active-set-stats-grid">
+                    <div class="active-stat-card">
+                        <div class="active-stat-icon">📊</div>
+                        <div class="active-stat-content">
+                            <div class="active-stat-value" id="activeSetTotal">0</div>
+                            <div class="active-stat-label">Total Problems</div>
+                        </div>
+                    </div>
+
+                    <div class="active-stat-card completed">
+                        <div class="active-stat-icon">✅</div>
+                        <div class="active-stat-content">
+                            <div class="active-stat-value" id="activeSetCompleted">0</div>
+                            <div class="active-stat-label">Completed</div>
+                        </div>
+                    </div>
+
+                    <div class="active-stat-card pending">
+                        <div class="active-stat-icon">⏳</div>
+                        <div class="active-stat-content">
+                            <div class="active-stat-value" id="activeSetPending">0</div>
+                            <div class="active-stat-label">Remaining</div>
+                        </div>
+                    </div>
+
+                    <div class="active-stat-card percentage">
+                        <div class="active-stat-icon">📈</div>
+                        <div class="active-stat-content">
+                            <div class="active-stat-value" id="activeSetPercentage">0%</div>
+                            <div class="active-stat-label">Progress</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="active-set-progress-bar">
+                    <div class="active-set-progress-fill" id="activeSetProgressBar" style="width: 0%">
+                        0%
+                    </div>
+                </div>
+
+                <div class="active-set-difficulty-breakdown">
+                    <div class="difficulty-mini-card easy">
+                        <div class="difficulty-mini-label">🟢 EASY</div>
+                        <div class="difficulty-mini-value">
+                            <span id="activeSetEasyCompleted">0</span>/<span id="activeSetEasyTotal">0</span>
+                        </div>
+                    </div>
+
+                    <div class="difficulty-mini-card medium">
+                        <div class="difficulty-mini-label">🟡 MEDIUM</div>
+                        <div class="difficulty-mini-value">
+                            <span id="activeSetMediumCompleted">0</span>/<span id="activeSetMediumTotal">0</span>
+                        </div>
+                    </div>
+
+                    <div class="difficulty-mini-card hard">
+                        <div class="difficulty-mini-label">🔴 HARD</div>
+                        <div class="difficulty-mini-value">
+                            <span id="activeSetHardCompleted">0</span>/<span id="activeSetHardTotal">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="active-set-meta">
+                    <div class="active-set-meta-item">
+                        <span>👤 Created by:</span>
+                        <strong id="activeSetCreator">Unknown</strong>
+                    </div>
+                    <div class="active-set-meta-item">
+                        <span>🌐 Visibility:</span>
+                        <strong id="activeSetVisibility">Private</strong>
+                    </div>
+                    <div class="active-set-meta-item">
+                        <button class="button button-info" onclick="showActiveSetFullStats()">
+                            📊 View Detailed Stats
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="progressSection" class="progress-section hidden">
             <h2>📊 Your Progress</h2>
 
-            <h3 style="margin-top: 20px; color: #667eea;">🎯 Current Session</h3>
-<div class="progress-stats">
-    <div class="stat-card" onclick="showCompletedList('session', 'all')" style="cursor: pointer;">
-        <div class="stat-value" id="sessionTotalCompleted">0</div>
-        <div class="stat-label">Session Completed</div>
-    </div>
-    <div class="stat-card" onclick="showCompletedList('session', 'easy')" style="cursor: pointer;">
-        <div class="stat-value" id="sessionEasyCompleted">0</div>
-        <div class="stat-label">Easy (Need 20)</div>
-    </div>
-    <div class="stat-card" onclick="showCompletedList('session', 'medium')" style="cursor: pointer;">
-        <div class="stat-value" id="sessionMediumCompleted">0</div>
-        <div class="stat-label">Medium (Need 3)</div>
-    </div>
-    <div class="stat-card" onclick="showCompletedList('session', 'hard')" style="cursor: pointer;">
-        <div class="stat-value" id="sessionHardCompleted">0</div>
-        <div class="stat-label">Hard</div>
-    </div>
-</div>
+            <h3 style="color: #667eea;">🎯 Current Session</h3>
+            <div class="progress-stats">
+                <div class="stat-card" onclick="showCompletedList('session', 'all')">
+                    <div class="stat-value" id="sessionTotalCompleted">0</div>
+                    <div class="stat-label">Session Completed</div>
+                </div>
+                <div class="stat-card" onclick="showCompletedList('session', 'easy')">
+                    <div class="stat-value" id="sessionEasyCompleted">0</div>
+                    <div class="stat-label">Easy (Need 20)</div>
+                </div>
+                <div class="stat-card" onclick="showCompletedList('session', 'medium')">
+                    <div class="stat-value" id="sessionMediumCompleted">0</div>
+                    <div class="stat-label">Medium (Need 3)</div>
+                </div>
+                <div class="stat-card" onclick="showCompletedList('session', 'hard')">
+                    <div class="stat-value" id="sessionHardCompleted">0</div>
+                    <div class="stat-label">Hard</div>
+                </div>
+            </div>
             <div id="unlockStatus" class="unlock-status locked"></div>
 
             <div class="stats-divider"></div>
-            <h3 style="margin-top: 25px; color: #28a745;">🏆 Global Stats (All Time)</h3>
+
+            <h3 style="color: #28a745;">🏆 Global Stats (All Time)</h3>
             <div class="progress-stats">
-                <div class="stat-card" onclick="showCompletedList('global', 'all')" style="cursor: pointer;">
-                <div class="stat-value" id="globalTotalCompleted">0</div>
-                <div class="stat-label">Total Completed</div>
+                <div class="stat-card" onclick="showCompletedList('global', 'all')">
+                    <div class="stat-value" id="globalTotalCompleted">0</div>
+                    <div class="stat-label">Total Completed</div>
                 </div>
-                <div class="stat-card" onclick="showCompletedList('global', 'easy')" style="cursor: pointer;">
+                <div class="stat-card" onclick="showCompletedList('global', 'easy')">
                     <div class="stat-value" id="globalEasyCompleted">0</div>
-                <div class="stat-label">Easy Problems</div>
-            </div>
-            <div class="stat-card" onclick="showCompletedList('global', 'medium')" style="cursor: pointer;">
-                <div class="stat-value" id="globalMediumCompleted">0</div>
-                <div class="stat-label">Medium Problems</div>
-            </div>
-            <div class="stat-card" onclick="showCompletedList('global', 'hard')" style="cursor: pointer;">
-                <div class="stat-value" id="globalHardCompleted">0</div>
-                <div class="stat-label">Hard Problems</div>
-            </div>
-            <div class="stat-card" onclick="showList('skipped')" style="cursor: pointer;">
-                <div class="stat-value" id="skippedCount">0</div>
-                <div class="stat-label">Skipped</div>
-            </div>
-            <div class="stat-card" onclick="showList('revisit')" style="cursor: pointer;">
-                <div class="stat-value" id="revisitCount">0</div>
-                <div class="stat-label">Revisit</div>
+                    <div class="stat-label">Easy Problems</div>
+                </div>
+                <div class="stat-card" onclick="showCompletedList('global', 'medium')">
+                    <div class="stat-value" id="globalMediumCompleted">0</div>
+                    <div class="stat-label">Medium Problems</div>
+                </div>
+                <div class="stat-card" onclick="showCompletedList('global', 'hard')">
+                    <div class="stat-value" id="globalHardCompleted">0</div>
+                    <div class="stat-label">Hard Problems</div>
+                </div>
+                <div class="stat-card" onclick="showList('skipped')">
+                    <div class="stat-value" id="skippedCount">0</div>
+                    <div class="stat-label">Skipped</div>
+                </div>
+                <div class="stat-card" onclick="showList('revisit')">
+                    <div class="stat-value" id="revisitCount">0</div>
+                    <div class="stat-label">Revisit</div>
+                </div>
             </div>
         </div>
+
         <div id="controlsSection" class="controls-section hidden">
-            <button class="button button-info" onclick="showProblemSetSelection()" style="background: #17a2b8;">📚 Change Problem Set</button>
-            <button class="button button-primary" onclick="generateProblems()">🎲 Generate 30 Problems</button>
-            <button class="button button-secondary" onclick="showList('skipped')">📋 Show Skipped</button>
-            <button class="button button-secondary" onclick="showList('revisit')">↻ Show Revisit</button>
-            <button class="button button-secondary" onclick="exportProgress()">💾 Export Progress</button>
-            <button class="button button-secondary" onclick="showImportModal()">📥 Import Progress</button>
-            <button class="button button-secondary" onclick="confirmResetProgress()" style="background: #dc3545;">🗑️ Reset All</button>
+            <button class="button button-info" onclick="showProblemSetSelection()">
+                📚 Change Problem Set
+            </button>
+
+            <div class="dropdown-wrapper">
+                <button class="button button-primary" onclick="toggleGenerateMenu()" id="generateMenuBtn">
+                    🎲 Generate Problems ▼
+                </button>
+                <div id="generateMenu" class="dropdown-menu">
+                    <button onclick="generateProblems(30); toggleGenerateMenu()">
+                        📊 30 Problems (20E, 8M, 2H)
+                    </button>
+                    <button onclick="generateProblems(15); toggleGenerateMenu()">
+                        🎯 15 Problems (6E, 6M, 3H)
+                    </button>
+                    <button onclick="showCustomGenerateModal(); toggleGenerateMenu()">
+                        ⚙️ Custom Count
+                    </button>
+                </div>
+            </div>
+
+            <button class="button button-secondary" onclick="showList('skipped')">
+                📋 Show Skipped
+            </button>
+            <button class="button button-secondary" onclick="showList('revisit')">
+                ↻ Show Revisit
+            </button>
+            <button class="button button-secondary" onclick="exportProgress()">
+                💾 Export Progress
+            </button>
+            <button class="button button-secondary" onclick="showImportModal()">
+                📥 Import Progress
+            </button>
+            <button class="button button-danger" onclick="confirmResetProgress()">
+                🗑️ Reset All
+            </button>
         </div>
 
         <div id="messageArea"></div>
@@ -807,12 +1490,15 @@
         <div id="loadingArea" class="loading hidden">
             <div class="loading-spinner"></div>
             <p id="loadingMessage">Fetching problem difficulties from LeetCode API...</p>
-            <p id="loadingSubMessage">This may take a minute for large problem sets</p>
+            <p id="loadingSubMessage" style="margin-top: 15px; font-size: 0.9em; opacity: 0.8;">
+                This may take a minute for large problem sets
+            </p>
         </div>
 
         <div id="problemsSection" class="problems-section hidden"></div>
     </div>
 
+    <!-- Modals -->
     <div id="listModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
@@ -827,63 +1513,92 @@
             <div class="modal-header">📚 Create New Problem Set</div>
 
             <form id="createProblemSetForm" onsubmit="createProblemSet(event)">
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: #495057; font-weight: 600;">Set Name *</label>
-                    <input type="text" id="problemSetName" required placeholder="e.g., Blind 75, Grind 169, My Custom List"
-                           style="width: 100%; padding: 12px; border: 2px solid #dee2e6; border-radius: 10px; font-size: 14px;">
+                <div class="form-group">
+                    <label>Set Name *</label>
+                    <input type="text" id="problemSetName" required placeholder="e.g., Blind 75, Grind 169, My Custom List">
                 </div>
 
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: #495057; font-weight: 600;">Description</label>
-                    <input type="text" id="problemSetDescription" placeholder="Brief description of this problem set"
-                           style="width: 100%; padding: 12px; border: 2px solid #dee2e6; border-radius: 10px; font-size: 14px;">
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="problemSetDescription" placeholder="Brief description of this problem set">
                 </div>
 
-                <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" id="problemSetPublic" style="width: auto; margin: 0;">
-                    <label for="problemSetPublic" style="margin: 0; font-weight: normal;">Make this set available to all users</label>
+                <div style="margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+                    <input type="checkbox" id="problemSetPublic" style="width: auto; margin: 0; transform: scale(1.2);">
+                    <label for="problemSetPublic" style="margin: 0; font-weight: 500; cursor: pointer;">
+                        Make this set available to all users
+                    </label>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: #495057; font-weight: 600;">Problems Data *</label>
+                <div class="form-group">
+                    <label>Problems Data *</label>
 
                     <div class="file-upload-area" onclick="document.getElementById('problemSetJsonFile').click()">
                         <input type="file" id="problemSetJsonFile" accept=".json" onchange="handleProblemSetFileSelect(event)">
                         <label class="upload-label">📁 Click to upload JSON file</label>
-                        <p style="margin-top: 10px; font-size: 0.9em; color: #6c757d;">Or paste JSON below</p>
+                        <p style="margin-top: 12px; font-size: 0.95em; color: #6c757d;">
+                            Or paste JSON below
+                        </p>
                     </div>
 
-                    <textarea id="problemSetJson" placeholder='Paste your problems JSON here' required
-                              style="width: 100%; min-height: 200px; padding: 12px; border: 2px solid #dee2e6; border-radius: 10px;
-                                     font-family: 'Courier New', monospace; font-size: 13px; resize: vertical;"></textarea>
-                    <small style="color: #6c757d; display: block; margin-top: 5px;">
+                    <textarea id="problemSetJson" placeholder='Paste your problems JSON here' required></textarea>
+                    <small style="color: #6c757d; display: block; margin-top: 8px;">
                         Format: {"Category": ["url1", "url2"]} or LeetCode API format
                     </small>
                 </div>
 
-                <button type="submit" class="button button-success" id="createProblemSetButton" style="width: 100%;">
+                <button type="submit" class="button button-success" id="createProblemSetButton" style="width: 100%; padding: 14px;">
                     Create Problem Set
                 </button>
             </form>
         </div>
     </div>
 
-    <div id="changeJsonModal" class="modal">
+    <div id="customGenerateModal" class="modal">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeChangeJsonModal()">&times;</span>
-            <div class="modal-header">🔄 Change Problems JSON</div>
-            <div style="margin: 20px 0;">
-                <h4 style="margin-bottom: 10px;">Paste JSON:</h4>
-                <textarea id="modalJsonInput" style="width: 100%; min-height: 200px; padding: 10px; border-radius: 5px; border: 2px solid #dee2e6;" placeholder='Paste your JSON here...'></textarea>
-            </div>
-            <div style="margin: 20px 0;">
-                <h4 style="margin-bottom: 10px;">Or Upload File:</h4>
-                <input type="file" id="modalFileInput" accept=".json" style="width: 100%; padding: 10px;">
-            </div>
-            <div style="text-align: center; margin-top: 20px;">
-                <button class="button button-primary" onclick="loadProblemsFromModal()">Load New Problems</button>
-                <button class="button button-secondary" onclick="closeChangeJsonModal()" style="margin-left: 10px;">Cancel</button>
-            </div>
+            <span class="close-modal" onclick="closeCustomGenerateModal()">&times;</span>
+            <div class="modal-header">⚙️ Custom Problem Generation</div>
+
+            <form id="customGenerateForm" onsubmit="generateCustomProblems(event)">
+                <div class="form-group">
+                    <label>🟢 Easy Problems</label>
+                    <input type="number" id="customEasyCount" min="0" max="100" value="10" required oninput="updateCustomTotal()">
+                    <small style="color: #6c757d; display: block; margin-top: 8px;">
+                        Number of easy problems (0-100)
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label>🟡 Medium Problems</label>
+                    <input type="number" id="customMediumCount" min="0" max="100" value="10" required oninput="updateCustomTotal()">
+                    <small style="color: #6c757d; display: block; margin-top: 8px;">
+                        Number of medium problems (0-100)
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label>🔴 Hard Problems</label>
+                    <input type="number" id="customHardCount" min="0" max="100" value="5" required oninput="updateCustomTotal()">
+                    <small style="color: #6c757d; display: block; margin-top: 8px;">
+                        Number of hard problems (0-100)
+                    </small>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 20px; border-radius: 12px; margin-bottom: 24px; text-align: center; border: 2px solid #dee2e6;">
+                    <strong style="font-size: 1.2em; color: #667eea;">
+                        Total: <span id="customTotalCount" style="font-size: 1.3em;">25</span> problems
+                    </strong>
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                    <button type="submit" class="button button-primary" id="customGenerateButton" style="flex: 1; padding: 14px;">
+                        Generate Problems
+                    </button>
+                    <button type="button" class="button button-secondary" onclick="closeCustomGenerateModal()" style="flex: 1; padding: 14px;">
+                        Cancel
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -891,137 +1606,140 @@
         <div class="modal-content">
             <span class="close-modal" onclick="closeImportModal()">&times;</span>
             <div class="modal-header">📥 Import Progress</div>
-            <div style="margin: 20px 0;">
-                <h4 style="margin-bottom: 10px;">Paste Progress JSON:</h4>
-                <textarea id="importProgressInput" style="width: 100%; min-height: 200px; padding: 10px; border-radius: 5px; border: 2px solid #dee2e6;" placeholder='Paste your exported progress JSON here...'></textarea>
+
+            <div class="form-group">
+                <label>Paste Progress JSON</label>
+                <textarea id="importProgressInput" placeholder='Paste your exported progress JSON here...'></textarea>
             </div>
-            <div style="margin: 20px 0;">
-                <h4 style="margin-bottom: 10px;">Or Upload Progress File:</h4>
-                <input type="file" id="importProgressFile" accept=".json" style="width: 100%; padding: 10px;">
+
+            <div class="form-group">
+                <label>Or Upload Progress File</label>
+                <input type="file" id="importProgressFile" accept=".json">
             </div>
-            <div style="text-align: center; margin-top: 20px;">
-                <button class="button button-primary" onclick="importProgressData()">Import Progress</button>
-                <button class="button button-secondary" onclick="closeImportModal()" style="margin-left: 10px;">Cancel</button>
+
+            <div style="display: flex; gap: 12px;">
+                <button class="button button-primary" onclick="importProgressData()" style="flex: 1; padding: 14px;">
+                    Import Progress
+                </button>
+                <button class="button button-secondary" onclick="closeImportModal()" style="flex: 1; padding: 14px;">
+                    Cancel
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        let problemsLoaded = false;
-        let currentActiveProblemSet = null;
+// LeetCode Problem Selector - Main JavaScript
+let problemsLoaded = false;
+let currentActiveProblemSet = null;
 
-        // Problem Set Management Functions
-        async function loadProblemSetsList() {
-            try {
-                const response = await fetch('/api/problem_sets');
-                const data = await response.json();
+// ===== Problem Set Management Functions =====
 
-                if (!data.success) {
-                    showMessage('Failed to load problem sets', 'error');
-                    return;
-                }
+async function loadProblemSetsList() {
+    try {
+        const response = await fetch('/api/problem_sets');
+        const data = await response.json();
 
-                const container = document.getElementById('problemSetsListContainer');
+        if (!data.success) {
+            showMessage('Failed to load problem sets', 'error');
+            return;
+        }
 
-                if (data.sets.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <h3>📦 No Problem Sets Available</h3>
-                            <p>Create your first problem set to get started!</p>
+        const container = document.getElementById('problemSetsListContainer');
+
+        if (data.sets.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <h3>📦 No Problem Sets Available</h3>
+                    <p>Create your first problem set to get started!</p>
+                </div>
+            `;
+            return;
+        }
+
+        const activeSet = data.sets.find(s => s.is_active);
+        currentActiveProblemSet = activeSet ? activeSet.id : null;
+
+        container.innerHTML = `
+            <div class="problem-sets-grid">
+                ${data.sets.map(set => `
+                    <div class="problem-set-card ${set.is_active ? 'active' : ''}" onclick="selectProblemSet('${set.id}', ${set.is_active})">
+                        <div class="set-card-header">
+                            <div style="flex: 1;">
+                                <div class="set-card-name">${escapeHtml(set.name)}</div>
+                                ${set.is_active ? '<span class="set-badge badge-active">✓ Active</span>' : ''}
+                            </div>
+                            <span class="set-badge ${set.is_public ? 'badge-public' : 'badge-private'}">
+                                ${set.is_public ? '🌐 Public' : '🔒 Private'}
+                            </span>
                         </div>
-                    `;
-                    return;
-                }
 
-                // Find active set
-                const activeSet = data.sets.find(s => s.is_active);
-                currentActiveProblemSet = activeSet ? activeSet.id : null;
+                        ${set.description ? `<div class="set-card-description">${escapeHtml(set.description)}</div>` : ''}
 
-                container.innerHTML = `
-    <div class="problem-sets-grid">
-        ${data.sets.map(set => `
-            <div class="problem-set-card ${set.is_active ? 'active' : ''}" onclick="selectProblemSet('${set.id}', ${set.is_active})">
-                <div class="set-card-header">
-                    <div style="flex: 1;">
-                        <div class="set-card-name">${escapeHtml(set.name)}</div>
-                        ${set.is_active ? '<span class="set-badge badge-active">✓ Active</span>' : ''}
+                        <div class="set-card-meta">
+                            <span>📝 ${set.problem_count} problems</span>
+                            <span>👤 ${escapeHtml(set.created_by)}</span>
+                        </div>
+
+                        <div class="set-card-meta" id="stats-${set.id}" style="display: none; border-top: 1px solid #e9ecef; padding-top: 12px; margin-top: 12px;">
+                            <span style="color: #28a745; font-weight: 700;">✓ <span id="completed-${set.id}">0</span> completed</span>
+                            <span style="color: #ffc107; font-weight: 700;">⏳ <span id="pending-${set.id}">0</span> pending</span>
+                        </div>
+
+                        <div class="set-card-actions" onclick="event.stopPropagation()">
+                            ${set.is_active ? `
+                                <button class="button button-info" onclick="showSetStats('${set.id}', '${escapeHtml(set.name).replace(/'/g, "\\'")}')">
+                                    📊 Stats
+                                </button>
+                            ` : ''}
+                            ${!set.is_active ? `
+                                <button class="button button-success" onclick="activateProblemSet('${set.id}', '${escapeHtml(set.name).replace(/'/g, "\\'")}')">
+                                    ✓ Use This
+                                </button>
+                            ` : `
+                                <button class="button button-primary" onclick="selectProblemSet('${set.id}', true)">
+                                    🎲 Start
+                                </button>
+                            `}
+                            ${!set.is_public && set.created_by === 'You' ? `
+                                <button class="button button-danger" onclick="deleteProblemSet('${set.id}', '${escapeHtml(set.name).replace(/'/g, "\\'")}')">
+                                    🗑️
+                                </button>
+                            ` : ''}
+                        </div>
                     </div>
-                    <span class="set-badge ${set.is_public ? 'badge-public' : 'badge-private'}">
-                        ${set.is_public ? '🌐 Public' : '🔒 Private'}
-                    </span>
-                </div>
-
-                ${set.description ? `<div class="set-card-description">${escapeHtml(set.description)}</div>` : ''}
-
-                <div class="set-card-meta">
-                    <span>📝 ${set.problem_count} problems</span>
-                    <span>👤 ${escapeHtml(set.created_by)}</span>
-                </div>
-
-                <div class="set-card-meta" id="stats-${set.id}" style="display: none; border-top: 1px solid #e9ecef; padding-top: 10px; margin-top: 10px;">
-                    <span style="color: #28a745; font-weight: 600;">✓ <span id="completed-${set.id}">0</span> completed</span>
-                    <span style="color: #ffc107; font-weight: 600;">⏳ <span id="pending-${set.id}">0</span> pending</span>
-                </div>
-
-                <div class="set-card-actions" onclick="event.stopPropagation()">
-                    ${set.is_active ? `
-                        <button class="button button-info" onclick="showSetStats('${set.id}', '${escapeHtml(set.name)}')" style="font-size: 13px; padding: 6px 14px;">
-                            📊 View Stats
-                        </button>
-                    ` : ''}
-                    ${!set.is_active ? `
-                        <button class="button button-success" onclick="activateProblemSet('${set.id}', '${escapeHtml(set.name)}')">
-                            ✓ Use This
-                        </button>
-                    ` : `
-                        <button class="button button-primary" onclick="selectProblemSet('${set.id}', true)">
-                            🎲 Start Solving
-                        </button>
-                    `}
-                    ${!set.is_public && set.created_by === 'You' ? `
-                        <button class="button button-danger" onclick="deleteProblemSet('${set.id}', '${escapeHtml(set.name)}')">
-                            🗑️
-                        </button>
-                    ` : ''}
-                </div>
+                `).join('')}
             </div>
-        `).join('')}
-    </div>
-`;
+        `;
 
-// Load stats for active set
-if (activeSet) {
-    loadSetStats(activeSet.id);
+        if (activeSet) {
+            await loadSetStats(activeSet.id);
+            problemsLoaded = true;
+            await showLoadedState();
+            await updateActiveSetInfo();
+            await updateProgress();
+        }
+    } catch (error) {
+        showMessage('Error loading problem sets: ' + error.message, 'error');
+    }
 }
 
-                // If there's an active set, automatically transition to problem solving
-                if (activeSet) {
-                    problemsLoaded = true;
-                    showLoadedState();
-                    await updateProgress();
-                }
-            } catch (error) {
-                showMessage('Error loading problem sets: ' + error.message, 'error');
-            }
-        }
+async function selectProblemSet(setId, isActive) {
+    if (isActive) {
+        problemsLoaded = true;
+        await showLoadedState();
+        await updateProgress();
+    } else {
+        activateProblemSet(setId, '');
+    }
+}
 
-        async function selectProblemSet(setId, isActive) {
-            if (isActive) {
-                // Already active, show the problems interface
-                problemsLoaded = true;
-                await showLoadedState();
-                await updateProgress();
-            } else {
-                activateProblemSet(setId, '');
-            }
-        }
 async function loadSetStats(setId) {
     try {
         const response = await fetch(`/api/problem_sets/${setId}/stats`);
         const data = await response.json();
 
         if (data.success) {
-            // Update stats display
             const statsDiv = document.getElementById(`stats-${setId}`);
             if (statsDiv) {
                 statsDiv.style.display = 'flex';
@@ -1050,7 +1768,7 @@ async function showSetStats(setId, setName) {
 
         modalTitle.innerHTML = `
             📊 Statistics: ${escapeHtml(setName)}
-            <div style="font-size: 0.6em; margin-top: 5px; opacity: 0.8;">
+            <div style="font-size: 0.6em; margin-top: 8px; opacity: 0.85;">
                 ${data.completed}/${data.total} problems completed (${Math.round(data.completed/data.total*100)}%)
             </div>
         `;
@@ -1068,14 +1786,9 @@ async function showSetStats(setId, setName) {
         `;
 
         modalList.innerHTML = html;
-
-        // Store data globally for view switching
         window.currentSetStatsData = data;
         window.currentSetStatsId = setId;
-
-        // Display completed by default
         displaySetProblems(data.completed_problems, 'completed');
-
         modal.style.display = 'block';
     } catch (error) {
         showMessage('Error loading statistics: ' + error.message, 'error');
@@ -1083,7 +1796,6 @@ async function showSetStats(setId, setName) {
 }
 
 function switchSetStatsView(viewType, setId, button) {
-    // Update active button
     document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
     button.classList.add('active');
 
@@ -1099,11 +1811,10 @@ function displaySetProblems(problems, type) {
     const container = document.getElementById('problemsListContainer');
 
     if (problems.length === 0) {
-        container.innerHTML = `<p style="text-align: center; padding: 20px; color: #6c757d;">No ${type} problems</p>`;
+        container.innerHTML = `<p style="text-align: center; padding: 30px; color: #6c757d; font-size: 1.1em;">No ${type} problems</p>`;
         return;
     }
 
-    // Group by difficulty
     const grouped = {
         easy: problems.filter(p => p.difficulty === 'easy'),
         medium: problems.filter(p => p.difficulty === 'medium'),
@@ -1112,7 +1823,6 @@ function displaySetProblems(problems, type) {
 
     let html = '';
 
-    // Easy problems
     if (grouped.easy.length > 0) {
         html += `
             <div class="difficulty-group-modal">
@@ -1127,7 +1837,6 @@ function displaySetProblems(problems, type) {
         `;
     }
 
-    // Medium problems
     if (grouped.medium.length > 0) {
         html += `
             <div class="difficulty-group-modal">
@@ -1142,7 +1851,6 @@ function displaySetProblems(problems, type) {
         `;
     }
 
-    // Hard problems
     if (grouped.hard.length > 0) {
         html += `
             <div class="difficulty-group-modal">
@@ -1168,13 +1876,13 @@ function createSetProblemListItem(item, type) {
     const category = item.category || 'Unknown';
 
     return `
-        <li class="${revisitClass}" style="padding: 10px; margin-bottom: 10px; background: #f8f9fa; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;">
+        <li class="${revisitClass}" style="padding: 14px; margin-bottom: 12px; background: #f8f9fa; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
             <div style="flex: 1;">
-                <a href="${url}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: 500;">${name}</a>
-                <div style="font-size: 0.85em; color: #667eea; margin-top: 4px;">📁 ${category}</div>
+                <a href="${url}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: 600; font-size: 1.05em;">${name}</a>
+                <div style="font-size: 0.9em; color: #667eea; margin-top: 6px; font-weight: 500;">📁 ${category}</div>
             </div>
             ${type === 'pending' ? `
-                <button class="button button-success" onclick="markCompleteFromStats('${url}')" style="font-size: 12px; padding: 6px 12px;">
+                <button class="button button-success" onclick="markCompleteFromStats('${url}')" style="font-size: 13px; padding: 8px 16px;">
                     ✓ Mark Complete
                 </button>
             ` : ''}
@@ -1193,35 +1901,30 @@ async function markCompleteFromStats(url) {
         const data = await response.json();
         if (data.success) {
             showMessage('✓ Problem marked as complete!', 'success');
-            // Reload stats
             const setId = window.currentSetStatsId;
             if (setId) {
                 const statsResponse = await fetch(`/api/problem_sets/${setId}/stats`);
                 const statsData = await statsResponse.json();
                 window.currentSetStatsData = statsData;
 
-                // Refresh the current view
                 const activeBtn = document.querySelector('.toggle-btn.active');
                 if (activeBtn) {
                     const viewType = activeBtn.textContent.includes('Completed') ? 'completed' : 'pending';
                     displaySetProblems(viewType === 'completed' ? statsData.completed_problems : statsData.pending_problems, viewType);
 
-                    // Update button counts
                     document.querySelectorAll('.toggle-btn')[0].innerHTML = `✓ Completed (${statsData.completed})`;
                     document.querySelectorAll('.toggle-btn')[1].innerHTML = `⏳ Pending (${statsData.pending})`;
 
-                    // Update modal title
                     const modalTitle = document.getElementById('modalTitle');
                     const setName = modalTitle.textContent.split(':')[1].split('\n')[0].trim();
                     modalTitle.innerHTML = `
                         📊 Statistics: ${setName}
-                        <div style="font-size: 0.6em; margin-top: 5px; opacity: 0.8;">
+                        <div style="font-size: 0.6em; margin-top: 8px; opacity: 0.85;">
                             ${statsData.completed}/${statsData.total} problems completed (${Math.round(statsData.completed/statsData.total*100)}%)
                         </div>
                     `;
                 }
 
-                // Update card stats
                 loadSetStats(setId);
                 updateProgress();
             }
@@ -1232,161 +1935,151 @@ async function markCompleteFromStats(url) {
         showMessage('Error: ' + error.message, 'error');
     }
 }
-        async function activateProblemSet(setId, setName) {
-            try {
-                // Show loading indicator with custom message
-                const loadingArea = document.getElementById('loadingArea');
-                const loadingMessage = document.getElementById('loadingMessage');
-                const loadingSubMessage = document.getElementById('loadingSubMessage');
 
-                loadingMessage.textContent = 'Activating problem set...';
-                loadingSubMessage.textContent = 'Fetching problem difficulties from LeetCode. This may take a moment for large sets.';
-                loadingArea.classList.remove('hidden');
+async function activateProblemSet(setId, setName) {
+    try {
+        const loadingArea = document.getElementById('loadingArea');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const loadingSubMessage = document.getElementById('loadingSubMessage');
 
-                showMessage('⏳ Activating problem set and fetching difficulty data...', 'info');
+        loadingMessage.textContent = 'Activating problem set...';
+        loadingSubMessage.textContent = 'Fetching problem difficulties from LeetCode. This may take a moment for large sets.';
+        loadingArea.classList.remove('hidden');
 
-                const response = await fetch(`/api/problem_sets/${setId}/activate`, {
-                    method: 'POST'
-                });
+        showMessage('⏳ Activating problem set and fetching difficulty data...', 'info');
 
-                const data = await response.json();
+        const response = await fetch(`/api/problem_sets/${setId}/activate`, {
+            method: 'POST'
+        });
 
-                loadingArea.classList.add('hidden');
+        const data = await response.json();
+        loadingArea.classList.add('hidden');
 
-                if (data.success) {
-                    showMessage('✓ Problem set activated successfully!', 'success');
-                    // Wait a bit to show the success message
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                } else {
-                    showMessage(data.message, 'error');
-                }
-            } catch (error) {
-                document.getElementById('loadingArea').classList.add('hidden');
-                showMessage('Error activating problem set: ' + error.message, 'error');
-            }
-        }
-
-        async function deleteProblemSet(setId, setName) {
-            if (!confirm(`Delete "${setName}"? This cannot be undone.`)) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/problem_sets/${setId}`, {
-                    method: 'DELETE'
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showMessage('✓ Problem set deleted', 'success');
-                    await loadProblemSetsList();
-                } else {
-                    showMessage(data.message, 'error');
-                }
-            } catch (error) {
-                showMessage('Error deleting problem set: ' + error.message, 'error');
-            }
-        }
-
-        function showCreateProblemSetModal() {
-            document.getElementById('createProblemSetModal').style.display = 'block';
-        }
-
-        function closeCreateProblemSetModal() {
-            document.getElementById('createProblemSetModal').style.display = 'none';
-            document.getElementById('createProblemSetForm').reset();
-        }
-
-        function handleProblemSetFileSelect(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('problemSetJson').value = e.target.result;
-                };
-                reader.readAsText(file);
-            }
-        }
-
-        async function createProblemSet(event) {
-            event.preventDefault();
-
-            const name = document.getElementById('problemSetName').value.trim();
-            const description = document.getElementById('problemSetDescription').value.trim();
-            const problemsJson = document.getElementById('problemSetJson').value.trim();
-            const isPublic = document.getElementById('problemSetPublic').checked;
-            const button = document.getElementById('createProblemSetButton');
-
-            button.disabled = true;
-            button.textContent = 'Creating...';
-
-            // Show loading message
-            showMessage('⏳ Creating problem set and validating data...', 'info');
-
-            try {
-                const response = await fetch('/api/problem_sets', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name,
-                        description,
-                        problems_json: problemsJson,
-                        is_public: isPublic
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showMessage('✓ ' + data.message, 'success');
-                    closeCreateProblemSetModal();
-                    await loadProblemSetsList();
-                } else {
-                    showMessage(data.message, 'error');
-                }
-            } catch (error) {
-                showMessage('Error creating problem set: ' + error.message, 'error');
-            } finally {
-                button.disabled = false;
-                button.textContent = 'Create Problem Set';
-            }
-        }
-
-        function refreshProblemSetsList() {
-            loadProblemSetsList();
-            showMessage('🔄 Refreshed problem sets', 'success');
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function showMessage(message, type = 'success') {
-            const messageArea = document.getElementById('messageArea');
-            messageArea.innerHTML = `<div class="message ${type}">${message}</div>`;
-
-            // Info messages stay longer since they indicate ongoing processes
-            const timeout = type === 'info' ? 10000 : 3000;
-
+        if (data.success) {
+            showMessage('✓ Problem set activated successfully!', 'success');
             setTimeout(() => {
-                messageArea.innerHTML = '';
-            }, timeout);
+                window.location.reload();
+            }, 1000);
+        } else {
+            showMessage(data.message, 'error');
         }
+    } catch (error) {
+        document.getElementById('loadingArea').classList.add('hidden');
+        showMessage('Error activating problem set: ' + error.message, 'error');
+    }
+}
 
-        function showChangeJsonModal() {
-            document.getElementById('changeJsonModal').style.display = 'block';
-        }
+async function deleteProblemSet(setId, setName) {
+    if (!confirm(`Delete "${setName}"? This cannot be undone.`)) {
+        return;
+    }
 
-        function closeChangeJsonModal() {
-            document.getElementById('changeJsonModal').style.display = 'none';
-            document.getElementById('modalJsonInput').value = '';
-            document.getElementById('modalFileInput').value = '';
+    try {
+        const response = await fetch(`/api/problem_sets/${setId}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('✓ Problem set deleted', 'success');
+            await loadProblemSetsList();
+        } else {
+            showMessage(data.message, 'error');
         }
+    } catch (error) {
+        showMessage('Error deleting problem set: ' + error.message, 'error');
+    }
+}
+
+function showCreateProblemSetModal() {
+    document.getElementById('createProblemSetModal').style.display = 'block';
+}
+
+function closeCreateProblemSetModal() {
+    document.getElementById('createProblemSetModal').style.display = 'none';
+    document.getElementById('createProblemSetForm').reset();
+}
+
+function handleProblemSetFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('problemSetJson').value = e.target.result;
+        };
+        reader.readAsText(file);
+    }
+}
+
+async function createProblemSet(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('problemSetName').value.trim();
+    const description = document.getElementById('problemSetDescription').value.trim();
+    const problemsJson = document.getElementById('problemSetJson').value.trim();
+    const isPublic = document.getElementById('problemSetPublic').checked;
+    const button = document.getElementById('createProblemSetButton');
+
+    button.disabled = true;
+    button.textContent = 'Creating...';
+
+    showMessage('⏳ Creating problem set and validating data...', 'info');
+
+    try {
+        const response = await fetch('/api/problem_sets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name,
+                description,
+                problems_json: problemsJson,
+                is_public: isPublic
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('✓ ' + data.message, 'success');
+            closeCreateProblemSetModal();
+            await loadProblemSetsList();
+        } else {
+            showMessage(data.message, 'error');
+        }
+    } catch (error) {
+        showMessage('Error creating problem set: ' + error.message, 'error');
+    } finally {
+        button.disabled = false;
+        button.textContent = 'Create Problem Set';
+    }
+}
+
+function refreshProblemSetsList() {
+    loadProblemSetsList();
+    showMessage('🔄 Refreshed problem sets', 'success');
+}
+
+// ===== Utility Functions =====
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function showMessage(message, type = 'success') {
+    const messageArea = document.getElementById('messageArea');
+    messageArea.innerHTML = `<div class="message ${type}">${message}</div>`;
+
+    const timeout = type === 'info' ? 10000 : 4000;
+
+    setTimeout(() => {
+        messageArea.innerHTML = '';
+    }, timeout);
+}
+
+// ===== Completed/Pending Lists =====
 
 async function showCompletedList(scope, difficulty) {
     try {
@@ -1397,7 +2090,6 @@ async function showCompletedList(scope, difficulty) {
         const modalTitle = document.getElementById('modalTitle');
         const modalList = document.getElementById('modalList');
 
-        // Set title based on scope and difficulty
         let title = '';
         if (scope === 'session') {
             title = '🎯 Current Session - ';
@@ -1414,9 +2106,8 @@ async function showCompletedList(scope, difficulty) {
         modalTitle.textContent = title;
 
         if (data.urls.length === 0) {
-            modalList.innerHTML = '<li>No completed problems yet</li>';
+            modalList.innerHTML = '<li style="text-align: center; padding: 30px; color: #6c757d;">No completed problems yet</li>';
         } else {
-            // Create view toggle and container
             let html = `
                 <div class="view-toggle">
                     <button class="toggle-btn active" onclick="switchView('difficulty', this)" data-scope="${scope}" data-difficulty="${difficulty}">
@@ -1430,13 +2121,9 @@ async function showCompletedList(scope, difficulty) {
             `;
 
             modalList.innerHTML = html;
-
-            // Store data globally for view switching
             window.currentProblemsData = data.urls;
             window.currentScope = scope;
             window.currentDifficulty = difficulty;
-
-            // Display in difficulty view by default
             displayByDifficulty(data.urls);
         }
 
@@ -1447,11 +2134,9 @@ async function showCompletedList(scope, difficulty) {
 }
 
 function switchView(viewType, button) {
-    // Update active button
     document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
     button.classList.add('active');
 
-    // Switch view
     if (viewType === 'difficulty') {
         displayByDifficulty(window.currentProblemsData);
     } else {
@@ -1462,7 +2147,6 @@ function switchView(viewType, button) {
 function displayByDifficulty(problems) {
     const container = document.getElementById('problemsListContainer');
 
-    // Group by difficulty
     const grouped = {
         easy: problems.filter(p => p.difficulty === 'easy'),
         medium: problems.filter(p => p.difficulty === 'medium'),
@@ -1471,7 +2155,6 @@ function displayByDifficulty(problems) {
 
     let html = '';
 
-    // Easy problems
     if (grouped.easy.length > 0) {
         html += `
             <div class="difficulty-group-modal">
@@ -1486,7 +2169,6 @@ function displayByDifficulty(problems) {
         `;
     }
 
-    // Medium problems
     if (grouped.medium.length > 0) {
         html += `
             <div class="difficulty-group-modal">
@@ -1501,7 +2183,6 @@ function displayByDifficulty(problems) {
         `;
     }
 
-    // Hard problems
     if (grouped.hard.length > 0) {
         html += `
             <div class="difficulty-group-modal">
@@ -1522,7 +2203,6 @@ function displayByDifficulty(problems) {
 function displayByCategory(problems) {
     const container = document.getElementById('problemsListContainer');
 
-    // Group by category
     const grouped = {};
     problems.forEach(problem => {
         const category = problem.category || 'Unknown';
@@ -1532,7 +2212,6 @@ function displayByCategory(problems) {
         grouped[category].push(problem);
     });
 
-    // Sort categories alphabetically
     const sortedCategories = Object.keys(grouped).sort();
 
     let html = '';
@@ -1561,13 +2240,12 @@ function createProblemListItem(item) {
     const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     const revisitClass = item.is_revisit ? 'revisit' : '';
 
-    // Add difficulty badge
     const difficultyBadge = getDifficultyBadge(item.difficulty);
 
     return `
-        <li class="${revisitClass}" style="padding: 10px; margin-bottom: 10px; background: #f8f9fa; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;">
+        <li class="${revisitClass}" style="padding: 14px; margin-bottom: 12px; background: #f8f9fa; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
             <div style="flex: 1;">
-                <a href="${url}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: 500;">${name}</a>
+                <a href="${url}" target="_blank" style="color: #007bff; text-decoration: none; font-weight: 600; font-size: 1.05em;">${name}</a>
                 ${difficultyBadge}
             </div>
         </li>
@@ -1576,306 +2254,298 @@ function createProblemListItem(item) {
 
 function getDifficultyBadge(difficulty) {
     const badges = {
-        'easy': '<span style="background: #28a745; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; margin-left: 8px;">Easy</span>',
-        'medium': '<span style="background: #ffc107; color: #000; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; margin-left: 8px;">Medium</span>',
-        'hard': '<span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; margin-left: 8px;">Hard</span>'
+        'easy': '<span style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.75em; margin-left: 10px; font-weight: 700;">Easy</span>',
+        'medium': '<span style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); color: #000; padding: 4px 10px; border-radius: 6px; font-size: 0.75em; margin-left: 10px; font-weight: 700;">Medium</span>',
+        'hard': '<span style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.75em; margin-left: 10px; font-weight: 700;">Hard</span>'
     };
     return badges[difficulty] || '';
 }
 
-        async function loadProblemsFromModal() {
-            const jsonText = document.getElementById('modalJsonInput').value.trim();
-            const fileInput = document.getElementById('modalFileInput');
+// ===== Authentication =====
 
-            if (!jsonText && !fileInput.files[0]) {
-                showMessage('Please provide JSON text or upload a file', 'error');
-                return;
-            }
+async function handleLogout() {
+    const confirmed = confirm('Are you sure you want to logout?');
+    if (!confirmed) return;
 
-            const formData = new FormData();
+    try {
+        const response = await fetch('/api/logout', { method: 'POST' });
+        const data = await response.json();
 
-            if (fileInput.files[0]) {
-                formData.append('file', fileInput.files[0]);
-            } else {
-                formData.append('json_text', jsonText);
-            }
+        if (data.success) {
+            window.location.href = '/login';
+        }
+    } catch (error) {
+        showMessage('Error logging out: ' + error.message, 'error');
+    }
+}
 
-            // Show loading indicator
-            document.getElementById('loadingArea').classList.remove('hidden');
-            closeChangeJsonModal();
+// ===== Initialization =====
 
-            try {
-                const response = await fetch('/api/load_problems', {
-                    method: 'POST',
-                    body: formData
-                });
+async function checkInitialState() {
+    try {
+        const userResponse = await fetch('/api/current_user');
+        const userData = await userResponse.json();
 
-                const data = await response.json();
-                document.getElementById('loadingArea').classList.add('hidden');
+        if (userData.authenticated) {
+            document.getElementById('headerUsername').textContent = userData.username;
+        }
 
-                if (data.success) {
-                    problemsLoaded = true;
-                    showLoadedState();
-                    updateProgress();
-                    showMessage(data.message);
-                } else {
-                    showMessage(data.message, 'error');
+        const response = await fetch('/api/check_problems');
+        const data = await response.json();
+
+        if (data.loaded) {
+            problemsLoaded = true;
+            showLoadedState();
+            updateProgress();
+
+            if (data.has_session) {
+                const genResponse = await fetch('/api/generate', { method: 'POST' });
+                const genData = await genResponse.json();
+                if (genData.success) {
+                    displayProblems(genData.problems);
                 }
-            } catch (error) {
-                document.getElementById('loadingArea').classList.add('hidden');
-                showMessage('Error loading problems: ' + error.message, 'error');
+            }
+        } else {
+            showProblemSetSelection();
+        }
+    } catch (error) {
+        console.log('No previous state found, showing problem set selection');
+        showProblemSetSelection();
+    }
+}
+
+async function showLoadedState() {
+    document.getElementById('problemSetSelectionSection').classList.add('hidden');
+    document.getElementById('progressSection').classList.remove('hidden');
+    document.getElementById('controlsSection').classList.remove('hidden');
+
+    try {
+        const response = await fetch('/api/check_problems');
+        const data = await response.json();
+
+        if (data.has_session) {
+            const genResponse = await fetch('/api/generate', { method: 'POST' });
+            const genData = await genResponse.json();
+            if (genData.success) {
+                displayProblems(genData.problems);
             }
         }
+        await updateActiveSetInfo();
+    } catch (error) {
+        console.log('No existing session');
+    }
+}
 
-        function loadFromFile() {
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
+function showProblemSetSelection() {
+    showMessage('📚 Loading problem sets...', 'info');
 
-            if (!file) {
-                showMessage('Please select a file first', 'error');
-                return;
-            }
+    const problemSetSection = document.getElementById('problemSetSelectionSection');
+    const progressSection = document.getElementById('progressSection');
+    const controlsSection = document.getElementById('controlsSection');
+    const problemsSection = document.getElementById('problemsSection');
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('jsonInput').value = e.target.result;
-                showMessage('File content loaded into text area. Click "Load Problems" to continue.');
-            };
-            reader.readAsText(file);
+    if (problemSetSection) {
+        problemSetSection.classList.remove('hidden');
+        problemSetSection.style.display = 'block';
+    }
+
+    if (progressSection) {
+        progressSection.classList.add('hidden');
+    }
+
+    if (controlsSection) {
+        controlsSection.classList.add('hidden');
+    }
+
+    if (problemsSection) {
+        problemsSection.classList.add('hidden');
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    loadProblemSetsList();
+}
+
+// ===== Dropdown Menu =====
+
+function toggleGenerateMenu() {
+    const menu = document.getElementById('generateMenu');
+    if (menu.classList.contains('show')) {
+        menu.classList.remove('show');
+    } else {
+        menu.classList.add('show');
+    }
+}
+
+document.addEventListener('click', function(event) {
+    const menu = document.getElementById('generateMenu');
+    const button = document.getElementById('generateMenuBtn');
+
+    if (menu && button && !menu.contains(event.target) && !button.contains(event.target)) {
+        menu.classList.remove('show');
+    }
+});
+
+// ===== Problem Generation =====
+
+async function generateProblems(count = 30) {
+    if (!problemsLoaded) {
+        showMessage('Please load problems first', 'error');
+        return;
+    }
+
+    let easy_count, medium_count, hard_count;
+    if (count === 15) {
+        easy_count = 6;
+        medium_count = 6;
+        hard_count = 3;
+    } else {
+        easy_count = 20;
+        medium_count = 8;
+        hard_count = 2;
+    }
+
+    try {
+        const response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                force_new: true,
+                easy_count: easy_count,
+                medium_count: medium_count,
+                hard_count: hard_count
+            })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            displayProblems(data.problems);
+            await updateProgress();
+            showMessage(`✓ Generated ${data.problems.length} new problems! (${easy_count} Easy, ${medium_count} Medium, ${hard_count} Hard)`);
+        } else {
+            showMessage(data.message, 'error');
         }
+    } catch (error) {
+        showMessage('Error generating problems: ' + error.message, 'error');
+    }
+}
 
-        async function loadProblems() {
-            const jsonText = document.getElementById('jsonInput').value.trim();
+// ===== Custom Generation Modal =====
 
-            if (!jsonText) {
-                showMessage('Please paste JSON or upload a file first', 'error');
-                return;
-            }
+function showCustomGenerateModal() {
+    document.getElementById('customGenerateModal').style.display = 'block';
+    updateCustomTotal();
+}
 
-            const formData = new FormData();
-            formData.append('json_text', jsonText);
+function closeCustomGenerateModal() {
+    document.getElementById('customGenerateModal').style.display = 'none';
+    document.getElementById('customGenerateForm').reset();
+}
 
-            // Show loading indicator
-            document.getElementById('loadingArea').classList.remove('hidden');
-            document.getElementById('messageArea').innerHTML = '';
+function updateCustomTotal() {
+    const easy = parseInt(document.getElementById('customEasyCount').value) || 0;
+    const medium = parseInt(document.getElementById('customMediumCount').value) || 0;
+    const hard = parseInt(document.getElementById('customHardCount').value) || 0;
+    const total = easy + medium + hard;
+    document.getElementById('customTotalCount').textContent = total;
+}
 
-            try {
-                const response = await fetch('/api/load_problems', {
-                    method: 'POST',
-                    body: formData
-                });
+async function generateCustomProblems(event) {
+    event.preventDefault();
 
-                const data = await response.json();
+    if (!problemsLoaded) {
+        showMessage('Please load problems first', 'error');
+        return;
+    }
 
-                // Hide loading indicator
-                document.getElementById('loadingArea').classList.add('hidden');
+    const easyCount = parseInt(document.getElementById('customEasyCount').value);
+    const mediumCount = parseInt(document.getElementById('customMediumCount').value);
+    const hardCount = parseInt(document.getElementById('customHardCount').value);
+    const total = easyCount + mediumCount + hardCount;
 
-                if (data.success) {
-                    problemsLoaded = true;
-                    document.getElementById('progressSection').classList.remove('hidden');
-                    document.getElementById('controlsSection').classList.remove('hidden');
-                    updateProgress();
-                    showMessage(data.message);
-                } else {
-                    showMessage(data.message, 'error');
-                }
-            } catch (error) {
-                document.getElementById('loadingArea').classList.add('hidden');
-                showMessage('Error loading problems: ' + error.message, 'error');
-            }
+    if (total === 0) {
+        showMessage('Please select at least one problem', 'error');
+        return;
+    }
+
+    const button = document.getElementById('customGenerateButton');
+    button.disabled = true;
+    button.textContent = 'Generating...';
+
+    try {
+        const response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                force_new: true,
+                easy_count: easyCount,
+                medium_count: mediumCount,
+                hard_count: hardCount
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            closeCustomGenerateModal();
+            displayProblems(data.problems);
+            await updateProgress();
+            showMessage(`✓ Generated ${data.problems.length} custom problems! (${easyCount} Easy, ${mediumCount} Medium, ${hardCount} Hard)`);
+        } else {
+            showMessage(data.message, 'error');
         }
+    } catch (error) {
+        showMessage('Error generating problems: ' + error.message, 'error');
+    } finally {
+        button.disabled = false;
+        button.textContent = 'Generate Problems';
+    }
+}
 
-        async function handleLogout() {
-            const confirmed = confirm('Are you sure you want to logout?');
-            if (!confirmed) return;
+// ===== Display Problems =====
 
-            try {
-                const response = await fetch('/api/logout', { method: 'POST' });
-                const data = await response.json();
+function displayProblems(problems) {
+    const problemsSection = document.getElementById('problemsSection');
+    problemsSection.classList.remove('hidden');
 
-                if (data.success) {
-                    window.location.href = '/login';
-                }
-            } catch (error) {
-                showMessage('Error logging out: ' + error.message, 'error');
-            }
-        }
+    const grouped = {
+        easy: problems.filter(p => p.difficulty === 'easy'),
+        medium: problems.filter(p => p.difficulty === 'medium'),
+        hard: problems.filter(p => p.difficulty === 'hard')
+    };
 
-        async function checkInitialState() {
-            try {
-                // Get current user info
-                const userResponse = await fetch('/api/current_user');
-                const userData = await userResponse.json();
+    let html = '';
 
-                if (userData.authenticated) {
-                    document.getElementById('headerUsername').textContent = userData.username;
-                }
+    if (grouped.easy.length > 0) {
+        html += `<div class="difficulty-group">
+            <div class="difficulty-header easy">🟢 EASY (${grouped.easy.length} problems)</div>`;
+        grouped.easy.forEach((problem, index) => {
+            html += createProblemHTML(problem, index + 1);
+        });
+        html += '</div>';
+    }
 
-                // Check if problems are loaded
-                const response = await fetch('/api/check_problems');
-                const data = await response.json();
+    if (grouped.medium.length > 0) {
+        html += `<div class="difficulty-group">
+            <div class="difficulty-header medium">🟡 MEDIUM (${grouped.medium.length} problems)</div>`;
+        grouped.medium.forEach((problem, index) => {
+            html += createProblemHTML(problem, index + 1);
+        });
+        html += '</div>';
+    }
 
-                if (data.loaded) {
-                    problemsLoaded = true;
-                    showLoadedState();
-                    updateProgress();
+    if (grouped.hard.length > 0) {
+        html += `<div class="difficulty-group">
+            <div class="difficulty-header hard">🔴 HARD (${grouped.hard.length} problems)</div>`;
+        grouped.hard.forEach((problem, index) => {
+            html += createProblemHTML(problem, index + 1);
+        });
+        html += '</div>';
+    }
 
-                    // If there's an existing session, show it
-                    if (data.has_session) {
-                        const genResponse = await fetch('/api/generate', { method: 'POST' });
-                        const genData = await genResponse.json();
-                        if (genData.success) {
-                            displayProblems(genData.problems);
-                        }
-                    }
-                } else {
-                    // No problem set loaded, show problem set selection
-                    showProblemSetSelection();
-                }
-            } catch (error) {
-                console.log('No previous state found, showing problem set selection');
-                showProblemSetSelection();
-            }
-        }
+    problemsSection.innerHTML = html;
+}
 
-        async function showLoadedState() {
-            document.getElementById('problemSetSelectionSection').classList.add('hidden');
-            document.getElementById('progressSection').classList.remove('hidden');
-            document.getElementById('controlsSection').classList.remove('hidden');
-
-            // Check if there's an existing session and display it
-            try {
-                const response = await fetch('/api/check_problems');
-                const data = await response.json();
-
-                if (data.has_session) {
-                    const genResponse = await fetch('/api/generate', { method: 'POST' });
-                    const genData = await genResponse.json();
-                    if (genData.success) {
-                        displayProblems(genData.problems);
-                    }
-                }
-            } catch (error) {
-                console.log('No existing session');
-            }
-        }
-
-        function showProblemSetSelection() {
-            console.log('showProblemSetSelection called');
-
-            // Show feedback
-            showMessage('📚 Loading problem sets...', 'info');
-
-            // Get all main sections
-            const problemSetSection = document.getElementById('problemSetSelectionSection');
-            const progressSection = document.getElementById('progressSection');
-            const controlsSection = document.getElementById('controlsSection');
-            const problemsSection = document.getElementById('problemsSection');
-
-            console.log('problemSetSection found:', !!problemSetSection);
-            console.log('problemSetSection classes before:', problemSetSection ? problemSetSection.className : 'null');
-
-            // Show problem set selection
-            if (problemSetSection) {
-                problemSetSection.classList.remove('hidden');
-                problemSetSection.style.display = 'block'; // Force display
-                console.log('problemSetSection classes after:', problemSetSection.className);
-            }
-
-            // Hide other sections
-            if (progressSection) {
-                progressSection.classList.add('hidden');
-            }
-
-            if (controlsSection) {
-                controlsSection.classList.add('hidden');
-            }
-
-            if (problemsSection) {
-                problemsSection.classList.add('hidden');
-            }
-
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            // Load problem sets
-            console.log('Calling loadProblemSetsList');
-            loadProblemSetsList();
-        }
-
-        async function generateProblems() {
-            if (!problemsLoaded) {
-                showMessage('Please load problems first', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ force_new: true })
-                });
-                const data = await response.json();
-
-                if (data.success) {
-                    displayProblems(data.problems);
-                    await updateProgress();
-                    showMessage(`Generated ${data.problems.length} new problems! Session stats reset.`);
-                } else {
-                    showMessage(data.message, 'error');
-                }
-            } catch (error) {
-                showMessage('Error generating problems: ' + error.message, 'error');
-            }
-        }
-
-        function displayProblems(problems) {
-            const problemsSection = document.getElementById('problemsSection');
-            problemsSection.classList.remove('hidden');
-
-            // Group by difficulty
-            const grouped = {
-                easy: problems.filter(p => p.difficulty === 'easy'),
-                medium: problems.filter(p => p.difficulty === 'medium'),
-                hard: problems.filter(p => p.difficulty === 'hard')
-            };
-
-            let html = '';
-
-            // Display Easy
-            if (grouped.easy.length > 0) {
-                html += `<div class="difficulty-group">
-                    <div class="difficulty-header easy">🟢 EASY (${grouped.easy.length} problems)</div>`;
-                grouped.easy.forEach((problem, index) => {
-                    html += createProblemHTML(problem, index + 1);
-                });
-                html += '</div>';
-            }
-
-            // Display Medium
-            if (grouped.medium.length > 0) {
-                html += `<div class="difficulty-group">
-                    <div class="difficulty-header medium">🟡 MEDIUM (${grouped.medium.length} problems)</div>`;
-                grouped.medium.forEach((problem, index) => {
-                    html += createProblemHTML(problem, index + 1);
-                });
-                html += '</div>';
-            }
-
-            // Display Hard
-            if (grouped.hard.length > 0) {
-                html += `<div class="difficulty-group">
-                    <div class="difficulty-header hard">🔴 HARD (${grouped.hard.length} problems)</div>`;
-                grouped.hard.forEach((problem, index) => {
-                    html += createProblemHTML(problem, index + 1);
-                });
-                html += '</div>';
-            }
-
-            problemsSection.innerHTML = html;
-        }
-
-        function createProblemHTML(problem, index) {
+function createProblemHTML(problem, index) {
     const slug = problem.url.split('/').filter(s => s).pop();
     const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     const revisitClass = problem.is_revisit ? 'revisit' : '';
@@ -1899,45 +2569,38 @@ function getDifficultyBadge(difficulty) {
     </div>`;
 }
 
+// ===== Category Tooltip =====
 
-// Handle problem link clicks with Cmd/Ctrl detection
 let categoryTooltip = null;
 
 function handleProblemClick(event, url, category) {
-    // Check if Cmd (Mac) or Ctrl (Windows/Linux) is pressed
     if (event.metaKey || event.ctrlKey) {
         event.preventDefault();
         event.stopPropagation();
         showCategoryTooltip(event, category);
         return false;
     }
-    // Normal click - let it open in new tab
     return true;
 }
 
 function showCategoryTooltip(event, category) {
-    // Remove existing tooltip if any
     if (categoryTooltip) {
         categoryTooltip.remove();
     }
 
-    // Create tooltip
     categoryTooltip = document.createElement('div');
     categoryTooltip.className = 'category-tooltip';
     categoryTooltip.textContent = category;
     document.body.appendChild(categoryTooltip);
 
-    // Position near cursor
     const x = event.clientX + 10;
     const y = event.clientY + 10;
 
     categoryTooltip.style.left = x + 'px';
     categoryTooltip.style.top = y + 'px';
 
-    // Show with animation
     setTimeout(() => categoryTooltip.classList.add('show'), 10);
 
-    // Hide after 3 seconds
     setTimeout(() => {
         if (categoryTooltip) {
             categoryTooltip.classList.remove('show');
@@ -1946,12 +2609,11 @@ function showCategoryTooltip(event, category) {
                     categoryTooltip.remove();
                     categoryTooltip = null;
                 }
-            }, 200);
+            }, 300);
         }
     }, 3000);
 }
 
-// Close tooltip on any click
 document.addEventListener('click', function() {
     if (categoryTooltip) {
         categoryTooltip.classList.remove('show');
@@ -1960,143 +2622,237 @@ document.addEventListener('click', function() {
                 categoryTooltip.remove();
                 categoryTooltip = null;
             }
-        }, 200);
+        }, 300);
     }
 });
-        async function markComplete(url) {
-            try {
-                const response = await fetch('/api/mark_complete', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url })
-                });
 
-                const data = await response.json();
-                if (data.success) {
-                    updateProgress();
-                    showMessage('✓ Problem marked as complete!');
-                    // Remove the problem from display
-                    const problemItem = document.querySelector(`[data-url="${url}"]`);
-                    if (problemItem) {
-                        problemItem.style.opacity = '0';
-                        setTimeout(() => problemItem.remove(), 300);
-                    }
-                } else {
-                    showMessage(data.message, 'error');
-                }
-            } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
+// ===== Problem Actions =====
+
+async function markComplete(url) {
+    try {
+        const response = await fetch('/api/mark_complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            updateProgress();
+            showMessage('✓ Problem marked as complete!');
+            const problemItem = document.querySelector(`[data-url="${url}"]`);
+            if (problemItem) {
+                problemItem.style.opacity = '0';
+                setTimeout(() => problemItem.remove(), 300);
             }
+        } else {
+            showMessage(data.message, 'error');
+        }
+    } catch (error) {
+        showMessage('Error: ' + error.message, 'error');
+    }
+}
+
+async function markSkip(url, difficulty) {
+    try {
+        const response = await fetch('/api/mark_skip', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            updateProgress();
+
+            const problemItem = document.querySelector(`[data-url="${url}"]`);
+            if (problemItem && data.replacement) {
+                const parentGroup = problemItem.parentElement;
+                const index = Array.from(parentGroup.children).filter(el =>
+                    el.classList.contains('problem-item')
+                ).indexOf(problemItem);
+
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = createProblemHTML(data.replacement, index + 1);
+                const newProblem = tempDiv.firstChild;
+
+                problemItem.style.opacity = '0';
+                setTimeout(() => {
+                    problemItem.replaceWith(newProblem);
+                    newProblem.style.opacity = '0';
+                    setTimeout(() => newProblem.style.opacity = '1', 10);
+                }, 300);
+
+                showMessage('⊘ Problem skipped and replaced!');
+            } else {
+                if (problemItem) {
+                    problemItem.style.opacity = '0';
+                    setTimeout(() => problemItem.remove(), 300);
+                }
+                showMessage('⊘ Problem marked as skipped');
+            }
+        } else {
+            showMessage(data.message, 'error');
+        }
+    } catch (error) {
+        showMessage('Error: ' + error.message, 'error');
+    }
+}
+
+async function markRevisit(url) {
+    try {
+        const response = await fetch('/api/mark_revisit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            updateProgress();
+            const problemItem = document.querySelector(`[data-url="${url}"]`);
+            if (problemItem) {
+                problemItem.classList.add('revisit');
+            }
+            showMessage('↻ Problem marked for revisit');
+        } else {
+            showMessage(data.message, 'error');
+        }
+    } catch (error) {
+        showMessage('Error: ' + error.message, 'error');
+    }
+}
+
+// ===== Progress =====
+
+async function updateProgress() {
+    try {
+        const response = await fetch('/api/progress');
+        const progress = await response.json();
+
+        document.getElementById('sessionTotalCompleted').textContent =
+            `${progress.session.total}/${progress.session.total_problems}`;
+        document.getElementById('sessionEasyCompleted').textContent = progress.session.easy;
+        document.getElementById('sessionMediumCompleted').textContent = progress.session.medium;
+        document.getElementById('sessionHardCompleted').textContent = progress.session.hard;
+
+        document.getElementById('globalTotalCompleted').textContent = progress.global.total;
+        document.getElementById('globalEasyCompleted').textContent = progress.global.easy;
+        document.getElementById('globalMediumCompleted').textContent = progress.global.medium;
+        document.getElementById('globalHardCompleted').textContent = progress.global.hard;
+        document.getElementById('skippedCount').textContent = progress.skipped;
+        document.getElementById('revisitCount').textContent = progress.revisit;
+
+        const unlockStatus = document.getElementById('unlockStatus');
+        if (progress.session.can_unlock_hard) {
+            unlockStatus.textContent = '🔓 Hard Problems UNLOCKED for this session!';
+            unlockStatus.className = 'unlock-status unlocked';
+        } else {
+            unlockStatus.textContent = `🔒 Hard Problems Locked - Need: ${progress.session.needs_easy} Easy, ${progress.session.needs_medium} Medium in current session`;
+            unlockStatus.className = 'unlock-status locked';
+        }
+        await updateActiveSetInfo();
+    } catch (error) {
+        console.error('Error updating progress:', error);
+    }
+}
+
+// Update Active Set Information
+async function updateActiveSetInfo() {
+    try {
+        // Get list of problem sets to find active one
+        const setsResponse = await fetch('/api/problem_sets');
+        const setsData = await setsResponse.json();
+
+        if (!setsData.success || setsData.sets.length === 0) {
+            document.getElementById('activeSetSection').classList.add('hidden');
+            return;
         }
 
-        async function markSkip(url, difficulty) {
-            try {
-                const response = await fetch('/api/mark_skip', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url })
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    updateProgress();
-
-                    // Find and replace the problem
-                    const problemItem = document.querySelector(`[data-url="${url}"]`);
-                    if (problemItem && data.replacement) {
-                        const parentGroup = problemItem.parentElement;
-                        const index = Array.from(parentGroup.children).filter(el =>
-                            el.classList.contains('problem-item')
-                        ).indexOf(problemItem);
-
-                        // Create replacement problem
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = createProblemHTML(data.replacement, index + 1);
-                        const newProblem = tempDiv.firstChild;
-
-                        // Replace with animation
-                        problemItem.style.opacity = '0';
-                        setTimeout(() => {
-                            problemItem.replaceWith(newProblem);
-                            newProblem.style.opacity = '0';
-                            setTimeout(() => newProblem.style.opacity = '1', 10);
-                        }, 300);
-
-                        showMessage('⊘ Problem skipped and replaced!');
-                    } else {
-                        // If no replacement, just remove
-                        if (problemItem) {
-                            problemItem.style.opacity = '0';
-                            setTimeout(() => problemItem.remove(), 300);
-                        }
-                        showMessage('⊘ Problem marked as skipped');
-                    }
-                } else {
-                    showMessage(data.message, 'error');
-                }
-            } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
-            }
+        const activeSet = setsData.sets.find(s => s.is_active);
+        if (!activeSet) {
+            document.getElementById('activeSetSection').classList.add('hidden');
+            return;
         }
 
-        async function markRevisit(url) {
-            try {
-                const response = await fetch('/api/mark_revisit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url })
-                });
+        // Get detailed stats for active set
+        const statsResponse = await fetch(`/api/problem_sets/${activeSet.id}/stats`);
+        const statsData = await statsResponse.json();
 
-                const data = await response.json();
-                if (data.success) {
-                    updateProgress();
-                    // Change the color of the problem
-                    const problemItem = document.querySelector(`[data-url="${url}"]`);
-                    if (problemItem) {
-                        problemItem.classList.add('revisit');
-                    }
-                    showMessage('↻ Problem marked for revisit');
-                } else {
-                    showMessage(data.message, 'error');
-                }
-            } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
-            }
+        if (!statsData.success) {
+            return;
         }
 
-        async function updateProgress() {
-            try {
-                const response = await fetch('/api/progress');
-                const progress = await response.json();
+        // Show the section
+        document.getElementById('activeSetSection').classList.remove('hidden');
 
-                // Update session stats
-                document.getElementById('sessionTotalCompleted').textContent =
-                    `${progress.session.total}/${progress.session.total_problems}`;
-                document.getElementById('sessionEasyCompleted').textContent = progress.session.easy;
-                document.getElementById('sessionMediumCompleted').textContent = progress.session.medium;
-                document.getElementById('sessionHardCompleted').textContent = progress.session.hard;
+        // Update basic info
+        document.getElementById('activeSetName').textContent = activeSet.name;
+        document.getElementById('activeSetDescription').textContent = activeSet.description || 'No description provided';
+        document.getElementById('activeSetCreator').textContent = activeSet.created_by;
+        document.getElementById('activeSetVisibility').textContent = activeSet.is_public ? 'Public' : 'Private';
 
-                // Update global stats
-                document.getElementById('globalTotalCompleted').textContent = progress.global.total;
-                document.getElementById('globalEasyCompleted').textContent = progress.global.easy;
-                document.getElementById('globalMediumCompleted').textContent = progress.global.medium;
-                document.getElementById('globalHardCompleted').textContent = progress.global.hard;
-                document.getElementById('skippedCount').textContent = progress.skipped;
-                document.getElementById('revisitCount').textContent = progress.revisit;
+        // Update overall stats
+        document.getElementById('activeSetTotal').textContent = statsData.total;
+        document.getElementById('activeSetCompleted').textContent = statsData.completed;
+        document.getElementById('activeSetPending').textContent = statsData.pending;
 
-                // Update unlock status based on session
-                const unlockStatus = document.getElementById('unlockStatus');
-                if (progress.session.can_unlock_hard) {
-                    unlockStatus.textContent = '🔓 Hard Problems UNLOCKED for this session!';
-                    unlockStatus.className = 'unlock-status unlocked';
-                } else {
-                    unlockStatus.textContent = `🔒 Hard Problems Locked - Need: ${progress.session.needs_easy} Easy, ${progress.session.needs_medium} Medium in current session`;
-                    unlockStatus.className = 'unlock-status locked';
-                }
-            } catch (error) {
-                console.error('Error updating progress:', error);
+        // Calculate and update percentage
+        const percentage = statsData.total > 0 ? Math.round((statsData.completed / statsData.total) * 100) : 0;
+        document.getElementById('activeSetPercentage').textContent = percentage + '%';
+
+        // Update progress bar
+        const progressBar = document.getElementById('activeSetProgressBar');
+        progressBar.style.width = percentage + '%';
+        progressBar.textContent = percentage + '%';
+
+        // Count by difficulty
+        const difficultyCount = {
+            easy: { completed: 0, total: 0 },
+            medium: { completed: 0, total: 0 },
+            hard: { completed: 0, total: 0 }
+        };
+
+        // Count completed by difficulty
+        statsData.completed_problems.forEach(p => {
+            if (difficultyCount[p.difficulty]) {
+                difficultyCount[p.difficulty].completed++;
             }
-        }
+        });
+
+        // Count total by difficulty
+        [...statsData.completed_problems, ...statsData.pending_problems].forEach(p => {
+            if (difficultyCount[p.difficulty]) {
+                difficultyCount[p.difficulty].total++;
+            }
+        });
+
+        // Update difficulty breakdown
+        document.getElementById('activeSetEasyCompleted').textContent = difficultyCount.easy.completed;
+        document.getElementById('activeSetEasyTotal').textContent = difficultyCount.easy.total;
+        document.getElementById('activeSetMediumCompleted').textContent = difficultyCount.medium.completed;
+        document.getElementById('activeSetMediumTotal').textContent = difficultyCount.medium.total;
+        document.getElementById('activeSetHardCompleted').textContent = difficultyCount.hard.completed;
+        document.getElementById('activeSetHardTotal').textContent = difficultyCount.hard.total;
+
+        // Store the ID for the detailed stats button
+        window.currentActiveSetId = activeSet.id;
+        window.currentActiveSetName = activeSet.name;
+
+    } catch (error) {
+        console.error('Error updating active set info:', error);
+        document.getElementById('activeSetSection').classList.add('hidden');
+    }
+}
+
+// Show detailed stats for active set
+function showActiveSetFullStats() {
+    if (window.currentActiveSetId && window.currentActiveSetName) {
+        showSetStats(window.currentActiveSetId, window.currentActiveSetName);
+    }
+}
+
+// ===== Lists =====
 
 async function showList(type) {
     try {
@@ -2108,22 +2864,22 @@ async function showList(type) {
         const modalList = document.getElementById('modalList');
 
         const listTitle = type === 'skipped' ? '📋 Skipped Problems' : '↻ Revisit Problems';
-        modalTitle.innerHTML = `${listTitle} <button class="button button-info" id="toggleCategoryBtn" onclick="toggleCategoryDisplay()" style="margin-left: 15px; padding: 6px 12px; font-size: 12px;">📁 Show Categories</button>`;
+        modalTitle.textContent = listTitle;
 
         if (data.urls.length === 0) {
-            modalList.innerHTML = '<li>No problems in this list yet</li>';
+            modalList.innerHTML = '<li style="text-align: center; padding: 30px; color: #6c757d;">No problems in this list yet</li>';
         } else {
-            if (type === 'skipped') {
-                // Store problems for toggle
-                window.currentCompletedProblems = data.urls;
-                window.showCategories = false;
-                displaySkippedProblems(data.urls);
-            } else {
-                // Revisit list
-                window.currentCompletedProblems = data.urls.map(url => ({url: url, is_revisit: true, category: 'Unknown'}));
-                window.showCategories = false;
-                displayRevisitProblems(data.urls);
-            }
+            modalList.innerHTML = data.urls.map(item => {
+                const url = typeof item === 'string' ? item : item.url;
+                const slug = url.split('/').filter(s => s).pop();
+                const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                const revisitClass = (typeof item === 'object' && item.is_revisit) || type === 'revisit' ? 'revisit' : '';
+
+                return `<li class="${revisitClass}">
+                    <a href="${url}" target="_blank">${name}</a>
+                    ${type === 'skipped' ? `<button class="button button-success" onclick="markCompleteFromModal('${url}')">✓ Complete</button>` : ''}
+                </li>`;
+            }).join('');
         }
 
         modal.style.display = 'block';
@@ -2132,239 +2888,191 @@ async function showList(type) {
     }
 }
 
-function displaySkippedProblems(problems) {
-    const modalList = document.getElementById('modalList');
+async function markCompleteFromModal(url) {
+    try {
+        const response = await fetch('/api/mark_complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+        });
 
-    modalList.innerHTML = problems.map(item => {
-        const url = item.url;
-        const slug = url.split('/').filter(s => s).pop();
-        const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        const revisitClass = item.is_revisit ? 'revisit' : '';
-        const category = item.category || 'Unknown';
-
-        if (window.showCategories) {
-            return `<li class="${revisitClass}">
-                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px;">
-                    <div style="display: flex; flex-direction: column; gap: 5px; flex: 1;">
-                        <a href="${url}" target="_blank">${name}</a>
-                        <span style="font-size: 0.85em; color: #667eea; font-weight: 600;">📁 ${category}</span>
-                    </div>
-                    <button class="button button-success" onclick="markCompleteFromModal('${url}')">✓ Complete</button>
-                </div>
-            </li>`;
+        const data = await response.json();
+        if (data.success) {
+            updateProgress();
+            showMessage('✓ Problem marked as complete!');
+            closeModal();
+            setTimeout(() => showList('skipped'), 500);
         } else {
-            return `<li class="${revisitClass}">
-                <a href="${url}" target="_blank">${name}</a>
-                <button class="button button-success" onclick="markCompleteFromModal('${url}')">✓ Complete</button>
-            </li>`;
+            showMessage(data.message, 'error');
         }
-    }).join('');
+    } catch (error) {
+        showMessage('Error: ' + error.message, 'error');
+    }
 }
 
-function displayRevisitProblems(urls) {
-    const modalList = document.getElementById('modalList');
+function closeModal() {
+    document.getElementById('listModal').style.display = 'none';
+}
 
-    modalList.innerHTML = urls.map(item => {
-        const url = item.url;
-        const slug = url.split('/').filter(s => s).pop();
-        const name = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        // For revisit list, we need to fetch category - using Unknown for now
-        // In a real implementation, you'd fetch this from backend
-        const category = 'Unknown';
+// ===== Import/Export =====
 
-        if (window.showCategories) {
-            return `<li class="revisit">
-                <div style="display: flex; flex-direction: column; gap: 5px; flex: 1;">
-                    <a href="${url}" target="_blank">${name}</a>
-                    <span style="font-size: 0.85em; color: #667eea; font-weight: 600;">📁 ${category}</span>
-                </div>
-            </li>`;
-        } else {
-            return `<li class="revisit">
-                <a href="${url}" target="_blank">${name}</a>
-            </li>`;
-        }
-    }).join('');
-}        async function markCompleteFromModal(url) {
+function showImportModal() {
+    document.getElementById('importProgressModal').style.display = 'block';
+}
+
+function closeImportModal() {
+    document.getElementById('importProgressModal').style.display = 'none';
+    document.getElementById('importProgressInput').value = '';
+    document.getElementById('importProgressFile').value = '';
+}
+
+async function exportProgress() {
+    try {
+        const response = await fetch('/api/export_progress');
+        const data = await response.json();
+
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `leetcode-progress-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showMessage('💾 Progress exported successfully!');
+    } catch (error) {
+        showMessage('Error exporting progress: ' + error.message, 'error');
+    }
+}
+
+async function importProgressData() {
+    const jsonText = document.getElementById('importProgressInput').value.trim();
+    const fileInput = document.getElementById('importProgressFile');
+
+    if (!jsonText && !fileInput.files[0]) {
+        showMessage('Please provide progress JSON or upload a file', 'error');
+        return;
+    }
+
+    if (fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = async function(e) {
             try {
-                const response = await fetch('/api/mark_complete', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url })
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    updateProgress();
-                    showMessage('✓ Problem marked as complete!');
-                    // Refresh the modal list
-                    closeModal();
-                    setTimeout(() => showList('skipped'), 500);
-                } else {
-                    showMessage(data.message, 'error');
-                }
+                const importData = JSON.parse(e.target.result);
+                await performImport(importData);
             } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
+                showMessage('Invalid JSON file: ' + error.message, 'error');
             }
-        }
-
-        function closeModal() {
-            document.getElementById('listModal').style.display = 'none';
-        }
-
-        function showImportModal() {
-            document.getElementById('importProgressModal').style.display = 'block';
-        }
-
-        function closeImportModal() {
-            document.getElementById('importProgressModal').style.display = 'none';
-            document.getElementById('importProgressInput').value = '';
-            document.getElementById('importProgressFile').value = '';
-        }
-
-        async function exportProgress() {
-            try {
-                const response = await fetch('/api/export_progress');
-                const data = await response.json();
-
-                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `leetcode-progress-${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-
-                showMessage('💾 Progress exported successfully!');
-            } catch (error) {
-                showMessage('Error exporting progress: ' + error.message, 'error');
-            }
-        }
-
-        async function importProgressData() {
-            const jsonText = document.getElementById('importProgressInput').value.trim();
-            const fileInput = document.getElementById('importProgressFile');
-
-            if (!jsonText && !fileInput.files[0]) {
-                showMessage('Please provide progress JSON or upload a file', 'error');
-                return;
-            }
-
-            if (fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    try {
-                        const importData = JSON.parse(e.target.result);
-                        await performImport(importData);
-                    } catch (error) {
-                        showMessage('Invalid JSON file: ' + error.message, 'error');
-                    }
-                };
-                reader.readAsText(fileInput.files[0]);
-            } else {
-                try {
-                    const importData = JSON.parse(jsonText);
-                    await performImport(importData);
-                } catch (error) {
-                    showMessage('Invalid JSON format: ' + error.message, 'error');
-                }
-            }
-        }
-
-        async function performImport(importData) {
-            try {
-                const response = await fetch('/api/import_progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(importData)
-                });
-
-                const data = await response.json();
-                closeImportModal();
-
-                if (data.success) {
-                    await updateProgress();
-                    await checkInitialState();
-                    showMessage('📥 ' + data.message);
-                } else {
-                    showMessage(data.message, 'error');
-                }
-            } catch (error) {
-                closeImportModal();
-                showMessage('Error importing progress: ' + error.message, 'error');
-            }
-        }
-
-        async function confirmResetProgress() {
-            const confirmed = confirm(
-                '⚠️ WARNING: This will delete ALL your progress!\n\n' +
-                'This includes:\n' +
-                '• All completed problems\n' +
-                '• Current session\n' +
-                '• Skipped problems list\n' +
-                '• Revisit list\n' +
-                '• Global statistics\n\n' +
-                'Your problems data will be kept.\n\n' +
-                'Are you absolutely sure you want to continue?'
-            );
-
-            if (!confirmed) return;
-
-            const doubleConfirmed = confirm(
-                '🚨 FINAL WARNING!\n\n' +
-                'This action CANNOT be undone!\n\n' +
-                'Click OK to permanently delete all progress.'
-            );
-
-            if (!doubleConfirmed) return;
-
-            try {
-                const response = await fetch('/api/reset_progress', {
-                    method: 'POST'
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    await updateProgress();
-                    document.getElementById('problemsSection').innerHTML = '';
-                    document.getElementById('problemsSection').classList.add('hidden');
-                    showMessage('🗑️ ' + data.message);
-                } else {
-                    showMessage(data.message, 'error');
-                }
-            } catch (error) {
-                showMessage('Error resetting progress: ' + error.message, 'error');
-            }
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const listModal = document.getElementById('listModal');
-            const changeJsonModal = document.getElementById('changeJsonModal');
-            const importProgressModal = document.getElementById('importProgressModal');
-            const createProblemSetModal = document.getElementById('createProblemSetModal');
-
-            if (event.target == listModal) {
-                listModal.style.display = 'none';
-            }
-            if (event.target == changeJsonModal) {
-                closeChangeJsonModal();
-            }
-            if (event.target == importProgressModal) {
-                closeImportModal();
-            }
-            if (event.target == createProblemSetModal) {
-                closeCreateProblemSetModal();
-            }
-        }
-
-        // Load progress on page load if problems were previously loaded
-        window.onload = function() {
-            checkInitialState();
         };
+        reader.readAsText(fileInput.files[0]);
+    } else {
+        try {
+            const importData = JSON.parse(jsonText);
+            await performImport(importData);
+        } catch (error) {
+            showMessage('Invalid JSON format: ' + error.message, 'error');
+        }
+    }
+}
+
+async function performImport(importData) {
+    try {
+        const response = await fetch('/api/import_progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(importData)
+        });
+
+        const data = await response.json();
+        closeImportModal();
+
+        if (data.success) {
+            await updateProgress();
+            await checkInitialState();
+            showMessage('📥 ' + data.message);
+        } else {
+            showMessage(data.message, 'error');
+        }
+    } catch (error) {
+        closeImportModal();
+        showMessage('Error importing progress: ' + error.message, 'error');
+    }
+}
+
+// ===== Reset Progress =====
+
+async function confirmResetProgress() {
+    const confirmed = confirm(
+        '⚠️ WARNING: This will delete ALL your progress!\n\n' +
+        'This includes:\n' +
+        '• All completed problems\n' +
+        '• Current session\n' +
+        '• Skipped problems list\n' +
+        '• Revisit list\n' +
+        '• Global statistics\n\n' +
+        'Your problems data will be kept.\n\n' +
+        'Are you absolutely sure you want to continue?'
+    );
+
+    if (!confirmed) return;
+
+    const doubleConfirmed = confirm(
+        '🚨 FINAL WARNING!\n\n' +
+        'This action CANNOT be undone!\n\n' +
+        'Click OK to permanently delete all progress.'
+    );
+
+    if (!doubleConfirmed) return;
+
+    try {
+        const response = await fetch('/api/reset_progress', {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            await updateProgress();
+            document.getElementById('problemsSection').innerHTML = '';
+            document.getElementById('problemsSection').classList.add('hidden');
+            showMessage('🗑️ ' + data.message);
+        } else {
+            showMessage(data.message, 'error');
+        }
+    } catch (error) {
+        showMessage('Error resetting progress: ' + error.message, 'error');
+    }
+}
+
+// ===== Modal Click Outside =====
+
+window.onclick = function(event) {
+    const listModal = document.getElementById('listModal');
+    const importProgressModal = document.getElementById('importProgressModal');
+    const createProblemSetModal = document.getElementById('createProblemSetModal');
+    const customGenerateModal = document.getElementById('customGenerateModal');
+
+    if (event.target == listModal) {
+        listModal.style.display = 'none';
+    }
+    if (event.target == importProgressModal) {
+        closeImportModal();
+    }
+    if (event.target == createProblemSetModal) {
+        closeCreateProblemSetModal();
+    }
+    if (event.target == customGenerateModal) {
+        closeCustomGenerateModal();
+    }
+}
+
+// ===== Page Load =====
+
+window.onload = function() {
+    checkInitialState();
+};
     </script>
 </body>
 </html>
