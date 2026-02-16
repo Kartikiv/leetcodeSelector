@@ -1088,7 +1088,19 @@ h1 {
     border: 2px solid #dee2e6;
     transition: all 0.3s ease;
 }
+/* Search Input Enhancement */
+#problemSetSearchInput:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
 
+.search-highlight {
+    background: #ffeb3b;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+}
 .active-stat-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.1);
@@ -1283,14 +1295,30 @@ h1 {
                 <p>Choose a problem set to start solving problems</p>
             </div>
 
-            <div class="action-bar">
-                <button class="button button-primary" onclick="showCreateProblemSetModal()">
-                    ➕ Create New Set
-                </button>
-                <button class="button button-secondary" onclick="refreshProblemSetsList()">
-                    🔄 Refresh List
-                </button>
-            </div>
+           <div class="action-bar">
+    <button class="button button-primary" onclick="showCreateProblemSetModal()">
+        ➕ Create New Set
+    </button>
+    <button class="button button-secondary" onclick="refreshProblemSetsList()">
+        🔄 Refresh List
+    </button>
+</div>
+
+<!-- NEW: Search Bar for Problem Sets -->
+<div style="max-width: 800px; margin: 20px auto;">
+    <div style="position: relative;">
+        <input type="text" id="problemSetSearchInput"
+               placeholder="🔍 Search problem sets (e.g., 'array', 'blind', 'dp')..."
+               style="width: 100%; padding: 14px 50px 14px 20px; border: 2px solid #dee2e6; border-radius: 12px; font-size: 15px; transition: all 0.3s;">
+        <button onclick="clearProblemSetSearch()"
+                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6c757d; cursor: pointer; font-size: 20px; padding: 5px 10px; transition: color 0.3s;"
+                onmouseover="this.style.color='#dc3545'"
+                onmouseout="this.style.color='#6c757d'">
+            ✕
+        </button>
+    </div>
+    <div id="problemSetSearchInfo" style="margin-top: 12px; color: #6c757d; font-size: 14px; text-align: center; min-height: 20px;"></div>
+</div>
 
             <div id="problemSetsListContainer"></div>
         </div>
@@ -3067,6 +3095,186 @@ window.onclick = function(event) {
         closeCustomGenerateModal();
     }
 }
+// ===== Problem Set Search (Clean Implementation) =====
+
+let allProblemSetsData = [];
+
+// Search problem sets function
+async function searchProblemSets(query) {
+    if (!query || query.trim() === '') {
+        // If no query, reload all sets
+        await loadProblemSetsList();
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/search_problem_sets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: query.trim() })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update the search info
+            const infoDiv = document.getElementById('problemSetSearchInfo');
+            if (infoDiv) {
+                if (data.total_sets === 0) {
+                    infoDiv.innerHTML = `No sets match "<strong>${escapeHtml(query)}</strong>"`;
+                    infoDiv.style.color = '#dc3545';
+                } else {
+                    infoDiv.innerHTML = `Found <strong>${data.total_sets}</strong> set(s) matching "<strong>${escapeHtml(query)}</strong>"`;
+                    infoDiv.style.color = '#28a745';
+                }
+            }
+
+            // Render the filtered results
+            renderProblemSets(data.problem_sets, query);
+        }
+    } catch (error) {
+        showMessage('Search error: ' + error.message, 'error');
+    }
+}
+
+// Render problem sets (used by both search and default)
+function renderProblemSets(sets, highlightQuery = '') {
+    const container = document.getElementById('problemSetsListContainer');
+
+    if (sets.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <h3>🔍 No Problem Sets Found</h3>
+                <p>Try a different search term</p>
+                <button class="button button-secondary" onclick="clearProblemSetSearch()" style="margin-top: 20px;">
+                    Show All Sets
+                </button>
+            </div>
+        `;
+        return;
+    }
+
+    const activeSet = sets.find(s => s.is_active);
+
+    container.innerHTML = `
+        <div class="problem-sets-grid">
+            ${sets.map(set => {
+                // Highlight matching text if there's a query
+                let displayName = escapeHtml(set.name);
+                if (highlightQuery) {
+                    const regex = new RegExp(`(${highlightQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                    displayName = displayName.replace(regex, '<span class="search-highlight">$1</span>');
+                }
+
+                return `
+                    <div class="problem-set-card ${set.is_active ? 'active' : ''}" onclick="selectProblemSet('${set.id}', ${set.is_active})">
+                        <div class="set-card-header">
+                            <div style="flex: 1;">
+                                <div class="set-card-name">${displayName}</div>
+                                ${set.is_active ? '<span class="set-badge badge-active">✓ Active</span>' : ''}
+                            </div>
+                            <span class="set-badge ${set.is_public ? 'badge-public' : 'badge-private'}">
+                                ${set.is_public ? '🌐 Public' : '🔒 Private'}
+                            </span>
+                        </div>
+
+                        ${set.description ? `<div class="set-card-description">${escapeHtml(set.description)}</div>` : ''}
+
+                        <div class="set-card-meta">
+                            <span>📝 ${set.problem_count} problems</span>
+                            <span>👤 ${escapeHtml(set.created_by)}</span>
+                        </div>
+
+                        <div class="set-card-meta" id="stats-${set.id}" style="display: none; border-top: 1px solid #e9ecef; padding-top: 12px; margin-top: 12px;">
+                            <span style="color: #28a745; font-weight: 700;">✓ <span id="completed-${set.id}">0</span> completed</span>
+                            <span style="color: #ffc107; font-weight: 700;">⏳ <span id="pending-${set.id}">0</span> pending</span>
+                        </div>
+
+                        <div class="set-card-actions" onclick="event.stopPropagation()">
+                            ${set.is_active ? `
+                                <button class="button button-info" onclick="showSetStats('${set.id}', '${escapeHtml(set.name).replace(/'/g, "\\'")}')">
+                                    📊 Stats
+                                </button>
+                            ` : ''}
+                            ${!set.is_active ? `
+                                <button class="button button-success" onclick="activateProblemSet('${set.id}', '${escapeHtml(set.name).replace(/'/g, "\\'")}')">
+                                    ✓ Use This
+                                </button>
+                            ` : `
+                                <button class="button button-primary" onclick="selectProblemSet('${set.id}', true)">
+                                    🎲 Start
+                                </button>
+                            `}
+                            ${!set.is_public && set.created_by === 'You' ? `
+                                <button class="button button-danger" onclick="deleteProblemSet('${set.id}', '${escapeHtml(set.name).replace(/'/g, "\\'")}')">
+                                    🗑️
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+
+    // Load stats for active set
+    if (activeSet) {
+        loadSetStats(activeSet.id);
+    }
+}
+
+// Clear search and show all
+function clearProblemSetSearch() {
+    const searchInput = document.getElementById('problemSetSearchInput');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+
+    const infoDiv = document.getElementById('problemSetSearchInfo');
+    if (infoDiv) {
+        infoDiv.innerHTML = '';
+    }
+
+    loadProblemSetsList();
+}
+
+// Initialize search input listener
+function initializeProblemSetSearch() {
+    const searchInput = document.getElementById('problemSetSearchInput');
+    if (!searchInput) return;
+
+    let searchTimeout;
+
+    searchInput.addEventListener('input', function(e) {
+        clearTimeout(searchTimeout);
+        const query = e.target.value.trim();
+
+        searchTimeout = setTimeout(() => {
+            if (query === '') {
+                clearProblemSetSearch();
+            } else {
+                searchProblemSets(query);
+            }
+        }, 300);
+    });
+
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            if (query) {
+                searchProblemSets(query);
+            } else {
+                clearProblemSetSearch();
+            }
+        }
+    });
+}
+
+// Call this in your existing DOMContentLoaded or add a new one
+document.addEventListener('DOMContentLoaded', function() {
+    initializeProblemSetSearch();
+});
 
 // ===== Page Load =====
 

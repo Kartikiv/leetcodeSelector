@@ -963,6 +963,140 @@ def api_login():
     return jsonify({'success': False, 'message': 'Invalid username or password'})
 
 
+@app.route('/api/search_problem_sets', methods=['POST'])
+@login_required
+def search_problem_sets_api():
+    """Search problem sets with intelligent matching"""
+    selector = get_selector()
+    if not selector:
+        return jsonify({'success': False, 'error': 'User session error'})
+
+    try:
+        data = request.json
+        query = data.get('query', '').strip()
+
+        # Get all problem sets
+        all_sets = selector.get_problem_sets()
+
+        if not query:
+            # Return all sets if no query
+            return jsonify({
+                'success': True,
+                'problem_sets': all_sets,
+                'total_sets': len(all_sets),
+                'query': ''
+            })
+
+        query_lower = query.lower()
+        matched_sets = []
+
+        # Search through sets with intelligent matching
+        for problem_set in all_sets:
+            set_name = problem_set['name']
+            set_name_lower = set_name.lower()
+            match_score = 0
+
+            # Intelligent matching
+            if query_lower == set_name_lower:
+                match_score = 100  # Exact match
+            elif set_name_lower.startswith(query_lower):
+                match_score = 90  # Starts with
+            elif f' {query_lower} ' in f' {set_name_lower} ':
+                match_score = 80  # Whole word
+            elif query_lower in set_name_lower:
+                match_score = 70  # Contains
+            else:
+                # Fuzzy match - subsequence
+                query_idx = 0
+                for char in set_name_lower:
+                    if query_idx < len(query_lower) and char == query_lower[query_idx]:
+                        query_idx += 1
+                if query_idx == len(query_lower):
+                    match_score = 50
+
+            if match_score > 0:
+                problem_set['match_score'] = match_score
+                matched_sets.append(problem_set)
+
+        # Sort by match score (descending), then by name
+        matched_sets.sort(key=lambda x: (-x['match_score'], x['name']))
+
+        # Remove match_score from response
+        for s in matched_sets:
+            del s['match_score']
+
+        return jsonify({
+            'success': True,
+            'query': query,
+            'problem_sets': matched_sets,
+            'total_sets': len(matched_sets)
+        })
+    except Exception as e:
+        print(f"Error searching problem sets: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/problem_set_details/<set_id>', methods=['GET'])
+@login_required
+def get_problem_set_details(set_id):
+    """Get detailed information about a specific problem set including all problems"""
+    selector = get_selector()
+    if not selector:
+        return jsonify({'success': False, 'error': 'User session error'})
+
+    try:
+        # Load the problem set
+        if not selector._load_problem_set_by_id(set_id):
+            return jsonify({'success': False, 'error': 'Problem set not found'}), 404
+
+        # Count problems by difficulty
+        difficulty_counts = {
+            'Easy': 0,
+            'Medium': 0,
+            'Hard': 0
+        }
+
+        all_problems = []
+
+        # Iterate through the problems_data to count and collect
+        for category, problems in selector.problems_data.items():
+            for problem_url in problems:
+                difficulty = selector._get_difficulty(problem_url)
+                if difficulty:
+                    difficulty_key = difficulty.capitalize()
+                    if difficulty_key in difficulty_counts:
+                        difficulty_counts[difficulty_key] += 1
+
+                    all_problems.append({
+                        'url': problem_url,
+                        'category': category,
+                        'difficulty': difficulty_key,
+                        'completed': problem_url in selector.progress['completed'],
+                        'is_revisit': selector.is_in_revisit(problem_url)
+                    })
+
+        total_count = sum(difficulty_counts.values())
+
+        return jsonify({
+            'success': True,
+            'set_id': set_id,
+            'counts': {
+                'Easy': difficulty_counts['Easy'],
+                'Medium': difficulty_counts['Medium'],
+                'Hard': difficulty_counts['Hard'],
+                'total': total_count
+            },
+            'problems': all_problems
+        })
+    except Exception as e:
+        print(f"Error getting problem set details: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/api/logout', methods=['POST'])
 @login_required
 def api_logout():
@@ -1402,6 +1536,7 @@ def get_problem_set_stats(set_id):
         'completed_problems': completed_with_info,
         'pending_problems': pending_with_info
     })
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=False, port=3000)
