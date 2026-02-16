@@ -174,6 +174,21 @@ class LeetCodeProblemSelector:
 
         return False
 
+    def _count_problems_in_set(self, problems_data):
+        """Count the actual number of problems in a problem set"""
+        if isinstance(problems_data, dict):
+            # If it's a dict like {"Arrays": ["url1", "url2"], "Trees": ["url3"]}
+            total = 0
+            for category, problems in problems_data.items():
+                if isinstance(problems, list):
+                    total += len(problems)
+            return total
+        elif isinstance(problems_data, list):
+            # If it's already a flat list
+            return len(problems_data)
+        else:
+            return 0
+
     def get_problem_sets(self):
         """Get all available problem sets for the user"""
         sets = []
@@ -195,11 +210,12 @@ class LeetCodeProblemSelector:
                     try:
                         with open(os.path.join(public_dir, filename), 'r') as f:
                             set_data = json.load(f)
+                            problem_count = self._count_problems_in_set(set_data['problems'])
                             sets.append({
                                 'id': set_data['id'],
                                 'name': set_data['name'],
                                 'description': set_data.get('description', ''),
-                                'problem_count': len(set_data['problems']),
+                                'problem_count': problem_count,
                                 'is_public': True,
                                 'is_active': set_data['id'] == active_set_id,
                                 'created_by': set_data.get('created_by', 'System'),
@@ -216,11 +232,12 @@ class LeetCodeProblemSelector:
                     try:
                         with open(os.path.join(private_dir, filename), 'r') as f:
                             set_data = json.load(f)
+                            problem_count = self._count_problems_in_set(set_data['problems'])
                             sets.append({
                                 'id': set_data['id'],
                                 'name': set_data['name'],
                                 'description': set_data.get('description', ''),
-                                'problem_count': len(set_data['problems']),
+                                'problem_count': problem_count,
                                 'is_public': False,
                                 'is_active': set_data['id'] == active_set_id,
                                 'created_by': 'You',
