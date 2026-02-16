@@ -1,0 +1,37 @@
+{
+  "id": "monotonic_stack__monotonic_queue_1770246577",
+  "name": "Monotonic Stack / Monotonic Queue",
+  "description": "Monotonic Stack / Monotonic Queue",
+  "problems": {
+    "Monotonic Stack / Monotonic Queue": [
+      "https://leetcode.com/problems/next-greater-element-i/",
+      "https://leetcode.com/problems/next-greater-element-ii/",
+      "https://leetcode.com/problems/daily-temperatures/",
+      "https://leetcode.com/problems/online-stock-span/",
+      "https://leetcode.com/problems/largest-rectangle-in-histogram/",
+      "https://leetcode.com/problems/maximal-rectangle/",
+      "https://leetcode.com/problems/sum-of-subarray-minimums/",
+      "https://leetcode.com/problems/maximum-width-ramp/",
+      "https://leetcode.com/problems/remove-k-digits/",
+      "https://leetcode.com/problems/132-pattern/",
+      "https://leetcode.com/problems/shortest-unsorted-continuous-subarray/",
+      "https://leetcode.com/problems/trapping-rain-water/",
+      "https://leetcode.com/problems/sliding-window-maximum/",
+      "https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/",
+      "https://leetcode.com/problems/constrained-subsequence-sum/",
+      "https://leetcode.com/problems/maximum-sum-circular-subarray/",
+      "https://leetcode.com/problems/find-the-most-competitive-subsequence/",
+      "https://leetcode.com/problems/next-greater-node-in-linked-list/",
+      "https://leetcode.com/problems/minimum-cost-tree-from-leaf-values/",
+      "https://leetcode.com/problems/asteroid-collision/",
+      "https://leetcode.com/problems/remove-duplicate-letters/",
+      "https://leetcode.com/problems/smallest-subsequence-of-distinct-characters/",
+      "https://leetcode.com/problems/maximum-subarray-min-product/",
+      "https://leetcode.com/problems/number-of-visible-people-in-a-queue/",
+      "https://leetcode.com/problems/buildings-with-an-ocean-view/"
+    ]
+  },
+  "created_by": "5",
+  "created_at": "2026-02-04 23:09:37",
+  "is_public": true
+}

@@ -2724,5 +2724,6 @@
   "compact-object": "medium",
   "execute-asynchronous-functions-in-parallel": "medium",
   "ways-to-make-a-fair-array": "medium",
-  "all-the-matches-of-the-league": "easy"
+  "all-the-matches-of-the-league": "easy",
+  "maximum-sum-obtained-of-any-permutation": "medium"
 }

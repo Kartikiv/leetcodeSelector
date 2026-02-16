@@ -1,0 +1,37 @@
+{
+  "id": "bit_manipulation_1770247017",
+  "name": "Bit Manipulation",
+  "description": "Bit Manipulation",
+  "problems": {
+    "Bit Manipulation": [
+      "https://leetcode.com/problems/single-number/",
+      "https://leetcode.com/problems/single-number-ii/",
+      "https://leetcode.com/problems/single-number-iii/",
+      "https://leetcode.com/problems/number-of-1-bits/",
+      "https://leetcode.com/problems/counting-bits/",
+      "https://leetcode.com/problems/reverse-bits/",
+      "https://leetcode.com/problems/power-of-two/",
+      "https://leetcode.com/problems/power-of-four/",
+      "https://leetcode.com/problems/missing-number/",
+      "https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/",
+      "https://leetcode.com/problems/bitwise-and-of-numbers-range/",
+      "https://leetcode.com/problems/subsets/",
+      "https://leetcode.com/problems/subsets-ii/",
+      "https://leetcode.com/problems/minimum-flips-to-make-a-or-b-equal-to-c/",
+      "https://leetcode.com/problems/hamming-distance/",
+      "https://leetcode.com/problems/total-hamming-distance/",
+      "https://leetcode.com/problems/find-the-difference/",
+      "https://leetcode.com/problems/sum-of-two-integers/",
+      "https://leetcode.com/problems/divide-two-integers/",
+      "https://leetcode.com/problems/gray-code/",
+      "https://leetcode.com/problems/non-negative-integers-without-consecutive-ones/",
+      "https://leetcode.com/problems/maximum-product-of-word-lengths/",
+      "https://leetcode.com/problems/encode-and-decode-tinyurl/",
+      "https://leetcode.com/problems/utf-8-validation/",
+      "https://leetcode.com/problems/minimum-number-of-people-to-teach/"
+    ]
+  },
+  "created_by": "5",
+  "created_at": "2026-02-04 23:16:57",
+  "is_public": true
+}

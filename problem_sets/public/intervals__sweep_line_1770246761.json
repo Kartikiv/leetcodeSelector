@@ -1,0 +1,37 @@
+{
+  "id": "intervals__sweep_line_1770246761",
+  "name": "Intervals + Sweep Line",
+  "description": "Intervals + Sweep Line",
+  "problems": {
+    "Intervals + Sweep Line": [
+      "https://leetcode.com/problems/merge-intervals/",
+      "https://leetcode.com/problems/insert-interval/",
+      "https://leetcode.com/problems/interval-list-intersections/",
+      "https://leetcode.com/problems/non-overlapping-intervals/",
+      "https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/",
+      "https://leetcode.com/problems/meeting-rooms/",
+      "https://leetcode.com/problems/meeting-rooms-ii/",
+      "https://leetcode.com/problems/my-calendar-i/",
+      "https://leetcode.com/problems/my-calendar-ii/",
+      "https://leetcode.com/problems/my-calendar-iii/",
+      "https://leetcode.com/problems/car-pooling/",
+      "https://leetcode.com/problems/corporate-flight-bookings/",
+      "https://leetcode.com/problems/the-skyline-problem/",
+      "https://leetcode.com/problems/rectangle-area-ii/",
+      "https://leetcode.com/problems/employee-free-time/",
+      "https://leetcode.com/problems/minimum-interval-to-include-each-query/",
+      "https://leetcode.com/problems/remove-covered-intervals/",
+      "https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended/",
+      "https://leetcode.com/problems/find-right-interval/",
+      "https://leetcode.com/problems/teemo-attacking/",
+      "https://leetcode.com/problems/minimum-time-to-make-rope-colorful/",
+      "https://leetcode.com/problems/divide-intervals-into-minimum-number-of-groups/",
+      "https://leetcode.com/problems/describe-the-painting/",
+      "https://leetcode.com/problems/count-integers-in-intervals/",
+      "https://leetcode.com/problems/maximum-sum-obtained-of-any-permutation/"
+    ]
+  },
+  "created_by": "5",
+  "created_at": "2026-02-04 23:12:41",
+  "is_public": true
+}

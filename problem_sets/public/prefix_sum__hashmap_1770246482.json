@@ -1,0 +1,37 @@
+{
+  "id": "prefix_sum__hashmap_1770246482",
+  "name": "Prefix Sum + HashMap",
+  "description": "Prefix Sum + HashMap",
+  "problems": {
+    "Prefix Sum + HashMap": [
+      "https://leetcode.com/problems/subarray-sum-equals-k/",
+      "https://leetcode.com/problems/continuous-subarray-sum/",
+      "https://leetcode.com/problems/binary-subarrays-with-sum/",
+      "https://leetcode.com/problems/subarray-sums-divisible-by-k/",
+      "https://leetcode.com/problems/contiguous-array/",
+      "https://leetcode.com/problems/max-number-of-k-sum-pairs/",
+      "https://leetcode.com/problems/range-sum-query-immutable/",
+      "https://leetcode.com/problems/range-sum-query-2d-immutable/",
+      "https://leetcode.com/problems/find-pivot-index/",
+      "https://leetcode.com/problems/product-of-array-except-self/",
+      "https://leetcode.com/problems/corporate-flight-bookings/",
+      "https://leetcode.com/problems/car-pooling/",
+      "https://leetcode.com/problems/find-the-highest-altitude/",
+      "https://leetcode.com/problems/find-the-middle-index-in-array/",
+      "https://leetcode.com/problems/count-number-of-nice-subarrays/",
+      "https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/",
+      "https://leetcode.com/problems/make-sum-divisible-by-p/",
+      "https://leetcode.com/problems/minimum-operations-to-reduce-x-to-zero/",
+      "https://leetcode.com/problems/maximum-size-subarray-sum-equals-k/",
+      "https://leetcode.com/problems/path-sum-iii/",
+      "https://leetcode.com/problems/subarray-sum-equals-k/",
+      "https://leetcode.com/problems/count-of-range-sum/",
+      "https://leetcode.com/problems/maximum-points-you-can-obtain-from-cards/",
+      "https://leetcode.com/problems/minimum-number-of-operations-to-make-array-continuous/",
+      "https://leetcode.com/problems/plates-between-candles/"
+    ]
+  },
+  "created_by": "5",
+  "created_at": "2026-02-04 23:08:02",
+  "is_public": true
+}

@@ -1,0 +1,37 @@
+{
+  "id": "graphs_bfsdfstopodijkstra_1770246976",
+  "name": "Graphs (BFS/DFS/Topo/Dijkstra)",
+  "description": "Graphs (BFS/DFS/Topo/Dijkstra)",
+  "problems": {
+    "Graphs (BFS/DFS/Topo/Dijkstra)": [
+      "https://leetcode.com/problems/number-of-islands/",
+      "https://leetcode.com/problems/max-area-of-island/",
+      "https://leetcode.com/problems/clone-graph/",
+      "https://leetcode.com/problems/course-schedule/",
+      "https://leetcode.com/problems/course-schedule-ii/",
+      "https://leetcode.com/problems/keys-and-rooms/",
+      "https://leetcode.com/problems/rotting-oranges/",
+      "https://leetcode.com/problems/walls-and-gates/",
+      "https://leetcode.com/problems/shortest-path-in-binary-matrix/",
+      "https://leetcode.com/problems/word-ladder/",
+      "https://leetcode.com/problems/evaluate-division/",
+      "https://leetcode.com/problems/network-delay-time/",
+      "https://leetcode.com/problems/path-with-minimum-effort/",
+      "https://leetcode.com/problems/minimum-cost-to-connect-all-points/",
+      "https://leetcode.com/problems/redundant-connection/",
+      "https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/",
+      "https://leetcode.com/problems/accounts-merge/",
+      "https://leetcode.com/problems/is-graph-bipartite/",
+      "https://leetcode.com/problems/possible-bipartition/",
+      "https://leetcode.com/problems/find-if-path-exists-in-graph/",
+      "https://leetcode.com/problems/detonate-the-maximum-bombs/",
+      "https://leetcode.com/problems/cheapest-flights-within-k-stops/",
+      "https://leetcode.com/problems/time-needed-to-inform-all-employees/",
+      "https://leetcode.com/problems/swim-in-rising-water/",
+      "https://leetcode.com/problems/critical-connections-in-a-network/"
+    ]
+  },
+  "created_by": "5",
+  "created_at": "2026-02-04 23:16:16",
+  "is_public": true
+}

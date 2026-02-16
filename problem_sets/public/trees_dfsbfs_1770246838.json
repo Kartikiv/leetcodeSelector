@@ -1,0 +1,37 @@
+{
+  "id": "trees_dfsbfs_1770246838",
+  "name": "Trees (DFS/BFS)",
+  "description": "Trees (DFS/BFS)",
+  "problems": {
+    "Trees (DFS/BFS)": [
+      "https://leetcode.com/problems/binary-tree-inorder-traversal/",
+      "https://leetcode.com/problems/binary-tree-preorder-traversal/",
+      "https://leetcode.com/problems/binary-tree-postorder-traversal/",
+      "https://leetcode.com/problems/binary-tree-level-order-traversal/",
+      "https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/",
+      "https://leetcode.com/problems/maximum-depth-of-binary-tree/",
+      "https://leetcode.com/problems/minimum-depth-of-binary-tree/",
+      "https://leetcode.com/problems/invert-binary-tree/",
+      "https://leetcode.com/problems/diameter-of-binary-tree/",
+      "https://leetcode.com/problems/balanced-binary-tree/",
+      "https://leetcode.com/problems/path-sum/",
+      "https://leetcode.com/problems/path-sum-ii/",
+      "https://leetcode.com/problems/path-sum-iii/",
+      "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/",
+      "https://leetcode.com/problems/binary-tree-maximum-path-sum/",
+      "https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/",
+      "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/",
+      "https://leetcode.com/problems/binary-tree-right-side-view/",
+      "https://leetcode.com/problems/count-good-nodes-in-binary-tree/",
+      "https://leetcode.com/problems/validate-binary-search-tree/",
+      "https://leetcode.com/problems/kth-smallest-element-in-a-bst/",
+      "https://leetcode.com/problems/binary-search-tree-iterator/",
+      "https://leetcode.com/problems/house-robber-iii/",
+      "https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree/",
+      "https://leetcode.com/problems/maximum-width-of-binary-tree/"
+    ]
+  },
+  "created_by": "5",
+  "created_at": "2026-02-04 23:13:58",
+  "is_public": true
+}

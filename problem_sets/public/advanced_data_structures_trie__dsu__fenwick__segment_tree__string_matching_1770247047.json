@@ -1,0 +1,37 @@
+{
+  "id": "advanced_data_structures_trie__dsu__fenwick__segment_tree__string_matching_1770247047",
+  "name": "Advanced Data Structures (Trie / DSU / Fenwick / Segment Tree / String Matching)",
+  "description": "Advanced Data Structures (Trie / DSU / Fenwick / Segment Tree / String Matching)",
+  "problems": {
+    "Advanced Data Structures (Trie / DSU / Fenwick / Segment Tree / String Matching)": [
+      "https://leetcode.com/problems/implement-trie-prefix-tree/",
+      "https://leetcode.com/problems/design-add-and-search-words-data-structure/",
+      "https://leetcode.com/problems/word-search-ii/",
+      "https://leetcode.com/problems/prefix-and-suffix-search/",
+      "https://leetcode.com/problems/replace-words/",
+      "https://leetcode.com/problems/stream-of-characters/",
+      "https://leetcode.com/problems/longest-word-in-dictionary/",
+      "https://leetcode.com/problems/map-sum-pairs/",
+      "https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/",
+      "https://leetcode.com/problems/maximum-xor-with-an-element-from-array/",
+      "https://leetcode.com/problems/redundant-connection/",
+      "https://leetcode.com/problems/redundant-connection-ii/",
+      "https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/",
+      "https://leetcode.com/problems/accounts-merge/",
+      "https://leetcode.com/problems/smallest-string-with-swaps/",
+      "https://leetcode.com/problems/range-sum-query-mutable/",
+      "https://leetcode.com/problems/count-of-smaller-numbers-after-self/",
+      "https://leetcode.com/problems/reverse-pairs/",
+      "https://leetcode.com/problems/create-sorted-array-through-instructions/",
+      "https://leetcode.com/problems/number-of-inversions/",
+      "https://leetcode.com/problems/range-sum-of-sorted-subarray-sums/",
+      "https://leetcode.com/problems/find-the-longest-valid-obstacle-course-at-each-position/",
+      "https://leetcode.com/problems/longest-duplicate-substring/",
+      "https://leetcode.com/problems/implement-strstr/",
+      "https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/"
+    ]
+  },
+  "created_by": "5",
+  "created_at": "2026-02-04 23:17:27",
+  "is_public": true
+}

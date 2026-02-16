@@ -1,0 +1,37 @@
+{
+  "id": "greedy_1770246708",
+  "name": "Greedy",
+  "description": "Greedy",
+  "problems": {
+    "Greedy": [
+      "https://leetcode.com/problems/jump-game/",
+      "https://leetcode.com/problems/jump-game-ii/",
+      "https://leetcode.com/problems/gas-station/",
+      "https://leetcode.com/problems/candy/",
+      "https://leetcode.com/problems/partition-labels/",
+      "https://leetcode.com/problems/queue-reconstruction-by-height/",
+      "https://leetcode.com/problems/non-overlapping-intervals/",
+      "https://leetcode.com/problems/assign-cookies/",
+      "https://leetcode.com/problems/boats-to-save-people/",
+      "https://leetcode.com/problems/wiggle-subsequence/",
+      "https://leetcode.com/problems/maximum-units-on-a-truck/",
+      "https://leetcode.com/problems/broken-calculator/",
+      "https://leetcode.com/problems/minimum-add-to-make-parentheses-valid/",
+      "https://leetcode.com/problems/remove-k-digits/",
+      "https://leetcode.com/problems/reduce-array-size-to-the-half/",
+      "https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/",
+      "https://leetcode.com/problems/patching-array/",
+      "https://leetcode.com/problems/advantage-shuffle/",
+      "https://leetcode.com/problems/bag-of-tokens/",
+      "https://leetcode.com/problems/maximum-swap/",
+      "https://leetcode.com/problems/hand-of-straights/",
+      "https://leetcode.com/problems/maximum-ice-cream-bars/",
+      "https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended/",
+      "https://leetcode.com/problems/two-city-scheduling/",
+      "https://leetcode.com/problems/minimum-deletions-to-make-character-frequencies-unique/"
+    ]
+  },
+  "created_by": "5",
+  "created_at": "2026-02-04 23:11:48",
+  "is_public": true
+}
