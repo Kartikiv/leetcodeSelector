@@ -1,0 +1,30 @@
+{
+  "completed": [],
+  "skipped": [],
+  "revisit": [],
+  "global_stats": {
+    "easy_completed": 0,
+    "medium_completed": 0,
+    "hard_completed": 0,
+    "total_completed": 0
+  },
+  "current_session": {
+    "problems": [
+      "https://leetcode.com/problems/single-threaded-cpu/",
+      "https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended/",
+      "https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/",
+      "https://leetcode.com/problems/subarray-sum-equals-k/",
+      "https://leetcode.com/problems/meeting-rooms-ii/",
+      "https://leetcode.com/problems/sum-of-subarray-minimums/",
+      "https://leetcode.com/problems/permutation-in-string/",
+      "https://leetcode.com/problems/single-threaded-cpu/",
+      "https://leetcode.com/problems/minimum-cost-to-hire-k-workers/",
+      "https://leetcode.com/problems/minimum-number-of-refueling-stops/"
+    ],
+    "easy_completed": 0,
+    "medium_completed": 0,
+    "hard_completed": 0,
+    "total_completed": 0,
+    "generated_at": "2026-02-19 20:59:58"
+  }
+}
