@@ -90,7 +90,8 @@
     "https://leetcode.com/problems/make-sum-divisible-by-p/",
     "https://leetcode.com/problems/minimum-number-of-operations-to-make-array-continuous/",
     "https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/",
-    "https://leetcode.com/problems/product-of-array-except-self/"
+    "https://leetcode.com/problems/product-of-array-except-self/",
+    "https://leetcode.com/problems/find-peak-element/"
   ],
   "global_stats": {
     "easy_completed": 19,
