@@ -70,11 +70,17 @@
     "https://leetcode.com/problems/product-of-array-except-self/",
     "https://leetcode.com/problems/count-of-range-sum/",
     "https://leetcode.com/problems/minimum-number-of-operations-to-make-array-continuous/",
-    "https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/"
+    "https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/",
+    "https://leetcode.com/problems/binary-search/",
+    "https://leetcode.com/problems/search-insert-position/",
+    "https://leetcode.com/problems/search-a-2d-matrix/",
+    "https://leetcode.com/problems/search-in-rotated-sorted-array/",
+    "https://leetcode.com/problems/find-the-smallest-divisor-given-a-threshold/",
+    "https://leetcode.com/problems/koko-eating-bananas/",
+    "https://leetcode.com/problems/find-peak-element/"
   ],
   "skipped": [],
   "revisit": [
-
     "https://leetcode.com/problems/merge-sorted-array/",
     "https://leetcode.com/problems/4sum/",
     "https://leetcode.com/problems/minimum-window-subsequence/",
@@ -83,33 +89,31 @@
     "https://leetcode.com/problems/count-of-range-sum/",
     "https://leetcode.com/problems/make-sum-divisible-by-p/",
     "https://leetcode.com/problems/minimum-number-of-operations-to-make-array-continuous/",
-     "https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/",
-     "https://leetcode.com/problems/product-of-array-except-self/"
+    "https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/",
+    "https://leetcode.com/problems/product-of-array-except-self/"
   ],
   "global_stats": {
-    "easy_completed": 17,
-    "medium_completed": 45,
+    "easy_completed": 19,
+    "medium_completed": 50,
     "hard_completed": 9,
-    "total_completed": 71
+    "total_completed": 78
   },
   "current_session": {
     "problems": [
-      "https://leetcode.com/problems/binary-search/",
-      "https://leetcode.com/problems/search-insert-position/",
-      "https://leetcode.com/problems/search-a-2d-matrix/",
-      "https://leetcode.com/problems/search-in-rotated-sorted-array/",
+      "https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/",
       "https://leetcode.com/problems/maximum-value-at-a-given-index-in-a-bounded-array/",
-      "https://leetcode.com/problems/find-the-smallest-divisor-given-a-threshold/",
-      "https://leetcode.com/problems/koko-eating-bananas/",
-      "https://leetcode.com/problems/find-peak-element/",
-      "https://leetcode.com/problems/kth-smallest-number-in-multiplication-table/",
-      "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array-ii/",
-      "https://leetcode.com/problems/median-of-two-sorted-arrays/"
+      "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",
+      "https://leetcode.com/problems/online-election/",
+      "https://leetcode.com/problems/find-k-closest-elements/",
+      "https://leetcode.com/problems/minimized-maximum-of-products-distributed-to-any-store/",
+      "https://leetcode.com/problems/maximum-running-time-of-n-computers/",
+      "https://leetcode.com/problems/split-array-largest-sum/",
+      "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array-ii/"
     ],
     "easy_completed": 0,
     "medium_completed": 0,
     "hard_completed": 0,
     "total_completed": 0,
-    "generated_at": "2026-02-26 18:56:39"
+    "generated_at": "2026-02-28 01:26:31"
   }
 }
