@@ -77,7 +77,31 @@
     "https://leetcode.com/problems/search-in-rotated-sorted-array/",
     "https://leetcode.com/problems/find-the-smallest-divisor-given-a-threshold/",
     "https://leetcode.com/problems/koko-eating-bananas/",
-    "https://leetcode.com/problems/find-peak-element/"
+    "https://leetcode.com/problems/find-peak-element/",
+    "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",
+    "https://leetcode.com/problems/online-election/",
+    "https://leetcode.com/problems/find-k-closest-elements/",
+    "https://leetcode.com/problems/minimized-maximum-of-products-distributed-to-any-store/",
+    "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/",
+    "https://leetcode.com/problems/minimum-time-to-complete-trips/",
+    "https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/",
+    "https://leetcode.com/problems/magnetic-force-between-two-balls/",
+    "https://leetcode.com/problems/kth-smallest-number-in-multiplication-table/",
+    "https://leetcode.com/problems/split-array-largest-sum/",
+    "https://leetcode.com/problems/maximum-running-time-of-n-computers/",
+    "https://leetcode.com/problems/search-in-rotated-sorted-array-ii/",
+    "https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/",
+    "https://leetcode.com/problems/maximum-value-at-a-given-index-in-a-bounded-array/",
+    "https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/",
+    "https://leetcode.com/problems/middle-of-the-linked-list/",
+    "https://leetcode.com/problems/palindrome-linked-list/",
+    "https://leetcode.com/problems/merge-two-sorted-lists/",
+    "https://leetcode.com/problems/remove-duplicates-from-sorted-list/",
+    "https://leetcode.com/problems/rotate-list/",
+    "https://leetcode.com/problems/reverse-linked-list/",
+    "https://leetcode.com/problems/next-greater-node-in-linked-list/",
+    "https://leetcode.com/problems/swap-nodes-in-pairs/",
+    "https://leetcode.com/problems/reorder-list/"
   ],
   "skipped": [],
   "revisit": [
@@ -91,30 +115,37 @@
     "https://leetcode.com/problems/minimum-number-of-operations-to-make-array-continuous/",
     "https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/",
     "https://leetcode.com/problems/product-of-array-except-self/",
-    "https://leetcode.com/problems/find-peak-element/"
+    "https://leetcode.com/problems/find-peak-element/",
+    "https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/",
+    "https://leetcode.com/problems/maximum-value-at-a-given-index-in-a-bounded-array/",
+    "https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/",
+    "https://leetcode.com/problems/magnetic-force-between-two-balls/",
+    "https://leetcode.com/problems/search-in-rotated-sorted-array-ii/",
+    "https://leetcode.com/problems/split-array-largest-sum/",
+    "https://leetcode.com/problems/maximum-running-time-of-n-computers/",
+    "https://leetcode.com/problems/intersection-of-two-linked-lists/"
   ],
   "global_stats": {
-    "easy_completed": 19,
-    "medium_completed": 50,
-    "hard_completed": 9,
-    "total_completed": 78
+    "easy_completed": 24,
+    "medium_completed": 66,
+    "hard_completed": 12,
+    "total_completed": 102
   },
   "current_session": {
     "problems": [
-      "https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/",
-      "https://leetcode.com/problems/maximum-value-at-a-given-index-in-a-bounded-array/",
-      "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",
-      "https://leetcode.com/problems/online-election/",
-      "https://leetcode.com/problems/find-k-closest-elements/",
-      "https://leetcode.com/problems/minimized-maximum-of-products-distributed-to-any-store/",
-      "https://leetcode.com/problems/maximum-running-time-of-n-computers/",
-      "https://leetcode.com/problems/split-array-largest-sum/",
-      "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array-ii/"
+      "https://leetcode.com/problems/intersection-of-two-linked-lists/",
+      "https://leetcode.com/problems/reorder-list/",
+      "https://leetcode.com/problems/sort-list/",
+      "https://leetcode.com/problems/odd-even-linked-list/",
+      "https://leetcode.com/problems/add-two-numbers/",
+      "https://leetcode.com/problems/flatten-a-multilevel-doubly-linked-list/",
+      "https://leetcode.com/problems/linked-list-cycle-ii/",
+      "https://leetcode.com/problems/merge-k-sorted-lists/"
     ],
     "easy_completed": 0,
-    "medium_completed": 0,
+    "medium_completed": 1,
     "hard_completed": 0,
-    "total_completed": 0,
-    "generated_at": "2026-02-28 01:26:31"
+    "total_completed": 1,
+    "generated_at": "2026-03-04 19:36:35"
   }
 }
