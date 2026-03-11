@@ -1778,9 +1778,7 @@ async function loadSetStats(setId) {
     } catch (error) {
         console.error('Error loading set stats:', error);
     }
-}
-
-async function showSetStats(setId, setName) {
+}async function showSetStats(setId, setName) {
     try {
         const response = await fetch(`/api/problem_sets/${setId}/stats`);
         const data = await response.json();
@@ -1794,108 +1792,179 @@ async function showSetStats(setId, setName) {
         const modalTitle = document.getElementById('modalTitle');
         const modalList = document.getElementById('modalList');
 
+        const percent = data.total > 0
+            ? Math.round((data.completed / data.total) * 100)
+            : 0;
+
         modalTitle.innerHTML = `
             📊 Statistics: ${escapeHtml(setName)}
             <div style="font-size: 0.6em; margin-top: 8px; opacity: 0.85;">
-                ${data.completed}/${data.total} problems completed (${Math.round(data.completed/data.total*100)}%)
+                ${data.completed}/${data.total} problems completed (${percent}%)
             </div>
         `;
 
-        let html = `
+        const html = `
             <div class="view-toggle">
-                <button class="toggle-btn active" onclick="switchSetStatsView('completed', '${setId}', this)">
+                <button class="toggle-btn active" onclick="switchSetStatsView('completed', this)">
                     ✓ Completed (${data.completed})
                 </button>
-                <button class="toggle-btn" onclick="switchSetStatsView('pending', '${setId}', this)">
+                <button class="toggle-btn" onclick="switchSetStatsView('pending', this)">
                     ⏳ Pending (${data.pending})
                 </button>
             </div>
+
+            <div class="view-toggle" style="margin-top: 10px;">
+                <button class="toggle-btn active" onclick="switchGroupingMode('category', this)">
+                    Group by Category
+                </button>
+                <button class="toggle-btn" onclick="switchGroupingMode('difficulty', this)">
+                    Group by Difficulty
+                </button>
+            </div>
+
             <div id="problemsListContainer"></div>
         `;
 
         modalList.innerHTML = html;
+
         window.currentSetStatsData = data;
         window.currentSetStatsId = setId;
-        displaySetProblems(data.completed_problems, 'completed');
+        window.currentStatsViewType = 'completed';
+        window.currentGroupingMode = 'category';
+
+        displaySetProblems(data.completed_problems, 'completed', 'category');
         modal.style.display = 'block';
     } catch (error) {
         showMessage('Error loading statistics: ' + error.message, 'error');
     }
 }
 
-function switchSetStatsView(viewType, setId, button) {
-    document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+function switchSetStatsView(viewType, button) {
+    const wrapper = button.parentElement;
+    wrapper.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
     button.classList.add('active');
 
+    window.currentStatsViewType = viewType;
+
     const data = window.currentSetStatsData;
-    if (viewType === 'completed') {
-        displaySetProblems(data.completed_problems, 'completed');
-    } else {
-        displaySetProblems(data.pending_problems, 'pending');
-    }
+    const problems = viewType === 'completed'
+        ? data.completed_problems
+        : data.pending_problems;
+
+    displaySetProblems(problems, viewType, window.currentGroupingMode || 'category');
 }
 
-function displaySetProblems(problems, type) {
+function switchGroupingMode(groupMode, button) {
+    const wrapper = button.parentElement;
+    wrapper.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+
+    window.currentGroupingMode = groupMode;
+
+    const data = window.currentSetStatsData;
+    const viewType = window.currentStatsViewType || 'completed';
+    const problems = viewType === 'completed'
+        ? data.completed_problems
+        : data.pending_problems;
+
+    displaySetProblems(problems, viewType, groupMode);
+}
+
+function displaySetProblems(problems, type, groupMode = 'category') {
     const container = document.getElementById('problemsListContainer');
 
-    if (problems.length === 0) {
-        container.innerHTML = `<p style="text-align: center; padding: 30px; color: #6c757d; font-size: 1.1em;">No ${type} problems</p>`;
+    if (!problems || problems.length === 0) {
+        container.innerHTML = `
+            <p style="text-align: center; padding: 30px; color: #6c757d; font-size: 1.1em;">
+                No ${type} problems
+            </p>
+        `;
         return;
     }
 
-    const grouped = {
-        easy: problems.filter(p => p.difficulty === 'easy'),
-        medium: problems.filter(p => p.difficulty === 'medium'),
-        hard: problems.filter(p => p.difficulty === 'hard')
-    };
-
     let html = '';
 
-    if (grouped.easy.length > 0) {
-        html += `
-            <div class="difficulty-group-modal">
-                <div class="difficulty-header easy">
-                    <span>🟢 Easy</span>
-                    <span class="category-count">${grouped.easy.length}</span>
-                </div>
-                <ul style="list-style: none; padding: 0;">
-                    ${grouped.easy.map(item => createSetProblemListItem(item, type)).join('')}
-                </ul>
-            </div>
-        `;
-    }
+    if (groupMode === 'category') {
+        const categoryGroups = problems.reduce((acc, problem) => {
+            const category = problem.category?.trim() || 'Uncategorized';
 
-    if (grouped.medium.length > 0) {
-        html += `
-            <div class="difficulty-group-modal">
-                <div class="difficulty-header medium">
-                    <span>🟡 Medium</span>
-                    <span class="category-count">${grouped.medium.length}</span>
-                </div>
-                <ul style="list-style: none; padding: 0;">
-                    ${grouped.medium.map(item => createSetProblemListItem(item, type)).join('')}
-                </ul>
-            </div>
-        `;
-    }
+            if (!acc[category]) {
+                acc[category] = [];
+            }
 
-    if (grouped.hard.length > 0) {
-        html += `
-            <div class="difficulty-group-modal">
-                <div class="difficulty-header hard">
-                    <span>🔴 Hard</span>
-                    <span class="category-count">${grouped.hard.length}</span>
+            acc[category].push(problem);
+            return acc;
+        }, {});
+
+        Object.keys(categoryGroups)
+            .sort((a, b) => a.localeCompare(b))
+            .forEach(category => {
+                const items = categoryGroups[category];
+
+                html += `
+                    <div class="difficulty-group-modal">
+                        <div class="difficulty-header medium">
+                            <span>${escapeHtml(category)}</span>
+                            <span class="category-count">${items.length}</span>
+                        </div>
+                        <ul style="list-style: none; padding: 0;">
+                            ${items.map(item => createSetProblemListItem(item, type)).join('')}
+                        </ul>
+                    </div>
+                `;
+            });
+    } else {
+        const difficultyGroups = {
+            easy: problems.filter(p => p.difficulty === 'easy'),
+            medium: problems.filter(p => p.difficulty === 'medium'),
+            hard: problems.filter(p => p.difficulty === 'hard')
+        };
+
+        if (difficultyGroups.easy.length > 0) {
+            html += `
+                <div class="difficulty-group-modal">
+                    <div class="difficulty-header easy">
+                        <span>🟢 Easy</span>
+                        <span class="category-count">${difficultyGroups.easy.length}</span>
+                    </div>
+                    <ul style="list-style: none; padding: 0;">
+                        ${difficultyGroups.easy.map(item => createSetProblemListItem(item, type)).join('')}
+                    </ul>
                 </div>
-                <ul style="list-style: none; padding: 0;">
-                    ${grouped.hard.map(item => createSetProblemListItem(item, type)).join('')}
-                </ul>
-            </div>
-        `;
+            `;
+        }
+
+        if (difficultyGroups.medium.length > 0) {
+            html += `
+                <div class="difficulty-group-modal">
+                    <div class="difficulty-header medium">
+                        <span>🟡 Medium</span>
+                        <span class="category-count">${difficultyGroups.medium.length}</span>
+                    </div>
+                    <ul style="list-style: none; padding: 0;">
+                        ${difficultyGroups.medium.map(item => createSetProblemListItem(item, type)).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        if (difficultyGroups.hard.length > 0) {
+            html += `
+                <div class="difficulty-group-modal">
+                    <div class="difficulty-header hard">
+                        <span>🔴 Hard</span>
+                        <span class="category-count">${difficultyGroups.hard.length}</span>
+                    </div>
+                    <ul style="list-style: none; padding: 0;">
+                        ${difficultyGroups.hard.map(item => createSetProblemListItem(item, type)).join('')}
+                    </ul>
+                </div>
+            `;
+        }
     }
 
     container.innerHTML = html;
 }
-
 function createSetProblemListItem(item, type) {
     const url = item.url;
     const slug = url.split('/').filter(s => s).pop();
