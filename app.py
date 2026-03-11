@@ -1,5 +1,5 @@
-from flask import Flask, render_template, jsonify, request, send_from_directory, redirect, url_for, session
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask import Flask, render_template, jsonify, request, redirect, url_for, session
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
 import random
@@ -7,16 +7,32 @@ import os
 import requests
 import time
 from typing import Dict, List
-from functools import wraps
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
 
+from models import db, User, ProblemSet, ProblemSetProblem, DifficultyCache, \
+    UserProgress, UserSession, UserSessionProblem, UserActiveSet
 app = Flask(__name__)
+
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
 app.config['PERMANENT_SESSION_LIFETIME'] = 2592000  # 30 days
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URL',
+    'postgresql://postgres:8182@localhost:5432/leetcode_selector'
+)
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,
+    'pool_recycle': 300,
+}
+
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-os.makedirs('users', exist_ok=True)
-os.makedirs('problem_sets/public', exist_ok=True)
+
+db.init_app(app)
 
 # Setup Flask-Login
 login_manager = LoginManager()
@@ -24,232 +40,154 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 
-class User(UserMixin):
-    def __init__(self, user_id, username, email):
-        self.id = user_id
-        self.username = username
-        self.email = email
-
-    @staticmethod
-    def get_users_db():
-        """Get users database"""
-        if os.path.exists('users/users.json'):
-            with open('users/users.json', 'r') as f:
-                return json.load(f)
-        return {}
-
-    @staticmethod
-    def save_users_db(users_db):
-        """Save users database"""
-        with open('users/users.json', 'w') as f:
-            json.dump(users_db, f, indent=2)
-
-    @staticmethod
-    def get(user_id):
-        """Get user by ID"""
-        users_db = User.get_users_db()
-        if user_id in users_db:
-            user_data = users_db[user_id]
-            return User(user_id, user_data['username'], user_data['email'])
-        return None
-
-    @staticmethod
-    def get_by_username(username):
-        """Get user by username"""
-        users_db = User.get_users_db()
-        for user_id, user_data in users_db.items():
-            if user_data['username'] == username:
-                return User(user_id, user_data['username'], user_data['email'])
-        return None
-
-    @staticmethod
-    def create(username, email, password):
-        """Create a new user"""
-        users_db = User.get_users_db()
-
-        # Check if username or email already exists
-        for user_data in users_db.values():
-            if user_data['username'] == username:
-                return None, "Username already exists"
-            if user_data['email'] == email:
-                return None, "Email already exists"
-
-        # Generate unique user ID
-        user_id = str(len(users_db) + 1)
-        while user_id in users_db:
-            user_id = str(int(user_id) + 1)
-
-        # Create user directory
-        user_dir = f'users/{user_id}'
-        os.makedirs(user_dir, exist_ok=True)
-
-        # Save user - use pbkdf2:sha256 method explicitly for Python 3.9 compatibility
-        users_db[user_id] = {
-            'username': username,
-            'email': email,
-            'password_hash': generate_password_hash(password, method='pbkdf2:sha256'),
-            'created_at': time.strftime('%Y-%m-%d %H:%M:%S')
-        }
-        User.save_users_db(users_db)
-
-        return User(user_id, username, email), None
-
-    @staticmethod
-    def verify_password(username, password):
-        """Verify user password"""
-        users_db = User.get_users_db()
-        for user_id, user_data in users_db.items():
-            if user_data['username'] == username:
-                if check_password_hash(user_data['password_hash'], password):
-                    return User(user_id, user_data['username'], user_data['email'])
-        return None
-
-
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    return User.query.get(int(user_id))
 
+
+# ---------------------------------------------------------------------------
+# User helpers (replaces file-based User class methods)
+# ---------------------------------------------------------------------------
+
+def create_user(username, email, password):
+    """Create a new user. Returns (user, error_message)."""
+    if User.query.filter_by(username=username).first():
+        return None, "Username already exists"
+    if User.query.filter_by(email=email).first():
+        return None, "Email already exists"
+
+    user = User(
+        username=username,
+        email=email,
+        password_hash=generate_password_hash(password, method='pbkdf2:sha256'),
+        created_at=datetime.utcnow()
+    )
+    db.session.add(user)
+    db.session.commit()
+    return user, None
+
+
+def verify_password(username, password):
+    """Verify credentials. Returns User or None."""
+    user = User.query.filter_by(username=username).first()
+    if user and check_password_hash(user.password_hash, password):
+        return user
+    return None
+
+
+# ---------------------------------------------------------------------------
+# LeetCodeProblemSelector
+# ---------------------------------------------------------------------------
 
 class LeetCodeProblemSelector:
-    # Class-level cache that's shared across all instances
-    _global_difficulty_cache = None
-    _global_cache_file = 'difficulty_cache.json'
+    # In-memory difficulty cache shared across all instances (synced with DB)
+    _global_difficulty_cache: Dict[str, str] = None
 
-    def __init__(self, user_id: str):
+    def __init__(self, user_id: int):
         self.user_id = user_id
-        self.user_dir = f'users/{user_id}'
-        os.makedirs(self.user_dir, exist_ok=True)
-        os.makedirs(f'{self.user_dir}/problem_sets', exist_ok=True)
 
-        self.progress_file = f'{self.user_dir}/progress.json'
-        self.problems_file = f'{self.user_dir}/problems_data.json'
-        self.active_set_file = f'{self.user_dir}/active_problem_set.json'
-
-        self.progress = self._load_progress()
-        self.problems_data = None
-        self.difficulty_map = None
-
-        # Load global cache if not already loaded
+        # Load global cache once
         if LeetCodeProblemSelector._global_difficulty_cache is None:
             LeetCodeProblemSelector._global_difficulty_cache = self._load_global_difficulty_cache()
 
-        # Try to load active problem set
+        # In-memory state (lazily populated from DB)
+        self.problems_data: Dict[str, List[str]] = None
+        self.difficulty_map: Dict[str, List[str]] = None
+        self._active_set_id: str = None
+
+        # Load active problem set
         self._load_active_problem_set()
 
-    def _load_active_problem_set(self):
-        """Load the currently active problem set"""
-        if os.path.exists(self.active_set_file):
-            try:
-                with open(self.active_set_file, 'r') as f:
-                    active_set = json.load(f)
-                    set_id = active_set.get('set_id')
-                    if set_id:
-                        self._load_problem_set_by_id(set_id)
-                        return True
-            except Exception as e:
-                print(f"Error loading active problem set: {e}")
+    # ------------------------------------------------------------------
+    # Difficulty cache
+    # ------------------------------------------------------------------
 
-        # Fallback to legacy problems_data.json
-        return self._load_saved_problems()
+    def _load_global_difficulty_cache(self) -> Dict[str, str]:
+        rows = DifficultyCache.query.all()
+        cache = {r.problem_slug: r.difficulty for r in rows}
+        print(f"Loaded global difficulty cache with {len(cache)} entries")
+        return cache
 
-    def _load_problem_set_by_id(self, set_id: str):
-        """Load a specific problem set"""
-        # Check user's private sets first
-        private_path = f'{self.user_dir}/problem_sets/{set_id}.json'
-        if os.path.exists(private_path):
-            with open(private_path, 'r') as f:
-                set_data = json.load(f)
-                self.problems_data = set_data['problems']
-                self.difficulty_map = self._initialize_difficulty_map()
-                return True
-
-        # Check public sets
-        public_path = f'problem_sets/public/{set_id}.json'
-        if os.path.exists(public_path):
-            with open(public_path, 'r') as f:
-                set_data = json.load(f)
-                self.problems_data = set_data['problems']
-                self.difficulty_map = self._initialize_difficulty_map()
-                return True
-
-        return False
-
-    def _count_problems_in_set(self, problems_data):
-        """Count the actual number of problems in a problem set"""
-        if isinstance(problems_data, dict):
-            # If it's a dict like {"Arrays": ["url1", "url2"], "Trees": ["url3"]}
-            total = 0
-            for category, problems in problems_data.items():
-                if isinstance(problems, list):
-                    total += len(problems)
-            return total
-        elif isinstance(problems_data, list):
-            # If it's already a flat list
-            return len(problems_data)
+    def _save_difficulty_entry(self, slug: str, difficulty: str):
+        """Upsert a single entry into the difficulty_cache table."""
+        row = DifficultyCache.query.filter_by(problem_slug=slug).first()
+        if row:
+            row.difficulty = difficulty
+            row.updated_at = datetime.utcnow()
         else:
-            return 0
+            row = DifficultyCache(problem_slug=slug, difficulty=difficulty)
+            db.session.add(row)
+        db.session.commit()
+
+    # ------------------------------------------------------------------
+    # Problem sets
+    # ------------------------------------------------------------------
+
+    def _load_active_problem_set(self):
+        active = UserActiveSet.query.filter_by(user_id=self.user_id).first()
+        if active:
+            self._active_set_id = active.set_id
+            self._load_problem_set_by_id(active.set_id)
+
+    def _load_problem_set_by_id(self, set_id: str) -> bool:
+        ps = ProblemSet.query.filter_by(set_id=set_id).first()
+        if not ps:
+            return False
+
+        problems_data: Dict[str, List[str]] = {}
+        for p in ps.problems.order_by(ProblemSetProblem.position):
+            problems_data.setdefault(p.category, []).append(p.problem_url)
+
+        self.problems_data = problems_data
+        self.difficulty_map = self._initialize_difficulty_map()
+        return True
+
+    def _count_problems_in_set(self, problems_data) -> int:
+        if isinstance(problems_data, dict):
+            return sum(len(v) for v in problems_data.values() if isinstance(v, list))
+        elif isinstance(problems_data, list):
+            return len(problems_data)
+        return 0
 
     def get_problem_sets(self):
-        """Get all available problem sets for the user"""
+        active = UserActiveSet.query.filter_by(user_id=self.user_id).first()
+        active_set_id = active.set_id if active else None
+
         sets = []
 
-        # Get active set ID
-        active_set_id = None
-        if os.path.exists(self.active_set_file):
-            try:
-                with open(self.active_set_file, 'r') as f:
-                    active_set_id = json.load(f).get('set_id')
-            except:
-                pass
+        # Public sets
+        public_sets = ProblemSet.query.filter_by(is_public=True).all()
+        for ps in public_sets:
+            problem_count = ps.problems.count()
+            sets.append({
+                'id': ps.set_id,
+                'name': ps.name,
+                'description': ps.description or '',
+                'problem_count': problem_count,
+                'is_public': True,
+                'is_active': ps.set_id == active_set_id,
+                'created_by': ps.created_by or 'System',
+                'created_at': ps.created_at.strftime('%Y-%m-%d') if ps.created_at else ''
+            })
 
-        # Get public sets
-        public_dir = 'problem_sets/public'
-        if os.path.exists(public_dir):
-            for filename in os.listdir(public_dir):
-                if filename.endswith('.json'):
-                    try:
-                        with open(os.path.join(public_dir, filename), 'r') as f:
-                            set_data = json.load(f)
-                            problem_count = self._count_problems_in_set(set_data['problems'])
-                            sets.append({
-                                'id': set_data['id'],
-                                'name': set_data['name'],
-                                'description': set_data.get('description', ''),
-                                'problem_count': problem_count,
-                                'is_public': True,
-                                'is_active': set_data['id'] == active_set_id,
-                                'created_by': set_data.get('created_by', 'System'),
-                                'created_at': set_data.get('created_at', '')
-                            })
-                    except Exception as e:
-                        print(f"Error loading public set {filename}: {e}")
-
-        # Get user's private sets
-        private_dir = f'{self.user_dir}/problem_sets'
-        if os.path.exists(private_dir):
-            for filename in os.listdir(private_dir):
-                if filename.endswith('.json'):
-                    try:
-                        with open(os.path.join(private_dir, filename), 'r') as f:
-                            set_data = json.load(f)
-                            problem_count = self._count_problems_in_set(set_data['problems'])
-                            sets.append({
-                                'id': set_data['id'],
-                                'name': set_data['name'],
-                                'description': set_data.get('description', ''),
-                                'problem_count': problem_count,
-                                'is_public': False,
-                                'is_active': set_data['id'] == active_set_id,
-                                'created_by': 'You',
-                                'created_at': set_data.get('created_at', '')
-                            })
-                    except Exception as e:
-                        print(f"Error loading private set {filename}: {e}")
+        # User's private sets
+        private_sets = ProblemSet.query.filter_by(is_public=False, owner_user_id=self.user_id).all()
+        for ps in private_sets:
+            problem_count = ps.problems.count()
+            sets.append({
+                'id': ps.set_id,
+                'name': ps.name,
+                'description': ps.description or '',
+                'problem_count': problem_count,
+                'is_public': False,
+                'is_active': ps.set_id == active_set_id,
+                'created_by': 'You',
+                'created_at': ps.created_at.strftime('%Y-%m-%d') if ps.created_at else ''
+            })
 
         return sorted(sets, key=lambda x: (not x['is_public'], x['name']))
 
     def create_problem_set(self, name: str, description: str, problems_json: str, is_public: bool = False):
-        """Create a new problem set"""
         try:
             data = json.loads(problems_json)
             problems = data['result'] if 'result' in data else data
@@ -258,675 +196,589 @@ class LeetCodeProblemSelector:
             set_id = ''.join(c for c in set_id if c.isalnum() or c == '_')
             set_id = f"{set_id}_{int(time.time())}"
 
-            set_data = {
-                'id': set_id,
-                'name': name,
-                'description': description,
-                'problems': problems,
-                'created_by': self.user_id,
-                'created_at': time.strftime('%Y-%m-%d %H:%M:%S'),
-                'is_public': is_public
-            }
+            ps = ProblemSet(
+                set_id=set_id,
+                name=name,
+                description=description,
+                is_public=is_public,
+                owner_user_id=self.user_id if not is_public else None,
+                created_by=str(self.user_id),
+                created_at=datetime.utcnow()
+            )
+            db.session.add(ps)
+            db.session.flush()  # get ps.id before inserting problems
 
-            # Save to appropriate directory
-            if is_public:
-                filepath = f'problem_sets/public/{set_id}.json'
-            else:
-                filepath = f'{self.user_dir}/problem_sets/{set_id}.json'
+            position = 0
+            for category, urls in problems.items():
+                for url in urls:
+                    db.session.add(ProblemSetProblem(
+                        problem_set_id=ps.id,
+                        category=category,
+                        problem_url=url,
+                        position=position
+                    ))
+                    position += 1
 
-            with open(filepath, 'w') as f:
-                json.dump(set_data, f, indent=2)
-
+            db.session.commit()
             return set_id
         except Exception as e:
+            db.session.rollback()
             print(f"Error creating problem set: {e}")
             import traceback
             traceback.print_exc()
             return None
 
-    def set_active_problem_set(self, set_id: str):
-        """Set the active problem set"""
-        if self._load_problem_set_by_id(set_id):
-            with open(self.active_set_file, 'w') as f:
-                json.dump({'set_id': set_id}, f)
-            return True
-        return False
+    def set_active_problem_set(self, set_id: str) -> bool:
+        if not self._load_problem_set_by_id(set_id):
+            return False
 
-    def delete_problem_set(self, set_id: str):
-        """Delete a user's problem set"""
-        filepath = f'{self.user_dir}/problem_sets/{set_id}.json'
-        if os.path.exists(filepath):
-            os.remove(filepath)
-            # If this was the active set, clear it
-            if os.path.exists(self.active_set_file):
-                with open(self.active_set_file, 'r') as f:
-                    active = json.load(f)
-                    if active.get('set_id') == set_id:
-                        os.remove(self.active_set_file)
-                        self.problems_data = None
-                        self.difficulty_map = None
-            return True
-        return False
+        active = UserActiveSet.query.filter_by(user_id=self.user_id).first()
+        if active:
+            active.set_id = set_id
+            active.updated_at = datetime.utcnow()
+        else:
+            db.session.add(UserActiveSet(user_id=self.user_id, set_id=set_id))
+
+        db.session.commit()
+        self._active_set_id = set_id
+        return True
+
+    def delete_problem_set(self, set_id: str) -> bool:
+        ps = ProblemSet.query.filter_by(set_id=set_id, owner_user_id=self.user_id).first()
+        if not ps:
+            return False
+
+        # Clear active set if it was this one
+        active = UserActiveSet.query.filter_by(user_id=self.user_id, set_id=set_id).first()
+        if active:
+            db.session.delete(active)
+            self.problems_data = None
+            self.difficulty_map = None
+
+        db.session.delete(ps)
+        db.session.commit()
+        return True
 
     def export_problem_set(self, set_id: str):
-        """Export a problem set"""
-        # Check private sets
-        filepath = f'{self.user_dir}/problem_sets/{set_id}.json'
-        if os.path.exists(filepath):
-            with open(filepath, 'r') as f:
-                return json.load(f)
+        ps = ProblemSet.query.filter_by(set_id=set_id).filter(
+            (ProblemSet.is_public == True) | (ProblemSet.owner_user_id == self.user_id)
+        ).first()
+        if not ps:
+            return None
 
-        # Check public sets
-        filepath = f'problem_sets/public/{set_id}.json'
-        if os.path.exists(filepath):
-            with open(filepath, 'r') as f:
-                return json.load(f)
+        problems: Dict[str, List[str]] = {}
+        for p in ps.problems.order_by(ProblemSetProblem.position):
+            problems.setdefault(p.category, []).append(p.problem_url)
 
-        return None
+        return {
+            'id': ps.set_id,
+            'name': ps.name,
+            'description': ps.description,
+            'problems': problems,
+            'created_by': ps.created_by,
+            'created_at': ps.created_at.strftime('%Y-%m-%d %H:%M:%S') if ps.created_at else '',
+            'is_public': ps.is_public
+        }
 
-    def load_problems(self, problems_json: str):
-        """Load problems from JSON string"""
+    # ------------------------------------------------------------------
+    # Load problems (from raw JSON upload)
+    # ------------------------------------------------------------------
+
+    def load_problems(self, problems_json: str) -> bool:
         try:
             data = json.loads(problems_json)
-            self.problems_data = data['result'] if 'result' in data else data
+            problems = data['result'] if 'result' in data else data
 
-            # Save the problems data for persistence
-            with open(self.problems_file, 'w') as f:
-                json.dump(self.problems_data, f, indent=2)
+            set_id = f"uploaded_{self.user_id}_{int(time.time())}"
 
-            self.difficulty_map = self._initialize_difficulty_map()
-            print(f"Problems loaded successfully for user {self.user_id}")
+            ps = ProblemSet(
+                set_id=set_id,
+                name=f"Uploaded Problems",
+                description="Custom uploaded problem set",
+                is_public=False,
+                owner_user_id=self.user_id,
+                created_by=str(self.user_id),
+                created_at=datetime.utcnow()
+            )
+            db.session.add(ps)
+            db.session.flush()
+
+            position = 0
+            for category, urls in problems.items():
+                for url in urls:
+                    db.session.add(ProblemSetProblem(
+                        problem_set_id=ps.id,
+                        category=category,
+                        problem_url=url,
+                        position=position
+                    ))
+                    position += 1
+
+            db.session.commit()
+
+            # Activate it
+            self.set_active_problem_set(set_id)
+            print(f"Problems loaded and activated for user {self.user_id}")
             return True
         except Exception as e:
+            db.session.rollback()
             print(f"Error loading problems: {e}")
             import traceback
             traceback.print_exc()
             return False
 
-    def select_problems_custom(self, easy_count: int = 20, medium_count: int = 8, hard_count: int = 2) -> List[Dict]:
-        """Select custom number of random problems with difficulty labels and start new session"""
-        if not self.problems_data:
-            return []
-
-        selected = []
-
-        # Select easy problems
-        available_easy = self._get_available_problems('easy')
-        num_easy = min(easy_count, len(available_easy))
-        if num_easy > 0:
-            selected.extend([{'difficulty': 'easy', 'url': p} for p in random.sample(available_easy, num_easy)])
-
-        # Select medium problems
-        available_medium = self._get_available_problems('medium')
-        num_medium = min(medium_count, len(available_medium))
-        if num_medium > 0:
-            selected.extend([{'difficulty': 'medium', 'url': p} for p in random.sample(available_medium, num_medium)])
-
-        # Select hard problems
-        available_hard = self._get_available_problems('hard')
-        num_hard = min(hard_count, len(available_hard))
-        if num_hard > 0:
-            selected.extend([{'difficulty': 'hard', 'url': p} for p in random.sample(available_hard, num_hard)])
-
-        # Initialize new session
-        self.progress['current_session'] = {
-            'problems': [p['url'] for p in selected],
-            'easy_completed': 0,
-            'medium_completed': 0,
-            'hard_completed': 0,
-            'total_completed': 0,
-            'generated_at': time.strftime('%Y-%m-%d %H:%M:%S')
-        }
-        self._save_progress()
-
-        return selected
-
-    def _load_saved_problems(self):
-        """Load previously saved problems data"""
-        if os.path.exists(self.problems_file):
-            try:
-                with open(self.problems_file, 'r') as f:
-                    self.problems_data = json.load(f)
-                self.difficulty_map = self._initialize_difficulty_map()
-                print(f"Loaded previously uploaded problems data for user {self.user_id}")
-                return True
-            except Exception as e:
-                print(f"Error loading saved problems: {e}")
-                import traceback
-                traceback.print_exc()
-        return False
-
     def has_problems_loaded(self) -> bool:
-        """Check if problems data is loaded"""
         return self.problems_data is not None
 
-    def _load_progress(self) -> Dict:
-        """Load progress from file or create new if doesn't exist"""
-        if os.path.exists(self.progress_file):
-            with open(self.progress_file, 'r') as f:
-                data = json.load(f)
-
-            # Migrate old format to new format
-            if 'global_stats' not in data:
-                print("Migrating old progress format to new format...")
-                old_easy = data.get('easy_completed', 0)
-                old_medium = data.get('medium_completed', 0)
-                old_hard = data.get('hard_completed', 0)
-
-                data['global_stats'] = {
-                    'easy_completed': old_easy,
-                    'medium_completed': old_medium,
-                    'hard_completed': old_hard,
-                    'total_completed': old_easy + old_medium + old_hard
-                }
-                data['current_session'] = {
-                    'problems': [],
-                    'easy_completed': 0,
-                    'medium_completed': 0,
-                    'hard_completed': 0,
-                    'total_completed': 0,
-                    'generated_at': None
-                }
-
-                # Remove old keys
-                for key in ['easy_completed', 'medium_completed', 'hard_completed']:
-                    if key in data:
-                        del data[key]
-
-                self._save_progress_data(data)
-
-            return data
-
-        return {
-            'completed': [],
-            'skipped': [],
-            'revisit': [],
-            'global_stats': {
-                'easy_completed': 0,
-                'medium_completed': 0,
-                'hard_completed': 0,
-                'total_completed': 0
-            },
-            'current_session': {
-                'problems': [],
-                'easy_completed': 0,
-                'medium_completed': 0,
-                'hard_completed': 0,
-                'total_completed': 0,
-                'generated_at': None
-            }
-        }
-
-    def _save_progress_data(self, data):
-        """Save specific progress data to file"""
-        with open(self.progress_file, 'w') as f:
-            json.dump(data, f, indent=2)
-
-    def _load_global_difficulty_cache(self) -> Dict:
-        """Load global difficulty cache from file (shared across all users)"""
-        if os.path.exists(LeetCodeProblemSelector._global_cache_file):
-            try:
-                with open(LeetCodeProblemSelector._global_cache_file, 'r') as f:
-                    cache = json.load(f)
-                    print(f"Loaded global difficulty cache with {len(cache)} entries")
-                    return cache
-            except Exception as e:
-                print(f"Error loading global cache: {e}")
-        return {}
-
-    def _save_global_difficulty_cache(self):
-        """Save global difficulty cache to file"""
-        try:
-            with open(LeetCodeProblemSelector._global_cache_file, 'w') as f:
-                json.dump(LeetCodeProblemSelector._global_difficulty_cache, f, indent=2)
-            print(f"Saved global difficulty cache with {len(LeetCodeProblemSelector._global_difficulty_cache)} entries")
-        except Exception as e:
-            print(f"Error saving global cache: {e}")
-
-    def _save_progress(self):
-        """Save progress to file"""
-        with open(self.progress_file, 'w') as f:
-            json.dump(self.progress, f, indent=2)
-
-    def _get_problem_difficulty_from_api(self, problem_url: str) -> str:
-        """Fetch problem difficulty from LeetCode GraphQL API"""
-        # Extract slug from URL
-        slug = problem_url.rstrip('/').split('/')[-1]
-
-        # Check global cache first
-        if slug in LeetCodeProblemSelector._global_difficulty_cache:
-            return LeetCodeProblemSelector._global_difficulty_cache[slug]
-
-        # LeetCode GraphQL API endpoint
-        url = "https://leetcode.com/graphql"
-
-        query = """
-        query questionData($titleSlug: String!) {
-            question(titleSlug: $titleSlug) {
-                difficulty
-            }
-        }
-        """
-
-        payload = {
-            "query": query,
-            "variables": {"titleSlug": slug}
-        }
-
-        headers = {
-            "Content-Type": "application/json",
-            "User-Agent": "Mozilla/5.0"
-        }
-
-        try:
-            response = requests.post(url, json=payload, headers=headers, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('data') and data['data'].get('question'):
-                    difficulty = data['data']['question']['difficulty']
-                    # Convert to lowercase for consistency
-                    difficulty = difficulty.lower() if difficulty else 'medium'
-
-                    # Cache the result in global cache
-                    LeetCodeProblemSelector._global_difficulty_cache[slug] = difficulty
-                    self._save_global_difficulty_cache()
-
-                    return difficulty
-        except Exception as e:
-            print(f"Error fetching difficulty for {slug}: {e}")
-
-        # Default to medium if API call fails
-        return 'medium'
-
-    def _fetch_difficulty_parallel(self, problem_url: str, slug: str) -> str:
-        """Fetch difficulty for parallel processing - no sleep, direct cache update"""
-        # Double-check cache in case another thread already fetched it
-        if slug in LeetCodeProblemSelector._global_difficulty_cache:
-            return LeetCodeProblemSelector._global_difficulty_cache[slug]
-
-        url = "https://leetcode.com/graphql"
-
-        query = """
-        query questionData($titleSlug: String!) {
-            question(titleSlug: $titleSlug) {
-                difficulty
-            }
-        }
-        """
-
-        payload = {
-            "query": query,
-            "variables": {"titleSlug": slug}
-        }
-
-        headers = {
-            "Content-Type": "application/json",
-            "User-Agent": "Mozilla/5.0"
-        }
-
-        try:
-            response = requests.post(url, json=payload, headers=headers, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('data') and data['data'].get('question'):
-                    difficulty = data['data']['question']['difficulty']
-                    difficulty = difficulty.lower() if difficulty else 'medium'
-
-                    # Cache the result in global cache (thread-safe due to GIL)
-                    LeetCodeProblemSelector._global_difficulty_cache[slug] = difficulty
-
-                    return difficulty
-        except Exception as e:
-            print(f"Error fetching difficulty for {slug}: {e}")
-
-        # Default to medium if API call fails
-        return 'medium'
+    # ------------------------------------------------------------------
+    # Difficulty map
+    # ------------------------------------------------------------------
 
     def _initialize_difficulty_map(self) -> Dict[str, List[str]]:
-        """Categorize problems by difficulty using global cache first, then parallel LeetCode API calls"""
         difficulty_map = {'easy': [], 'medium': [], 'hard': []}
 
-        print("Building difficulty map...")
-        total_problems = sum(len(problems) for problems in self.problems_data.values())
-
-        # Collect all problems and check cache
         all_problems = []
         problems_to_fetch = []
         cached_count = 0
 
-        for category, problems in self.problems_data.items():
-            for problem_url in problems:
-                slug = problem_url.rstrip('/').split('/')[-1]
-                all_problems.append((problem_url, slug))
-
-                # Check if in cache
+        for category, urls in self.problems_data.items():
+            for url in urls:
+                slug = url.rstrip('/').split('/')[-1]
+                all_problems.append((url, slug))
                 if slug in LeetCodeProblemSelector._global_difficulty_cache:
-                    difficulty = LeetCodeProblemSelector._global_difficulty_cache[slug]
-                    difficulty_map[difficulty].append(problem_url)
+                    difficulty_map[LeetCodeProblemSelector._global_difficulty_cache[slug]].append(url)
                     cached_count += 1
                 else:
-                    problems_to_fetch.append((problem_url, slug))
+                    problems_to_fetch.append((url, slug))
 
-        print(f"Found {cached_count} problems in cache, need to fetch {len(problems_to_fetch)} from API")
+        print(f"Found {cached_count} in cache, fetching {len(problems_to_fetch)} from API")
 
         if problems_to_fetch:
-            # Fetch remaining problems in parallel
-            print(f"Fetching {len(problems_to_fetch)} problems in parallel (max 10 concurrent)...")
+            new_entries: Dict[str, str] = {}
 
-            # Use ThreadPoolExecutor for parallel API calls
             with ThreadPoolExecutor(max_workers=10) as executor:
-                # Submit all fetch tasks
                 future_to_problem = {
                     executor.submit(self._fetch_difficulty_parallel, url, slug): (url, slug)
                     for url, slug in problems_to_fetch
                 }
-
-                # Collect results as they complete
-                completed = 0
                 for future in as_completed(future_to_problem):
                     url, slug = future_to_problem[future]
                     try:
                         difficulty = future.result()
                         difficulty_map[difficulty].append(url)
-                        completed += 1
-
-                        if completed % 10 == 0 or completed == len(problems_to_fetch):
-                            print(f"Progress: {completed}/{len(problems_to_fetch)} API calls completed")
+                        new_entries[slug] = difficulty
                     except Exception as e:
                         print(f"Error fetching {slug}: {e}")
-                        difficulty_map['medium'].append(url)  # Default to medium on error
+                        difficulty_map['medium'].append(url)
 
-            # Save cache after all parallel fetches complete
-            print("Saving global difficulty cache...")
-            self._save_global_difficulty_cache()
-
-        print(f"Difficulty map created: {len(difficulty_map['easy'])} easy, "
-              f"{len(difficulty_map['medium'])} medium, {len(difficulty_map['hard'])} hard")
-        print(f"Used global cache for {cached_count} problems, fetched {len(problems_to_fetch)} from API")
+            # Bulk-upsert new cache entries
+            for slug, difficulty in new_entries.items():
+                LeetCodeProblemSelector._global_difficulty_cache[slug] = difficulty
+                row = DifficultyCache.query.filter_by(problem_slug=slug).first()
+                if row:
+                    row.difficulty = difficulty
+                    row.updated_at = datetime.utcnow()
+                else:
+                    db.session.add(DifficultyCache(problem_slug=slug, difficulty=difficulty))
+            db.session.commit()
 
         return difficulty_map
 
-    def _get_available_problems(self, difficulty: str) -> List[str]:
-        """Get problems of specified difficulty that haven't been completed"""
-        completed_set = set(self.progress['completed'])
-        available = [p for p in self.difficulty_map[difficulty] if p not in completed_set]
-        return available
+    def _fetch_difficulty_parallel(self, problem_url: str, slug: str) -> str:
+        if slug in LeetCodeProblemSelector._global_difficulty_cache:
+            return LeetCodeProblemSelector._global_difficulty_cache[slug]
+
+        try:
+            response = requests.post(
+                "https://leetcode.com/graphql",
+                json={
+                    "query": "query questionData($titleSlug: String!) { question(titleSlug: $titleSlug) { difficulty } }",
+                    "variables": {"titleSlug": slug}
+                },
+                headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"},
+                timeout=10
+            )
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('data') and data['data'].get('question'):
+                    return data['data']['question']['difficulty'].lower()
+        except Exception as e:
+            print(f"Error fetching difficulty for {slug}: {e}")
+
+        return 'medium'
+
+    # ------------------------------------------------------------------
+    # Progress helpers
+    # ------------------------------------------------------------------
+
+    def _get_progress_row(self, problem_url: str):
+        return UserProgress.query.filter_by(user_id=self.user_id, problem_url=problem_url).first()
+
+    def _get_or_create_progress_row(self, problem_url: str) -> UserProgress:
+        row = self._get_progress_row(problem_url)
+        if not row:
+            row = UserProgress(user_id=self.user_id, problem_url=problem_url)
+            db.session.add(row)
+        return row
+
+    def _get_session(self) -> UserSession:
+        s = UserSession.query.filter_by(user_id=self.user_id).first()
+        if not s:
+            s = UserSession(user_id=self.user_id)
+            db.session.add(s)
+            db.session.flush()
+        return s
+
+    def _get_completed_urls(self) -> List[str]:
+        rows = UserProgress.query.filter_by(user_id=self.user_id, is_completed=True).all()
+        return [r.problem_url for r in rows]
+
+    def _get_skipped_urls(self) -> List[str]:
+        rows = UserProgress.query.filter_by(user_id=self.user_id, is_skipped=True).all()
+        return [r.problem_url for r in rows]
+
+    def _get_revisit_urls(self) -> List[str]:
+        rows = UserProgress.query.filter_by(user_id=self.user_id, is_revisit=True).all()
+        return [r.problem_url for r in rows]
+
+    def _get_session_problem_urls(self) -> List[str]:
+        s = UserSession.query.filter_by(user_id=self.user_id).first()
+        if not s:
+            return []
+        return [p.problem_url for p in s.session_problems.order_by(UserSessionProblem.position)]
 
     def _can_select_hard_problems(self) -> bool:
-        """Check if hard problems can be selected based on current session"""
-        session = self.progress['current_session']
-        return (session['easy_completed'] >= 20 and
-                session['medium_completed'] >= 3)
+        s = UserSession.query.filter_by(user_id=self.user_id).first()
+        if not s:
+            return False
+        return s.easy_completed >= 20 and s.medium_completed >= 3
+
+    # ------------------------------------------------------------------
+    # Available problems (exclude completed)
+    # ------------------------------------------------------------------
+
+    def _get_available_problems(self, difficulty: str) -> List[str]:
+        completed_set = set(self._get_completed_urls())
+        return [p for p in self.difficulty_map[difficulty] if p not in completed_set]
+
+    # ------------------------------------------------------------------
+    # Session generation
+    # ------------------------------------------------------------------
 
     def select_problems(self) -> List[Dict]:
-        """Select 30 random problems with difficulty labels and start new session"""
+        return self.select_problems_custom(20, 8, 2)
+
+    def select_problems_custom(self, easy_count=20, medium_count=8, hard_count=2) -> List[Dict]:
         if not self.problems_data:
             return []
 
         selected = []
 
-        # Select 20 easy problems
         available_easy = self._get_available_problems('easy')
-        if len(available_easy) >= 20:
-            selected.extend([{'difficulty': 'easy', 'url': p} for p in random.sample(available_easy, 20)])
-        else:
-            selected.extend([{'difficulty': 'easy', 'url': p} for p in available_easy])
+        num_easy = min(easy_count, len(available_easy))
+        if num_easy > 0:
+            selected.extend([{'difficulty': 'easy', 'url': p} for p in random.sample(available_easy, num_easy)])
 
-        # Select 8 medium problems
         available_medium = self._get_available_problems('medium')
-        num_medium = min(8, len(available_medium))
+        num_medium = min(medium_count, len(available_medium))
         if num_medium > 0:
             selected.extend([{'difficulty': 'medium', 'url': p} for p in random.sample(available_medium, num_medium)])
 
-        # Select 2 hard problems if unlocked (always available for new session)
         available_hard = self._get_available_problems('hard')
-        num_hard = min(2, len(available_hard))
+        num_hard = min(hard_count, len(available_hard))
         if num_hard > 0:
             selected.extend([{'difficulty': 'hard', 'url': p} for p in random.sample(available_hard, num_hard)])
 
-        # Initialize new session
-        self.progress['current_session'] = {
-            'problems': [p['url'] for p in selected],
-            'easy_completed': 0,
-            'medium_completed': 0,
-            'hard_completed': 0,
-            'total_completed': 0,
-            'generated_at': time.strftime('%Y-%m-%d %H:%M:%S')
-        }
-        self._save_progress()
+        # Persist session
+        s = self._get_session()
+        s.easy_completed = 0
+        s.medium_completed = 0
+        s.hard_completed = 0
+        s.total_completed = 0
+        s.generated_at = datetime.utcnow()
 
+        # Replace session problems
+        UserSessionProblem.query.filter_by(session_id=s.id).delete()
+        for i, prob in enumerate(selected):
+            db.session.add(UserSessionProblem(session_id=s.id, problem_url=prob['url'], position=i))
+
+        db.session.commit()
         return selected
 
-    def mark_complete(self, problem_url: str):
-        """Mark a problem as completed (updates both session and global stats)"""
-        if problem_url in self.progress['completed']:
+    # ------------------------------------------------------------------
+    # Mark operations
+    # ------------------------------------------------------------------
+
+    def mark_complete(self, problem_url: str) -> bool:
+        row = self._get_progress_row(problem_url)
+        if row and row.is_completed:
             return False
 
-        # Check if this was originally in the current session (even if skipped)
-        was_in_session = problem_url in self.progress['current_session']['problems']
+        difficulty = self._get_difficulty(problem_url)
+        if not difficulty:
+            return False
 
-        # Remove from skipped if present (but keep in revisit)
-        if problem_url in self.progress['skipped']:
-            self.progress['skipped'].remove(problem_url)
+        row = self._get_or_create_progress_row(problem_url)
+        was_skipped = row.is_skipped
+        row.is_completed = True
+        row.is_skipped = False
+        row.completed_at = datetime.utcnow()
+
+        # Update session stats if problem is in current session
+        session_urls = set(self._get_session_problem_urls())
+        if problem_url in session_urls:
+            s = self._get_session()
+            s.__dict__[f'{difficulty}_completed'] = getattr(s, f'{difficulty}_completed') + 1
+            s.total_completed += 1
+
+        db.session.commit()
+        return True
+
+    def mark_skip(self, problem_url: str) -> Dict:
+        row = self._get_progress_row(problem_url)
+        if row and (row.is_skipped or row.is_completed):
+            return {'success': False, 'replacement': None, 'difficulty': None}
+
+        row = self._get_or_create_progress_row(problem_url)
+        row.is_skipped = True
 
         difficulty = self._get_difficulty(problem_url)
+        replacement = None
+
         if difficulty:
-            # Add to completed list
-            self.progress['completed'].append(problem_url)
+            available = self._get_available_problems(difficulty)
+            # Exclude the skipped problem itself
+            available = [p for p in available if p != problem_url]
+            if available:
+                replacement = random.choice(available)
 
-            # Update global stats
-            self.progress['global_stats'][f'{difficulty}_completed'] += 1
-            self.progress['global_stats']['total_completed'] += 1
+                # Replace in session
+                s = self._get_session()
+                sp = UserSessionProblem.query.filter_by(
+                    session_id=s.id, problem_url=problem_url
+                ).first()
+                if sp:
+                    sp.problem_url = replacement
 
-            # Update session stats if problem is in current session
-            if was_in_session:
-                self.progress['current_session'][f'{difficulty}_completed'] += 1
-                self.progress['current_session']['total_completed'] += 1
+        db.session.commit()
+        return {'success': True, 'replacement': replacement, 'difficulty': difficulty}
 
-            self._save_progress()
-            return True
-        return False
+    def mark_revisit(self, problem_url: str) -> bool:
+        row = self._get_progress_row(problem_url)
+        if row and row.is_revisit:
+            return False
 
-    def mark_skip(self, problem_url: str):
-        """Mark a problem as skipped and return a replacement"""
-        if problem_url not in self.progress['skipped'] and problem_url not in self.progress['completed']:
-            self.progress['skipped'].append(problem_url)
-
-            # Get a replacement problem of the same difficulty
-            difficulty = self._get_difficulty(problem_url)
-            if difficulty:
-                available = self._get_available_problems(difficulty)
-                if available:
-                    replacement = random.choice(available)
-
-                    # Update current session if the skipped problem was in it
-                    if problem_url in self.progress['current_session']['problems']:
-                        # Replace in session's problem list
-                        index = self.progress['current_session']['problems'].index(problem_url)
-                        self.progress['current_session']['problems'][index] = replacement
-
-                    self._save_progress()
-                    return {'success': True, 'replacement': replacement, 'difficulty': difficulty}
-
-            self._save_progress()
-            return {'success': True, 'replacement': None, 'difficulty': None}
-        return {'success': False, 'replacement': None, 'difficulty': None}
-
-    def mark_revisit(self, problem_url: str):
-        """Mark a problem for revisit (persists even after completion)"""
-        if problem_url not in self.progress['revisit']:
-            self.progress['revisit'].append(problem_url)
-            self._save_progress()
-            return True
-        return False
+        row = self._get_or_create_progress_row(problem_url)
+        row.is_revisit = True
+        db.session.commit()
+        return True
 
     def is_in_revisit(self, problem_url: str) -> bool:
-        """Check if a problem is marked for revisit"""
-        return problem_url in self.progress['revisit']
+        row = self._get_progress_row(problem_url)
+        return bool(row and row.is_revisit)
 
     def is_in_current_session(self, problem_url: str) -> bool:
-        """Check if a problem is in the current session"""
-        return problem_url in self.progress['current_session']['problems']
+        return problem_url in set(self._get_session_problem_urls())
+
+    # ------------------------------------------------------------------
+    # Difficulty / category lookups
+    # ------------------------------------------------------------------
 
     def _get_difficulty(self, problem_url: str) -> str:
-        """Get difficulty of a problem"""
         if not self.difficulty_map:
-            return None
+            # Try cache directly
+            slug = problem_url.rstrip('/').split('/')[-1]
+            return LeetCodeProblemSelector._global_difficulty_cache.get(slug)
         for diff, problems in self.difficulty_map.items():
             if problem_url in problems:
                 return diff
         return None
 
     def _get_problem_category(self, problem_url: str) -> str:
-        """Get category of a problem from the original problems data"""
         if not self.problems_data:
             return "Unknown"
-
         for category, problems in self.problems_data.items():
             if problem_url in problems:
                 return category
         return "Unknown"
 
-    def get_progress(self) -> Dict:
-        """Get current progress (both session and global)"""
-        session = self.progress['current_session']
-        global_stats = self.progress['global_stats']
+    # ------------------------------------------------------------------
+    # Progress / stats
+    # ------------------------------------------------------------------
 
-        can_unlock = self._can_select_hard_problems()
+    def get_progress(self) -> Dict:
+        s = UserSession.query.filter_by(user_id=self.user_id).first()
+        session_problems = []
+        sess_easy = sess_medium = sess_hard = sess_total = 0
+        generated_at = None
+
+        if s:
+            session_problems = [p.problem_url for p in s.session_problems.order_by(UserSessionProblem.position)]
+            sess_easy = s.easy_completed
+            sess_medium = s.medium_completed
+            sess_hard = s.hard_completed
+            sess_total = s.total_completed
+            generated_at = s.generated_at.strftime('%Y-%m-%d %H:%M:%S') if s.generated_at else None
+
+        # Global stats from DB
+        completed_rows = UserProgress.query.filter_by(user_id=self.user_id, is_completed=True).all()
+        global_easy = global_medium = global_hard = 0
+        for row in completed_rows:
+            diff = self._get_difficulty(row.problem_url)
+            if diff == 'easy':
+                global_easy += 1
+            elif diff == 'medium':
+                global_medium += 1
+            elif diff == 'hard':
+                global_hard += 1
+
+        can_unlock = bool(s and s.easy_completed >= 20 and s.medium_completed >= 3)
+
+        skipped_count = UserProgress.query.filter_by(user_id=self.user_id, is_skipped=True).count()
+        revisit_count = UserProgress.query.filter_by(user_id=self.user_id, is_revisit=True).count()
 
         return {
             'global': {
-                'total': global_stats['total_completed'],
-                'easy': global_stats['easy_completed'],
-                'medium': global_stats['medium_completed'],
-                'hard': global_stats['hard_completed'],
+                'total': len(completed_rows),
+                'easy': global_easy,
+                'medium': global_medium,
+                'hard': global_hard,
             },
             'session': {
-                'total': session['total_completed'],
-                'easy': session['easy_completed'],
-                'medium': session['medium_completed'],
-                'hard': session['hard_completed'],
-                'total_problems': len(session['problems']),
-                'generated_at': session['generated_at'],
+                'total': sess_total,
+                'easy': sess_easy,
+                'medium': sess_medium,
+                'hard': sess_hard,
+                'total_problems': len(session_problems),
+                'generated_at': generated_at,
                 'can_unlock_hard': can_unlock,
-                'needs_easy': max(0, 20 - session['easy_completed']),
-                'needs_medium': max(0, 3 - session['medium_completed'])
+                'needs_easy': max(0, 20 - sess_easy),
+                'needs_medium': max(0, 3 - sess_medium)
             },
-            'skipped': len(self.progress['skipped']),
-            'revisit': len(self.progress['revisit'])
+            'skipped': skipped_count,
+            'revisit': revisit_count
         }
 
-    def reset_all_progress(self):
-        """Reset all progress data (keeps problems data)"""
-        self.progress = {
-            'completed': [],
-            'skipped': [],
-            'revisit': [],
-            'global_stats': {
-                'easy_completed': 0,
-                'medium_completed': 0,
-                'hard_completed': 0,
-                'total_completed': 0
-            },
-            'current_session': {
-                'problems': [],
-                'easy_completed': 0,
-                'medium_completed': 0,
-                'hard_completed': 0,
-                'total_completed': 0,
-                'generated_at': None
-            }
-        }
-        self._save_progress()
+    def reset_all_progress(self) -> bool:
+        UserProgress.query.filter_by(user_id=self.user_id).delete()
+        s = UserSession.query.filter_by(user_id=self.user_id).first()
+        if s:
+            UserSessionProblem.query.filter_by(session_id=s.id).delete()
+            s.easy_completed = 0
+            s.medium_completed = 0
+            s.hard_completed = 0
+            s.total_completed = 0
+            s.generated_at = None
+        db.session.commit()
         return True
 
     def export_progress(self) -> Dict:
-        """Export all progress data for backup"""
+        completed = self._get_completed_urls()
+        skipped = self._get_skipped_urls()
+        revisit = self._get_revisit_urls()
+        session_urls = self._get_session_problem_urls()
+
+        s = UserSession.query.filter_by(user_id=self.user_id).first()
+        sess_stats = {
+            'problems': session_urls,
+            'easy_completed': s.easy_completed if s else 0,
+            'medium_completed': s.medium_completed if s else 0,
+            'hard_completed': s.hard_completed if s else 0,
+            'total_completed': s.total_completed if s else 0,
+            'generated_at': s.generated_at.strftime('%Y-%m-%d %H:%M:%S') if s and s.generated_at else None
+        }
+
+        # Recompute global stats
+        global_easy = sum(1 for u in completed if self._get_difficulty(u) == 'easy')
+        global_medium = sum(1 for u in completed if self._get_difficulty(u) == 'medium')
+        global_hard = sum(1 for u in completed if self._get_difficulty(u) == 'hard')
+
         return {
-            'progress': self.progress,
+            'progress': {
+                'completed': completed,
+                'skipped': skipped,
+                'revisit': revisit,
+                'global_stats': {
+                    'easy_completed': global_easy,
+                    'medium_completed': global_medium,
+                    'hard_completed': global_hard,
+                    'total_completed': len(completed)
+                },
+                'current_session': sess_stats
+            },
             'export_timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
-            'version': '1.0'
+            'version': '2.0'
         }
 
     def import_progress(self, import_data: Dict) -> bool:
-        """Import progress data from backup"""
         try:
-            if 'progress' in import_data:
-                # Validate the structure
-                required_keys = ['completed', 'skipped', 'revisit', 'global_stats', 'current_session']
-                if all(key in import_data['progress'] for key in required_keys):
-                    imported_progress = import_data['progress']
+            if 'progress' not in import_data:
+                return False
 
-                    # Merge completed problems (avoid duplicates)
-                    existing_completed = set(self.progress['completed'])
-                    new_completed = set(imported_progress['completed'])
-                    all_completed = list(existing_completed | new_completed)
+            p = import_data['progress']
+            required_keys = ['completed', 'skipped', 'revisit', 'global_stats', 'current_session']
+            if not all(k in p for k in required_keys):
+                return False
 
-                    # Update progress with merged data
-                    imported_progress['completed'] = all_completed
+            existing_completed = set(self._get_completed_urls())
+            all_completed = existing_completed | set(p['completed'])
 
-                    # Recalculate global stats based on actual completed problems
-                    if self.difficulty_map:
-                        easy_count = sum(1 for url in all_completed if self._get_difficulty(url) == 'easy')
-                        medium_count = sum(1 for url in all_completed if self._get_difficulty(url) == 'medium')
-                        hard_count = sum(1 for url in all_completed if self._get_difficulty(url) == 'hard')
+            # Upsert completed
+            for url in all_completed:
+                row = self._get_or_create_progress_row(url)
+                row.is_completed = True
+                if not row.completed_at:
+                    row.completed_at = datetime.utcnow()
 
-                        imported_progress['global_stats'] = {
-                            'easy_completed': easy_count,
-                            'medium_completed': medium_count,
-                            'hard_completed': hard_count,
-                            'total_completed': len(all_completed)
-                        }
+            # Upsert skipped (only if not completed)
+            for url in p['skipped']:
+                if url not in all_completed:
+                    row = self._get_or_create_progress_row(url)
+                    row.is_skipped = True
 
-                    # CRITICAL: Remove completed problems from imported session
-                    completed_set = set(all_completed)
-                    if 'problems' in imported_progress.get('current_session', {}):
-                        session_problems = imported_progress['current_session']['problems']
-                        cleaned_session = [p for p in session_problems if p not in completed_set]
-                        imported_progress['current_session']['problems'] = cleaned_session
+            # Upsert revisit
+            for url in p['revisit']:
+                row = self._get_or_create_progress_row(url)
+                row.is_revisit = True
 
-                        # Recalculate session stats
-                        if self.difficulty_map:
-                            session_easy = 0
-                            session_medium = 0
-                            session_hard = 0
+            # Import session (remove already-completed)
+            session_problems = [u for u in p['current_session'].get('problems', [])
+                                 if u not in all_completed]
 
-                            for url in cleaned_session:
-                                diff = self._get_difficulty(url)
-                                if diff == 'easy':
-                                    session_easy += 1
-                                elif diff == 'medium':
-                                    session_medium += 1
-                                elif diff == 'hard':
-                                    session_hard += 1
+            s = self._get_session()
+            s.easy_completed = 0
+            s.medium_completed = 0
+            s.hard_completed = 0
+            s.total_completed = 0
+            s.generated_at = datetime.utcnow()
+            UserSessionProblem.query.filter_by(session_id=s.id).delete()
+            for i, url in enumerate(session_problems):
+                db.session.add(UserSessionProblem(session_id=s.id, problem_url=url, position=i))
 
-                            imported_progress['current_session']['easy_completed'] = 0
-                            imported_progress['current_session']['medium_completed'] = 0
-                            imported_progress['current_session']['hard_completed'] = 0
-                            imported_progress['current_session']['total_completed'] = 0
-
-                        print(
-                            f"Cleaned imported session: removed {len(session_problems) - len(cleaned_session)} completed problems")
-
-                    self.progress = imported_progress
-                    self._save_progress()
-                    return True
-            return False
+            db.session.commit()
+            return True
         except Exception as e:
+            db.session.rollback()
             print(f"Error importing progress: {e}")
             import traceback
             traceback.print_exc()
             return False
 
 
+# ---------------------------------------------------------------------------
+# Selector factory
+# ---------------------------------------------------------------------------
+
 def get_selector():
-    """Get selector for current user"""
     if not current_user.is_authenticated:
         return None
     return LeetCodeProblemSelector(current_user.id)
 
 
-# Authentication routes
+# ---------------------------------------------------------------------------
+# Auth routes
+# ---------------------------------------------------------------------------
+
 @app.route('/login', methods=['GET'])
 def login():
     if current_user.is_authenticated:
@@ -950,11 +802,10 @@ def api_register():
 
     if not username or not email or not password:
         return jsonify({'success': False, 'message': 'All fields are required'})
-
     if len(password) < 6:
         return jsonify({'success': False, 'message': 'Password must be at least 6 characters'})
 
-    user, error = User.create(username, email, password)
+    user, error = create_user(username, email, password)
     if error:
         return jsonify({'success': False, 'message': error})
 
@@ -970,7 +821,7 @@ def api_login():
     password = data.get('password', '')
     remember = data.get('remember', True)
 
-    user = User.verify_password(username, password)
+    user = verify_password(username, password)
     if user:
         login_user(user, remember=remember)
         if remember:
@@ -978,140 +829,6 @@ def api_login():
         return jsonify({'success': True, 'message': 'Login successful!'})
 
     return jsonify({'success': False, 'message': 'Invalid username or password'})
-
-
-@app.route('/api/search_problem_sets', methods=['POST'])
-@login_required
-def search_problem_sets_api():
-    """Search problem sets with intelligent matching"""
-    selector = get_selector()
-    if not selector:
-        return jsonify({'success': False, 'error': 'User session error'})
-
-    try:
-        data = request.json
-        query = data.get('query', '').strip()
-
-        # Get all problem sets
-        all_sets = selector.get_problem_sets()
-
-        if not query:
-            # Return all sets if no query
-            return jsonify({
-                'success': True,
-                'problem_sets': all_sets,
-                'total_sets': len(all_sets),
-                'query': ''
-            })
-
-        query_lower = query.lower()
-        matched_sets = []
-
-        # Search through sets with intelligent matching
-        for problem_set in all_sets:
-            set_name = problem_set['name']
-            set_name_lower = set_name.lower()
-            match_score = 0
-
-            # Intelligent matching
-            if query_lower == set_name_lower:
-                match_score = 100  # Exact match
-            elif set_name_lower.startswith(query_lower):
-                match_score = 90  # Starts with
-            elif f' {query_lower} ' in f' {set_name_lower} ':
-                match_score = 80  # Whole word
-            elif query_lower in set_name_lower:
-                match_score = 70  # Contains
-            else:
-                # Fuzzy match - subsequence
-                query_idx = 0
-                for char in set_name_lower:
-                    if query_idx < len(query_lower) and char == query_lower[query_idx]:
-                        query_idx += 1
-                if query_idx == len(query_lower):
-                    match_score = 50
-
-            if match_score > 0:
-                problem_set['match_score'] = match_score
-                matched_sets.append(problem_set)
-
-        # Sort by match score (descending), then by name
-        matched_sets.sort(key=lambda x: (-x['match_score'], x['name']))
-
-        # Remove match_score from response
-        for s in matched_sets:
-            del s['match_score']
-
-        return jsonify({
-            'success': True,
-            'query': query,
-            'problem_sets': matched_sets,
-            'total_sets': len(matched_sets)
-        })
-    except Exception as e:
-        print(f"Error searching problem sets: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/problem_set_details/<set_id>', methods=['GET'])
-@login_required
-def get_problem_set_details(set_id):
-    """Get detailed information about a specific problem set including all problems"""
-    selector = get_selector()
-    if not selector:
-        return jsonify({'success': False, 'error': 'User session error'})
-
-    try:
-        # Load the problem set
-        if not selector._load_problem_set_by_id(set_id):
-            return jsonify({'success': False, 'error': 'Problem set not found'}), 404
-
-        # Count problems by difficulty
-        difficulty_counts = {
-            'Easy': 0,
-            'Medium': 0,
-            'Hard': 0
-        }
-
-        all_problems = []
-
-        # Iterate through the problems_data to count and collect
-        for category, problems in selector.problems_data.items():
-            for problem_url in problems:
-                difficulty = selector._get_difficulty(problem_url)
-                if difficulty:
-                    difficulty_key = difficulty.capitalize()
-                    if difficulty_key in difficulty_counts:
-                        difficulty_counts[difficulty_key] += 1
-
-                    all_problems.append({
-                        'url': problem_url,
-                        'category': category,
-                        'difficulty': difficulty_key,
-                        'completed': problem_url in selector.progress['completed'],
-                        'is_revisit': selector.is_in_revisit(problem_url)
-                    })
-
-        total_count = sum(difficulty_counts.values())
-
-        return jsonify({
-            'success': True,
-            'set_id': set_id,
-            'counts': {
-                'Easy': difficulty_counts['Easy'],
-                'Medium': difficulty_counts['Medium'],
-                'Hard': difficulty_counts['Hard'],
-                'total': total_count
-            },
-            'problems': all_problems
-        })
-    except Exception as e:
-        print(f"Error getting problem set details: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/logout', methods=['POST'])
@@ -1124,13 +841,13 @@ def api_logout():
 @app.route('/api/current_user', methods=['GET'])
 def api_current_user():
     if current_user.is_authenticated:
-        return jsonify({
-            'authenticated': True,
-            'username': current_user.username,
-            'email': current_user.email
-        })
+        return jsonify({'authenticated': True, 'username': current_user.username, 'email': current_user.email})
     return jsonify({'authenticated': False})
 
+
+# ---------------------------------------------------------------------------
+# Page routes
+# ---------------------------------------------------------------------------
 
 @app.route('/')
 @login_required
@@ -1144,22 +861,23 @@ def problem_sets_page():
     return render_template('problem_sets.html')
 
 
+# ---------------------------------------------------------------------------
+# Problem API routes
+# ---------------------------------------------------------------------------
+
 @app.route('/api/load_problems', methods=['POST'])
 @login_required
 def load_problems():
-    """Load problems from JSON input or file upload"""
     selector = get_selector()
     if not selector:
         return jsonify({'success': False, 'message': 'User session error'})
 
     try:
         problems_json = None
-
         if 'file' in request.files:
             file = request.files['file']
             if file.filename == '':
                 return jsonify({'success': False, 'message': 'No file selected'})
-
             if file and file.filename.endswith('.json'):
                 problems_json = file.read().decode('utf-8')
         elif 'json_text' in request.form:
@@ -1170,17 +888,9 @@ def load_problems():
         if not problems_json:
             return jsonify({'success': False, 'message': 'No JSON content provided'})
 
-        print(f"Loading problems for user {current_user.id}")
-        print(f"JSON length: {len(problems_json)} characters")
-
         if selector.load_problems(problems_json):
-            print(f"Problems loaded successfully for user {current_user.id}")
-            print(f"Problems data type: {type(selector.problems_data)}")
-            print(f"Has difficulty map: {selector.difficulty_map is not None}")
             return jsonify({'success': True, 'message': 'Problems loaded successfully!'})
-        else:
-            return jsonify({'success': False, 'message': 'Invalid JSON format or error processing problems'})
-
+        return jsonify({'success': False, 'message': 'Invalid JSON format or error processing problems'})
     except Exception as e:
         print(f"Error in load_problems route: {e}")
         import traceback
@@ -1191,26 +901,59 @@ def load_problems():
 @app.route('/api/check_problems', methods=['GET'])
 @login_required
 def check_problems():
-    """Check if problems data is loaded"""
     selector = get_selector()
     if not selector:
         return jsonify({'loaded': False, 'has_session': False})
 
     has_problems = selector.has_problems_loaded()
-    has_session = len(selector.progress['current_session']['problems']) > 0
+    has_session = len(selector._get_session_problem_urls()) > 0
+    return jsonify({'loaded': has_problems, 'has_session': has_session})
 
-    print(f"Check problems for user {current_user.id}: loaded={has_problems}, has_session={has_session}")
 
-    return jsonify({
-        'loaded': has_problems,
-        'has_session': has_session
-    })
+@app.route('/api/generate', methods=['POST'])
+@login_required
+def generate_problems():
+    selector = get_selector()
+    if not selector:
+        return jsonify({'success': False, 'message': 'User session error'})
+
+    if not selector.problems_data:
+        return jsonify({'success': False, 'message': 'Please load problems first'})
+
+    force_new = request.json.get('force_new', False) if request.is_json else False
+    easy_count = request.json.get('easy_count', 20) if request.is_json else 20
+    medium_count = request.json.get('medium_count', 8) if request.is_json else 8
+    hard_count = request.json.get('hard_count', 2) if request.is_json else 2
+
+    session_urls = selector._get_session_problem_urls()
+
+    if not force_new and session_urls:
+        completed_set = set(selector._get_completed_urls())
+        problems = []
+        for url in session_urls:
+            if url in completed_set:
+                continue
+            difficulty = selector._get_difficulty(url)
+            if difficulty:
+                problems.append({
+                    'url': url,
+                    'difficulty': difficulty,
+                    'category': selector._get_problem_category(url),
+                    'is_revisit': selector.is_in_revisit(url)
+                })
+        return jsonify({'success': True, 'problems': problems, 'existing_session': True})
+
+    problems = selector.select_problems_custom(easy_count, medium_count, hard_count)
+    for problem in problems:
+        problem['is_revisit'] = selector.is_in_revisit(problem['url'])
+        problem['category'] = selector._get_problem_category(problem['url'])
+
+    return jsonify({'success': True, 'problems': problems, 'existing_session': False})
 
 
 @app.route('/api/mark_complete', methods=['POST'])
 @login_required
 def mark_complete():
-    """Mark a problem as complete"""
     selector = get_selector()
     url = request.json.get('url')
     if selector.mark_complete(url):
@@ -1221,15 +964,11 @@ def mark_complete():
 @app.route('/api/mark_skip', methods=['POST'])
 @login_required
 def mark_skip():
-    """Mark a problem as skipped and return replacement"""
     selector = get_selector()
     url = request.json.get('url')
     result = selector.mark_skip(url)
     if result['success']:
-        response_data = {
-            'success': True,
-            'progress': selector.get_progress()
-        }
+        response_data = {'success': True, 'progress': selector.get_progress()}
         if result['replacement']:
             response_data['replacement'] = {
                 'url': result['replacement'],
@@ -1243,7 +982,6 @@ def mark_skip():
 @app.route('/api/mark_revisit', methods=['POST'])
 @login_required
 def mark_revisit():
-    """Mark a problem for revisit"""
     selector = get_selector()
     url = request.json.get('url')
     if selector.mark_revisit(url):
@@ -1254,7 +992,6 @@ def mark_revisit():
 @app.route('/api/progress', methods=['GET'])
 @login_required
 def get_progress():
-    """Get current progress"""
     selector = get_selector()
     return jsonify(selector.get_progress())
 
@@ -1262,20 +999,18 @@ def get_progress():
 @app.route('/api/lists/<list_type>', methods=['GET'])
 @login_required
 def get_list(list_type):
-    """Get skipped or revisit list with revisit status and category"""
     selector = get_selector()
-    if list_type in ['skipped', 'revisit']:
-        urls = selector.progress[list_type]
-        # Add revisit status, difficulty, and category for skipped list
-        if list_type == 'skipped':
-            url_data = [{
-                'url': url,
-                'is_revisit': selector.is_in_revisit(url),
-                'difficulty': selector._get_difficulty(url),
-                'category': selector._get_problem_category(url)
-            } for url in urls]
-            return jsonify({'urls': url_data})
-        # Add category for revisit list too
+    if list_type == 'skipped':
+        urls = selector._get_skipped_urls()
+        url_data = [{
+            'url': url,
+            'is_revisit': selector.is_in_revisit(url),
+            'difficulty': selector._get_difficulty(url),
+            'category': selector._get_problem_category(url)
+        } for url in urls]
+        return jsonify({'urls': url_data})
+    elif list_type == 'revisit':
+        urls = selector._get_revisit_urls()
         url_data = [{
             'url': url,
             'is_revisit': True,
@@ -1288,56 +1023,44 @@ def get_list(list_type):
 @app.route('/api/lists/<list_type>/<difficulty>', methods=['GET'])
 @login_required
 def get_list_by_difficulty(list_type, difficulty):
-    """Get skipped or revisit list filtered by difficulty"""
     selector = get_selector()
-    if list_type in ['skipped', 'revisit']:
-        urls = selector.progress[list_type]
+    if list_type == 'skipped':
+        urls = selector._get_skipped_urls()
+    elif list_type == 'revisit':
+        urls = selector._get_revisit_urls()
+    else:
+        return jsonify({'urls': []})
 
-        # Filter by difficulty if not 'all'
-        if difficulty != 'all':
-            urls = [url for url in urls if selector._get_difficulty(url) == difficulty]
+    if difficulty != 'all':
+        urls = [url for url in urls if selector._get_difficulty(url) == difficulty]
 
-        # Add revisit status for skipped list
-        if list_type == 'skipped':
-            url_data = [
-                {'url': url, 'is_revisit': selector.is_in_revisit(url), 'difficulty': selector._get_difficulty(url)} for
-                url in urls]
-            return jsonify({'urls': url_data})
-
-        # For revisit, just return URLs with difficulty info
+    if list_type == 'skipped':
+        url_data = [{'url': url, 'is_revisit': selector.is_in_revisit(url), 'difficulty': selector._get_difficulty(url)} for url in urls]
+    else:
         url_data = [{'url': url, 'difficulty': selector._get_difficulty(url)} for url in urls]
-        return jsonify({'urls': url_data})
 
-    return jsonify({'urls': []})
+    return jsonify({'urls': url_data})
 
 
 @app.route('/api/completed/<scope>/<difficulty>', methods=['GET'])
 @login_required
 def get_completed(scope, difficulty):
-    """Get completed problems filtered by scope (session/global) and difficulty (all/easy/medium/hard)"""
     selector = get_selector()
-    completed_urls = selector.progress['completed']
+    completed_urls = selector._get_completed_urls()
 
-    # Filter by scope
     if scope == 'session':
-        # Only get problems that are in the current session
-        session_problems = set(selector.progress['current_session']['problems'])
+        session_problems = set(selector._get_session_problem_urls())
         completed_urls = [url for url in completed_urls if url in session_problems]
 
-    # Filter by difficulty
     if difficulty != 'all':
         completed_urls = [url for url in completed_urls if selector._get_difficulty(url) == difficulty]
 
-    # Add revisit status and category
-    url_data = [
-        {
-            'url': url,
-            'is_revisit': selector.is_in_revisit(url),
-            'category': selector._get_problem_category(url),
-            'difficulty': selector._get_difficulty(url)
-        }
-        for url in completed_urls
-    ]
+    url_data = [{
+        'url': url,
+        'is_revisit': selector.is_in_revisit(url),
+        'category': selector._get_problem_category(url),
+        'difficulty': selector._get_difficulty(url)
+    } for url in completed_urls]
 
     return jsonify({'urls': url_data})
 
@@ -1345,7 +1068,6 @@ def get_completed(scope, difficulty):
 @app.route('/api/reset_progress', methods=['POST'])
 @login_required
 def reset_progress():
-    """Reset all progress data"""
     selector = get_selector()
     if selector.reset_all_progress():
         return jsonify({'success': True, 'message': 'All progress has been reset'})
@@ -1355,44 +1077,38 @@ def reset_progress():
 @app.route('/api/export_progress', methods=['GET'])
 @login_required
 def export_progress():
-    """Export progress data as JSON"""
     selector = get_selector()
-    export_data = selector.export_progress()
-    return jsonify(export_data)
+    return jsonify(selector.export_progress())
 
 
 @app.route('/api/import_progress', methods=['POST'])
 @login_required
 def import_progress():
-    """Import progress data from JSON"""
     selector = get_selector()
     try:
-        import_data = request.json
-        if selector.import_progress(import_data):
+        if selector.import_progress(request.json):
             return jsonify({'success': True, 'message': 'Progress imported successfully!'})
-        else:
-            return jsonify({'success': False, 'message': 'Invalid progress data format'})
+        return jsonify({'success': False, 'message': 'Invalid progress data format'})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
 
-# Problem Set Management Endpoints
+# ---------------------------------------------------------------------------
+# Problem set management routes
+# ---------------------------------------------------------------------------
+
 @app.route('/api/problem_sets', methods=['GET'])
 @login_required
 def get_problem_sets():
-    """Get all available problem sets"""
     selector = get_selector()
-    sets = selector.get_problem_sets()
-    return jsonify({'success': True, 'sets': sets})
+    return jsonify({'success': True, 'sets': selector.get_problem_sets()})
 
 
 @app.route('/api/problem_sets', methods=['POST'])
 @login_required
 def create_problem_set():
-    """Create a new problem set"""
     selector = get_selector()
     data = request.json
-
     name = data.get('name')
     description = data.get('description', '')
     problems_json = data.get('problems_json')
@@ -1402,158 +1118,211 @@ def create_problem_set():
         return jsonify({'success': False, 'message': 'Name and problems data are required'})
 
     set_id = selector.create_problem_set(name, description, problems_json, is_public)
-
     if set_id:
         return jsonify({'success': True, 'set_id': set_id, 'message': f'Problem set "{name}" created successfully!'})
-    else:
-        return jsonify({'success': False, 'message': 'Failed to create problem set'})
+    return jsonify({'success': False, 'message': 'Failed to create problem set'})
 
 
 @app.route('/api/problem_sets/<set_id>/activate', methods=['POST'])
 @login_required
 def activate_problem_set(set_id):
-    """Set a problem set as active"""
     selector = get_selector()
-
     if selector.set_active_problem_set(set_id):
         return jsonify({'success': True, 'message': 'Problem set activated successfully!'})
-    else:
-        return jsonify({'success': False, 'message': 'Failed to activate problem set'})
+    return jsonify({'success': False, 'message': 'Failed to activate problem set'})
 
 
 @app.route('/api/problem_sets/<set_id>', methods=['DELETE'])
 @login_required
 def delete_problem_set(set_id):
-    """Delete a problem set"""
     selector = get_selector()
-
     if selector.delete_problem_set(set_id):
         return jsonify({'success': True, 'message': 'Problem set deleted successfully!'})
-    else:
-        return jsonify({'success': False, 'message': 'Failed to delete problem set or set does not exist'})
+    return jsonify({'success': False, 'message': 'Failed to delete problem set or set does not exist'})
 
 
 @app.route('/api/problem_sets/<set_id>/export', methods=['GET'])
 @login_required
 def export_problem_set(set_id):
-    """Export a problem set"""
     selector = get_selector()
-
     set_data = selector.export_problem_set(set_id)
-
     if set_data:
         return jsonify(set_data)
-    else:
-        return jsonify({'success': False, 'message': 'Problem set not found'}), 404
+    return jsonify({'success': False, 'message': 'Problem set not found'}), 404
 
 
-@app.route('/api/generate', methods=['POST'])
-@login_required
-def generate_problems():
-    """Generate new problem set"""
-    selector = get_selector()
-    if not selector:
-        return jsonify({'success': False, 'message': 'User session error'})
-
-    print(f"Generate called for user {current_user.id}")
-    print(f"Problems data loaded: {selector.problems_data is not None}")
-    print(f"Difficulty map loaded: {selector.difficulty_map is not None}")
-
-    if not selector.problems_data:
-        return jsonify({'success': False, 'message': 'Please load problems first'})
-
-    # Check if we should return current session or generate new
-    force_new = request.json.get('force_new', False) if request.is_json else False
-
-    # Get custom counts if provided
-    easy_count = request.json.get('easy_count', 20) if request.is_json else 20
-    medium_count = request.json.get('medium_count', 8) if request.is_json else 8
-    hard_count = request.json.get('hard_count', 2) if request.is_json else 2
-
-    print(f"Force new: {force_new}")
-    print(f"Current session problems: {len(selector.progress['current_session']['problems'])}")
-
-    if not force_new and len(selector.progress['current_session']['problems']) > 0:
-        # Return current session, but FILTER OUT completed problems
-        completed_set = set(selector.progress['completed'])
-        problems = []
-
-        for url in selector.progress['current_session']['problems']:
-            # Skip if already completed
-            if url in completed_set:
-                print(f"Skipping completed problem in session: {url}")
-                continue
-
-            difficulty = selector._get_difficulty(url)
-            if difficulty:
-                problems.append({
-                    'url': url,
-                    'difficulty': difficulty,
-                    'category': selector._get_problem_category(url),
-                    'is_revisit': selector.is_in_revisit(url)
-                })
-
-        print(
-            f"Returning existing session with {len(problems)} problems (filtered {len(selector.progress['current_session']['problems']) - len(problems)} completed)")
-        return jsonify({'success': True, 'problems': problems, 'existing_session': True})
-
-    # Generate new session with custom counts
-    print(f"Generating new problem set with {easy_count} easy, {medium_count} medium, {hard_count} hard...")
-    problems = selector.select_problems_custom(easy_count, medium_count, hard_count)
-    print(f"Generated {len(problems)} problems")
-
-    # Add revisit status and category to each problem
-    for problem in problems:
-        problem['is_revisit'] = selector.is_in_revisit(problem['url'])
-        problem['category'] = selector._get_problem_category(problem['url'])
-
-    return jsonify({'success': True, 'problems': problems, 'existing_session': False})
 @app.route('/api/problem_sets/<set_id>/stats', methods=['GET'])
 @login_required
 def get_problem_set_stats(set_id):
-    """Get statistics for a specific problem set"""
     selector = get_selector()
-
-    # Load the problem set to get all problems
     if not selector._load_problem_set_by_id(set_id):
         return jsonify({'success': False, 'message': 'Problem set not found'})
 
-    # Get all problems from this set
-    all_problems = []
-    for category, problems in selector.problems_data.items():
-        all_problems.extend(problems)
+    all_problems = [url for urls in selector.problems_data.values() for url in urls]
+    completed_set = set(selector._get_completed_urls())
 
-    # Get completed problems
-    completed_set = set(selector.progress['completed'])
-
-    # Calculate stats
     completed_problems = [p for p in all_problems if p in completed_set]
     pending_problems = [p for p in all_problems if p not in completed_set]
 
-    # Add difficulty and category info
-    completed_with_info = [{
-        'url': url,
-        'difficulty': selector._get_difficulty(url),
-        'category': selector._get_problem_category(url),
-        'is_revisit': selector.is_in_revisit(url)
-    } for url in completed_problems]
-
-    pending_with_info = [{
-        'url': url,
-        'difficulty': selector._get_difficulty(url),
-        'category': selector._get_problem_category(url),
-        'is_revisit': selector.is_in_revisit(url)
-    } for url in pending_problems]
+    def enrich(url):
+        return {
+            'url': url,
+            'difficulty': selector._get_difficulty(url),
+            'category': selector._get_problem_category(url),
+            'is_revisit': selector.is_in_revisit(url)
+        }
 
     return jsonify({
         'success': True,
         'total': len(all_problems),
         'completed': len(completed_problems),
         'pending': len(pending_problems),
-        'completed_problems': completed_with_info,
-        'pending_problems': pending_with_info
+        'completed_problems': [enrich(u) for u in completed_problems],
+        'pending_problems': [enrich(u) for u in pending_problems]
     })
 
 
+@app.route('/api/search_problem_sets', methods=['POST'])
+@login_required
+def search_problem_sets_api():
+    selector = get_selector()
+    if not selector:
+        return jsonify({'success': False, 'error': 'User session error'})
+
+    try:
+        query = request.json.get('query', '').strip()
+        all_sets = selector.get_problem_sets()
+
+        if not query:
+            return jsonify({'success': True, 'problem_sets': all_sets, 'total_sets': len(all_sets), 'query': ''})
+
+        query_lower = query.lower()
+        matched_sets = []
+        for problem_set in all_sets:
+            name_lower = problem_set['name'].lower()
+            if query_lower == name_lower:
+                score = 100
+            elif name_lower.startswith(query_lower):
+                score = 90
+            elif f' {query_lower} ' in f' {name_lower} ':
+                score = 80
+            elif query_lower in name_lower:
+                score = 70
+            else:
+                qi = 0
+                for char in name_lower:
+                    if qi < len(query_lower) and char == query_lower[qi]:
+                        qi += 1
+                score = 50 if qi == len(query_lower) else 0
+
+            if score > 0:
+                problem_set['match_score'] = score
+                matched_sets.append(problem_set)
+
+        matched_sets.sort(key=lambda x: (-x['match_score'], x['name']))
+        for s in matched_sets:
+            del s['match_score']
+
+        return jsonify({'success': True, 'query': query, 'problem_sets': matched_sets, 'total_sets': len(matched_sets)})
+    except Exception as e:
+        print(f"Error searching problem sets: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/problem_set_details/<set_id>', methods=['GET'])
+@login_required
+def get_problem_set_details(set_id):
+    selector = get_selector()
+    if not selector._load_problem_set_by_id(set_id):
+        return jsonify({'success': False, 'error': 'Problem set not found'}), 404
+
+    try:
+        difficulty_counts = {'Easy': 0, 'Medium': 0, 'Hard': 0}
+        all_problems = []
+        completed_set = set(selector._get_completed_urls())
+
+        for category, problems in selector.problems_data.items():
+            for url in problems:
+                difficulty = selector._get_difficulty(url)
+                if difficulty:
+                    key = difficulty.capitalize()
+                    if key in difficulty_counts:
+                        difficulty_counts[key] += 1
+                    all_problems.append({
+                        'url': url,
+                        'category': category,
+                        'difficulty': key,
+                        'completed': url in completed_set,
+                        'is_revisit': selector.is_in_revisit(url)
+                    })
+
+        return jsonify({
+            'success': True,
+            'set_id': set_id,
+            'counts': {**difficulty_counts, 'total': sum(difficulty_counts.values())},
+            'problems': all_problems
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ---------------------------------------------------------------------------
+# DB init + seed public problem sets
+# ---------------------------------------------------------------------------
+
+def seed_public_problem_sets():
+    """Load public problem sets from JSON files into the DB (idempotent)."""
+    public_dir = 'problem_sets/public'
+    if not os.path.exists(public_dir):
+        return
+
+    for filename in os.listdir(public_dir):
+        if not filename.endswith('.json'):
+            continue
+        filepath = os.path.join(public_dir, filename)
+        try:
+            with open(filepath, 'r') as f:
+                data = json.load(f)
+
+            set_id = data['id']
+            # Skip if already in DB
+            if ProblemSet.query.filter_by(set_id=set_id).first():
+                continue
+
+            ps = ProblemSet(
+                set_id=set_id,
+                name=data['name'],
+                description=data.get('description', ''),
+                is_public=True,
+                owner_user_id=None,
+                created_by=data.get('created_by', 'System'),
+                created_at=datetime.utcnow()
+            )
+            db.session.add(ps)
+            db.session.flush()
+
+            position = 0
+            for category, urls in data['problems'].items():
+                for url in urls:
+                    db.session.add(ProblemSetProblem(
+                        problem_set_id=ps.id,
+                        category=category,
+                        problem_url=url,
+                        position=position
+                    ))
+                    position += 1
+
+            db.session.commit()
+            print(f"Seeded public problem set: {data['name']}")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error seeding {filename}: {e}")
+
+
+with app.app_context():
+    db.create_all()
+    seed_public_problem_sets()
+
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=False, port=3000)
+    app.run(debug=True, port=3000)
